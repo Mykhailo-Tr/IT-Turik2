@@ -15,7 +15,7 @@
                 <div class="collapse navbar-collapse">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="/">Головна</a>
+                            <a class="nav-link" href="{% url 'profile' %}">Головна</a>
                         </li>
                         {% if user.is_authenticated %}
                             <li class="nav-item">

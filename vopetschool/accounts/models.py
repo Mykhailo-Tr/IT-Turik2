@@ -51,3 +51,21 @@ class Parent(models.Model):
 
     def __str__(self):
         return self.user.get_full_name()
+
+
+# accounts/models.py
+
+class TeacherGroup(models.Model):
+    name = models.CharField(max_length=100)
+    teachers = models.ManyToManyField(Teacher, related_name="groups")
+
+    def __str__(self):
+        return self.name
+
+
+class ClassGroup(models.Model):
+    name = models.CharField(max_length=100)
+    class_names = models.JSONField(default=list)  # напр. ["5-А", "6-Б"]
+
+    def __str__(self):
+        return self.name

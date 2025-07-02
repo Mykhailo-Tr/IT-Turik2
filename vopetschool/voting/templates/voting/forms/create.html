@@ -17,9 +17,10 @@
                 <div class="mb-2">
                     {{ form.text.label }}: {{ form.text }}
                 </div>
-                <div>
+                <div class="mb-2">
                     {{ form.is_correct }} {{ form.is_correct.label }}
                 </div>
+                <button type="button" class="btn btn-sm btn-danger remove-option">Видалити</button>
             </div>
         {% endfor %}
     </div>
@@ -35,34 +36,58 @@ document.addEventListener("DOMContentLoaded", function () {
     const addBtn = document.getElementById("add-option");
     const totalForms = document.getElementById("id_form-TOTAL_FORMS");
 
+    function updateFormIndexes() {
+        const forms = container.querySelectorAll(".formset-form");
+        forms.forEach((form, index) => {
+            form.querySelectorAll("input, label").forEach(el => {
+                if (el.name) {
+                    el.name = el.name.replace(/form-\d+-/, `form-${index}-`);
+                }
+                if (el.id) {
+                    el.id = el.id.replace(/form-\d+-/, `form-${index}-`);
+                }
+                if (el.tagName.toLowerCase() === "label" && el.htmlFor) {
+                    el.htmlFor = el.htmlFor.replace(/form-\d+-/, `form-${index}-`);
+                }
+            });
+        });
+        totalForms.value = forms.length;
+    }
+
     addBtn.addEventListener("click", function () {
         const currentCount = parseInt(totalForms.value);
         const firstForm = document.querySelector(".formset-form");
         const newForm = firstForm.cloneNode(true);
 
-        // Очистити значення у новій формі
-        newForm.querySelectorAll("input").forEach(function (input) {
+        newForm.querySelectorAll("input").forEach(input => {
             if (input.type === "checkbox") {
                 input.checked = false;
             } else {
                 input.value = "";
             }
-
-            const name = input.name.replace(/form-\d+-/, `form-${currentCount}-`);
-            const id = input.id.replace(/form-\d+-/, `form-${currentCount}-`);
-            input.name = name;
-            input.id = id;
-        });
-
-        // Також оновити label "for"
-        newForm.querySelectorAll("label").forEach(function (label) {
-            const newFor = label.getAttribute("for")?.replace(/form-\d+-/, `form-${currentCount}-`);
-            if (newFor) label.setAttribute("for", newFor);
         });
 
         container.appendChild(newForm);
-        totalForms.value = currentCount + 1;
+        updateFormIndexes();
+        attachRemoveHandlers();
     });
+
+    function attachRemoveHandlers() {
+        const removeButtons = container.querySelectorAll(".remove-option");
+        removeButtons.forEach(button => {
+            button.onclick = function () {
+                const forms = container.querySelectorAll(".formset-form");
+                if (forms.length > 2) {
+                    this.closest(".formset-form").remove();
+                    updateFormIndexes();
+                } else {
+                    alert("Має бути щонайменше 2 варіанти.");
+                }
+            };
+        });
+    }
+
+    attachRemoveHandlers();
 });
 </script>
 {% endblock %}

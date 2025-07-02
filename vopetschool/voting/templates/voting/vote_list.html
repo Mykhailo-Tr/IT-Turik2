@@ -19,15 +19,24 @@
                         {{ vote.start_date|date:"SHORT_DATETIME_FORMAT" }} —
                         {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}
                     </small><br>
+                    {% if request.user == vote.creator %}
+                        <p class="mb-1">Author: {{ vote.creator.get_full_name }} <span class="badge bg-secondary">You</span></p>
+                    {% else %}
+                        <p class="mb-1">Author: {{ vote.creator.get_full_name }}</p>
+                    {% endif %}
                     <span class="badge 
                         {% if vote.get_status_display == 'Активне' %}bg-success
                         {% elif vote.get_status_display == 'Очікується початок' %}bg-secondary
                         {% else %}bg-danger{% endif %}">
                         {{ vote.get_status_display }}
                     </span>
+
                     {% if vote.id in voted_ids %}
                         <span class="badge bg-success">Проголосовано</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Не проголосовано</span>
                     {% endif %}
+
                 </div>
                 <a href="{% url 'vote_detail' vote.pk %}" class="btn btn-primary btn-sm">Переглянути</a>
             </li>

@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from accounts.models import User
+from accounts.models import User, Student
 from accounts.forms import RoleChoiceForm
 
 UserModel = get_user_model()
@@ -26,6 +26,38 @@ class AccountViewsTests(TestCase):
             "password2": "Testpass123",
         }
 
+        self.teacher_data = {
+            "email": "teacher@example.com",
+            "first_name": "Tina",
+            "last_name": "Teacher",
+            "password": "Testpass123",
+            "password2": "Testpass123",
+            "subject": "Математика",
+        }
+        
+        self.student_user = UserModel.objects.create_user(
+            email="child@example.com",
+            password="Childpass123",
+            first_name="Child",
+            last_name="User",
+            role=User.Role.STUDENT,  # важливо: використовуємо enums
+        )
+
+        self.student = Student.objects.create(
+        user=self.student_user,
+        school_class="6-А"
+        )
+
+        self.parent_data = {
+            "email": "parent@example.com",
+            "first_name": "Paul",
+            "last_name": "Parent",
+            "password": "Testpass123",
+            "password2": "Testpass123",
+            "children": [self.student.pk],
+        }
+
+
     def test_role_select_get(self):
         response = self.client.get(reverse("register"))
         self.assertEqual(response.status_code, 200)
@@ -44,6 +76,17 @@ class AccountViewsTests(TestCase):
         response = self.client.post(reverse("register_role", args=["director"]), data=self.director_data)
         self.assertEqual(response.status_code, 302)
         self.assertTrue(UserModel.objects.filter(email="director@example.com", role="director").exists())
+
+    def test_register_teacher(self):
+        response = self.client.post(reverse("register_role", args=["teacher"]), data=self.teacher_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(UserModel.objects.filter(email="teacher@example.com", role="teacher").exists())
+
+    def test_register_parent(self):
+        response = self.client.post(reverse("register_role", args=["parent"]), data=self.parent_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(UserModel.objects.filter(email="parent@example.com", role="parent").exists())
+
 
     def test_login_logout_flow(self):
         user = UserModel.objects.create_user(email="testuser@example.com", password="Testpass123")
@@ -76,3 +119,4 @@ class AccountViewsTests(TestCase):
         response = self.client.post(reverse("delete_account"))
         self.assertRedirects(response, reverse("login"))
         self.assertFalse(UserModel.objects.filter(email="delete@example.com").exists())
+

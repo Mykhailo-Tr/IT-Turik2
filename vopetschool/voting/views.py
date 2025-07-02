@@ -5,9 +5,11 @@ from django.views import View
 from django.views.generic import ListView
 from django.db.models import Q, Count
 from django.utils.decorators import method_decorator
+from django.db.models import Count
+from django.http import HttpResponseForbidden
+from django.views.decorators.http import require_POST   
 from .models import Vote, VoteOption, VoteAnswer
 from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
-from django.db.models import Count
 
 
 
@@ -40,20 +42,16 @@ class VoteListView(ListView):
 def vote_detail_view(request, pk):
     vote = get_object_or_404(Vote, pk=pk)
 
-    # 🔒 Перевірка доступу
     if vote.level == Vote.Level.SELECTED and request.user not in vote.participants.all():
         return render(request, "voting/access_denied.html")
 
-    # 👀 Чи вже голосував
     already_voted = VoteAnswer.objects.filter(
         voter=request.user,
         option__vote=vote
     ).exists()
 
-    # 🧮 Підрахунок голосів по кожному варіанту
     options = vote.options.annotate(vote_count=Count("voteanswer"))
 
-    # 📅 Чи активне голосування
     can_vote = vote.is_active() and not already_voted
 
     if request.method == "POST" and can_vote:
@@ -117,3 +115,15 @@ class VoteCreateView(View):
             "vote_form": vote_form,
             "formset": formset
         })
+
+
+@require_POST
+@login_required
+def vote_delete_view(request, pk):
+    vote = get_object_or_404(Vote, pk=pk)
+
+    if vote.creator != request.user and request.user.role not in ["director", "admin"]:
+        return HttpResponseForbidden("У вас немає прав на видалення цього голосування.")
+
+    vote.delete()
+    return redirect("vote_list")

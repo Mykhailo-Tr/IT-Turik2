@@ -34,6 +34,13 @@
 {% else %}
     <div class="alert alert-warning">Голосування ще не почалося або вже завершилось.</div>
 {% endif %}
+{% if request.user == vote.creator or request.user.role in "director admin" %}
+    <form method="post" action="{% url 'vote_delete' vote.pk %}" onsubmit="return confirm('Ви впевнені, що хочете видалити це голосування?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mt-3">🗑️ Видалити голосування</button>
+    </form>
+{% endif %}
+
 
 <a href="{% url 'vote_list' %}" class="btn btn-secondary mt-3">← Назад до списку</a>
 {% endblock %}

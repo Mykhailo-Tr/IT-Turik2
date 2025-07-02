@@ -31,7 +31,7 @@ class User(AbstractUser):
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    school_class = models.CharField(max_length=20)  # наприклад: "10-Б"
+    school_class = models.CharField(max_length=20) 
 
     def __str__(self):
         return self.user.get_full_name()

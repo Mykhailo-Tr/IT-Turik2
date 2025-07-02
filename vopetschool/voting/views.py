@@ -69,7 +69,7 @@ class VoteCreateView(View):
     def get(self, request):
         vote_form = VoteCreateForm()
         formset = VoteOptionFormSet()
-        return render(request, "voting/vote_create.html", {
+        return render(request, "voting/forms/create.html", {
             "vote_form": vote_form,
             "formset": formset
         })

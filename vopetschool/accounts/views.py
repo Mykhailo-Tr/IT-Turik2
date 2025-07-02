@@ -59,6 +59,22 @@ def logout_view(request):
     logout(request)
     return redirect("login")
 
+
+class DeleteAccountView(View):
+    def get(self, request):
+        user = request.user
+        if user.is_authenticated:
+            return render(request, "accounts/forms/delete.html", {"user": user})
+        return redirect("login")
+    
+    def post(self, request):
+        user = request.user
+        if user.is_authenticated:
+            user.delete()
+            logout(request)
+            return redirect("login")
+        return redirect("profile")
+
 @method_decorator(login_required, name='dispatch')
 class ProfileView(View):
     def get(self, request):

@@ -6,7 +6,7 @@ from django.views.generic import ListView
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from .models import Vote, VoteOption, VoteAnswer
-from .forms import VoteForm
+from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
 
 
 class VoteListView(ListView):
@@ -31,11 +31,11 @@ def vote_detail_view(request, pk):
 
     # 🔒 Перевірка доступу
     if vote.level == Vote.Level.SELECTED and request.user not in vote.participants.all():
-        return render(request, "votes/access_denied.html")
+        return render(request, "voting/access_denied.html")
 
     # 📅 Чи активне
     if not vote.is_active():
-        return render(request, "votes/vote_closed.html", {"vote": vote})
+        return render(request, "voting/vote_closed.html", {"vote": vote})
 
     # ❌ Перевірка чи вже голосував
     voted = VoteAnswer.objects.filter(
@@ -43,7 +43,7 @@ def vote_detail_view(request, pk):
         option__vote=vote
     ).exists()
     if voted:
-        return render(request, "votes/already_voted.html", {"vote": vote})
+        return render(request, "voting/already_voted.html", {"vote": vote})
 
     # ✅ Голосування
     if request.method == "POST":
@@ -57,11 +57,11 @@ def vote_detail_view(request, pk):
                 option = get_object_or_404(VoteOption, id=option_id, vote=vote)
                 VoteAnswer.objects.create(voter=request.user, option=option)
 
-            return render(request, "votes/vote_success.html", {"vote": vote})
+            return render(request, "voting/vote_success.html", {"vote": vote})
     else:
         form = VoteForm(vote)
 
-    return render(request, "votes/vote_detail.html", {"vote": vote, "form": form})
+    return render(request, "voting/vote_detail.html", {"vote": vote, "form": form})
 
 
 @method_decorator(login_required, name="dispatch")
@@ -69,7 +69,7 @@ class VoteCreateView(View):
     def get(self, request):
         vote_form = VoteCreateForm()
         formset = VoteOptionFormSet()
-        return render(request, "votes/vote_create.html", {
+        return render(request, "voting/vote_create.html", {
             "vote_form": vote_form,
             "formset": formset
         })
@@ -95,7 +95,7 @@ class VoteCreateView(View):
                     )
             return redirect("vote_detail", pk=vote.pk)
 
-        return render(request, "votes/vote_create.html", {
+        return render(request, "voting/vote_create.html", {
             "vote_form": vote_form,
             "formset": formset
         })

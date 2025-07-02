@@ -13,7 +13,7 @@ class AccountViewsTests(TestCase):
             "email": "student@example.com",
             "first_name": "Test",
             "last_name": "Student",
-            "password1": "Testpass123",
+            "password": "Testpass123",
             "password2": "Testpass123",
             "school_class": "10-Б",
         }
@@ -22,7 +22,7 @@ class AccountViewsTests(TestCase):
             "email": "director@example.com",
             "first_name": "Dina", 
             "last_name": "Director",
-            "password1": "Testpass123",
+            "password": "Testpass123",
             "password2": "Testpass123",
         }
 
@@ -36,12 +36,12 @@ class AccountViewsTests(TestCase):
         self.assertRedirects(response, "/accounts/register/student/")
 
     def test_register_student(self):
-        response = self.client.post(reverse("register_with_role", args=["student"]), data=self.student_data)
+        response = self.client.post(reverse("register_role", args=["student"]), data=self.student_data)
         self.assertEqual(response.status_code, 302)  # redirect after login
         self.assertTrue(UserModel.objects.filter(email="student@example.com").exists())
 
     def test_register_director(self):
-        response = self.client.post(reverse("register_with_role", args=["director"]), data=self.director_data)
+        response = self.client.post(reverse("register_role", args=["director"]), data=self.director_data)
         self.assertEqual(response.status_code, 302)
         self.assertTrue(UserModel.objects.filter(email="director@example.com", role="director").exists())
 
@@ -62,7 +62,7 @@ class AccountViewsTests(TestCase):
 
     def test_profile_view_unauthenticated(self):
         response = self.client.get(reverse("profile"))
-        self.assertRedirects(response, f'/accounts/login/?next=/accounts/profile/')
+        self.assertRedirects(response, f'/login/?next=%2Fprofile%2F')
 
     def test_delete_account_view(self):
         user = UserModel.objects.create_user(email="delete@example.com", password="Testpass123")

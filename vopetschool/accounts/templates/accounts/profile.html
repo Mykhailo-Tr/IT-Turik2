@@ -4,6 +4,7 @@
 
 {% block content %}
 <h2 class="mb-3">Привіт, {{ user.get_full_name }}!</h2>
+<p><strong>Електронна пошта:</strong> {{ user.email }}</p>
 <p><strong>Ваша роль:</strong> {{ user.get_role_display }}</p>
 
 {% if user.role == 'student' %}

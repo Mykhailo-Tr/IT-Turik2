@@ -9,7 +9,6 @@ class User(AbstractUser):
         TEACHER = 'teacher', 'Teacher'
         PARENT = 'parent', 'Parent'
         DIRECTOR = 'director', 'Director'
-        ADMIN = 'admin', 'Admin'
 
     username = None
     email = models.EmailField("Email address", unique=True)

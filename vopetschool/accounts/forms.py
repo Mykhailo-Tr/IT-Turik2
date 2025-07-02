@@ -65,10 +65,11 @@ class ParentRegisterForm(forms.ModelForm):
             parent = Parent.objects.create(user=user)
             parent.children.set(self.cleaned_data['children'])
         return user
+    
 class DirectorRegisterForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'password')
+        fields = ['email', 'first_name', 'last_name', 'password']
     
     def save(self, commit=True):
         user = super().save(commit=False)

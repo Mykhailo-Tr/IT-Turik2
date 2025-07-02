@@ -5,6 +5,12 @@
 {% block content %}
 <h2>{{ vote.title }}</h2>
 <p>{{ vote.description }}</p>
+{% if request.user == vote.creator %}
+    <p class="mb-1"><strong>Author:</strong> {{ vote.creator.get_full_name }} <span class="badge bg-secondary">You</span></p>
+    
+{% else %}
+    <p class="mb-1"><strong>Author:</strong> {{ vote.creator.get_full_name }}</p>
+{% endif %}
 
 {% if vote.end_date %}
     <p><strong>Доступне до:</strong> {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}</p>
@@ -34,6 +40,7 @@
 {% else %}
     <div class="alert alert-warning">Голосування ще не почалося або вже завершилось.</div>
 {% endif %}
+
 {% if request.user == vote.creator or request.user.role in "director admin" %}
     <form method="post" action="{% url 'vote_delete' vote.pk %}" onsubmit="return confirm('Ви впевнені, що хочете видалити це голосування?');">
         {% csrf_token %}

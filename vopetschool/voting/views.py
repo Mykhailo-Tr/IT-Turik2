@@ -10,6 +10,7 @@ from django.http import HttpResponseForbidden
 from django.views.decorators.http import require_POST   
 from .models import Vote, VoteOption, VoteAnswer
 from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
+from accounts.models import User, TeacherGroup, ClassGroup
 
 
 
@@ -51,7 +52,6 @@ def vote_detail_view(request, pk):
     ).exists()
 
     options = vote.options.annotate(vote_count=Count("voteanswer"))
-
     can_vote = vote.is_active() and not already_voted
 
     if request.method == "POST" and can_vote:
@@ -65,10 +65,26 @@ def vote_detail_view(request, pk):
                 option = get_object_or_404(VoteOption, id=option_id, vote=vote)
                 VoteAnswer.objects.create(voter=request.user, option=option)
 
-            # Перенаправити назад на сторінку, щоб побачити результат
             return redirect("vote_detail", pk=vote.pk)
     else:
         form = VoteForm(vote) if can_vote else None
+
+    # 🔽 Визначення учасників голосування
+    if vote.level == Vote.Level.SELECTED:
+        eligible_users = vote.participants.all()
+    elif vote.level == Vote.Level.TEACHERS:
+        eligible_users = User.objects.filter(
+            role="teacher",
+            teacher__groups__in=vote.teacher_groups.all()
+        ).distinct()
+    elif vote.level == Vote.Level.CLASS:
+        eligible_users = User.objects.filter(
+            role="student",
+            student__school_class__in=[cg.name for cg in vote.class_groups.all()]
+        ).distinct()
+    else:
+        eligible_users = User.objects.all()
+
 
     return render(request, "voting/vote_detail.html", {
         "vote": vote,
@@ -76,7 +92,9 @@ def vote_detail_view(request, pk):
         "can_vote": can_vote,
         "already_voted": already_voted,
         "options": options,
+        "eligible_users": eligible_users,  # 🆕
     })
+
 
 
 

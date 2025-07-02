@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
@@ -53,7 +53,11 @@ class RegisterView(View):
 class CustomLoginView(LoginView):
     template_name = "accounts/login.html"
     authentication_form = CustomLoginForm
-
+    
+    
+def logout_view(request):
+    logout(request)
+    return redirect("login")
 
 @method_decorator(login_required, name='dispatch')
 class ProfileView(View):

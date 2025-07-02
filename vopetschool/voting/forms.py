@@ -4,6 +4,8 @@ from django import forms
 from django.forms import formset_factory, BaseFormSet
 
 from .models import Vote, VoteOption
+from accounts.models import TeacherGroup, ClassGroup
+
 from accounts.models import User
 
 class VoteForm(forms.Form):
@@ -32,34 +34,27 @@ class VoteCreateForm(forms.ModelForm):
         model = Vote
         fields = [
             "title", "description", "level", "start_date", "end_date",
-            "multiple_choices_allowed", "has_correct_answer", "participants"
+            "multiple_choices_allowed", "has_correct_answer",
+            "participants", "teacher_groups", "class_groups"
         ]
         widgets = {
             "start_date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
             "end_date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
             "participants": forms.SelectMultiple(attrs={"size": 10}),
+            "teacher_groups": forms.SelectMultiple(attrs={"size": 5}),
+            "class_groups": forms.SelectMultiple(attrs={"size": 5}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["participants"].queryset = User.objects.all()
+        self.fields["teacher_groups"].queryset = TeacherGroup.objects.all()
+        self.fields["class_groups"].queryset = ClassGroup.objects.all()
+
         self.fields["participants"].required = False
-        
-    def clean(self):
-        cleaned_data = super().clean()
-        start_date = cleaned_data.get("start_date")
-        end_date = cleaned_data.get("end_date")
+        self.fields["teacher_groups"].required = False
+        self.fields["class_groups"].required = False
 
-        if start_date and end_date and start_date >= end_date:
-            raise forms.ValidationError("Дата початку повинна бути раніше дати завершення.")
-
-        return cleaned_data
-    
-    def clean_title(self):
-        title = self.cleaned_data.get("title")
-        if not title:
-            raise forms.ValidationError("Назва голосування не може бути порожньою.")
-        return title
 
 
 class VoteOptionForm(forms.Form):

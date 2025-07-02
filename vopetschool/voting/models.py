@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from accounts.models import TeacherGroup, ClassGroup
+
 
 
 class Vote(models.Model):
@@ -22,7 +24,10 @@ class Vote(models.Model):
     has_correct_answer = models.BooleanField(default=False)
 
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="votes_available", blank=True)
-
+    
+    teacher_groups = models.ManyToManyField(TeacherGroup, blank=True)
+    class_groups = models.ManyToManyField(ClassGroup, blank=True)   
+    
     def is_active(self):
         now = timezone.now()
         if self.start_date and now < self.start_date:

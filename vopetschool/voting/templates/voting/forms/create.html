@@ -15,30 +15,37 @@
                 Основна інформація
             </div>
             <div class="card-body">
-            {% for field in vote_form %}
-                <div class="mb-3">
-                    <label class="form-label">{{ field.label }}</label>
-
-                    {% if field.field.widget.input_type == "checkbox" %}
-                        <div class="form-check">
-                            {{ field|add_class:"form-check-input" }}
-                            <label class="form-check-label" for="{{ field.id_for_label }}">
-                                {{ field.label }}
-                            </label>
-                        </div>
+                {% for field in vote_form %}
+                    {% if field.name == "participants" %}
+                        <div class="mb-3 field-participants">
+                    {% elif field.name == "teacher_groups" %}
+                        <div class="mb-3 field-teacher_groups">
+                    {% elif field.name == "class_groups" %}
+                        <div class="mb-3 field-class_groups">
                     {% else %}
-                        {{ field|add_class:"form-control" }}
+                        <div class="mb-3">
                     {% endif %}
 
-                    {% if field.help_text %}
-                        <div class="form-text">{{ field.help_text }}</div>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
+                        {% if field.field.widget.input_type == "checkbox" %}
+                            <div class="form-check">
+                                {{ field|add_class:"form-check-input" }}
+                                <label class="form-check-label" for="{{ field.id_for_label }}">
+                                    {{ field.label }}
+                                </label>
+                            </div>
+                        {% else %}
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field|add_class:"form-control" }}
+                        {% endif %}
 
+                        {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
             </div>
         </div>
 
@@ -87,7 +94,7 @@
 <!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-<!-- JS: Динамічне додавання / видалення варіантів -->
+<!-- JS: Динамічне додавання/видалення варіантів -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const container = document.getElementById("formset-container");
@@ -137,6 +144,23 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     attachRemoveHandlers();
+
+    // Динамічне перемикання видимості полів
+    const levelField = document.getElementById("id_level");
+    const participantsField = document.querySelector(".field-participants");
+    const teacherGroupsField = document.querySelector(".field-teacher_groups");
+    const classGroupsField = document.querySelector(".field-class_groups");
+
+    function toggleFields() {
+        const level = levelField.value;
+
+        if (participantsField) participantsField.style.display = (level === "selected") ? "block" : "none";
+        if (teacherGroupsField) teacherGroupsField.style.display = (level === "teachers") ? "block" : "none";
+        if (classGroupsField) classGroupsField.style.display = (level === "class") ? "block" : "none";
+    }
+
+    levelField.addEventListener("change", toggleFields);
+    toggleFields();  // при завантаженні
 });
 </script>
 {% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Голосування{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Доступні голосування</h2>
+    <a href="{% url 'vote_create' %}" class="btn btn-success">Створити голосування</a>
+</div>
+
+{% if votes %}
+    <ul class="list-group">
+        {% for vote in votes %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ vote.title }}</strong><br>
+                    <small class="text-muted">{{ vote.start_date|date:"SHORT_DATETIME_FORMAT" }} — {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}</small>
+                </div>
+                <a href="{% url 'vote_detail' vote.pk %}" class="btn btn-primary btn-sm">Проголосувати</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Наразі немає доступних голосувань.</p>
+{% endif %}
+{% endblock %}

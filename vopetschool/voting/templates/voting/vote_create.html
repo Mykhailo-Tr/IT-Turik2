@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Створити голосування{% endblock %}
+
+{% block content %}
+<h2>Створити нове голосування</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ vote_form.as_p }}
+
+    <h4>Варіанти відповіді</h4>
+    {{ formset.management_form }}
+    {% for form in formset %}
+        <div class="card p-2 mb-2">
+            {{ form.text.label }}: {{ form.text }}
+            {{ form.is_correct }} {{ form.is_correct.label }}
+        </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-success">Створити</button>
+</form>
+{% endblock %}

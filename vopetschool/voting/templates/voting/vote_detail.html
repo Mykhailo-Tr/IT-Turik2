@@ -41,6 +41,16 @@
     <div class="alert alert-warning">Голосування ще не почалося або вже завершилось.</div>
 {% endif %}
 
+<h5 class="mt-4">Хто може голосувати:</h5>
+<ul>
+    {% for user in eligible_users %}
+        <li>{{ user.get_full_name }} ({{ user.role }})</li>
+    {% empty %}
+        <li>Немає доступних учасників</li>
+    {% endfor %}
+</ul>
+
+
 {% if request.user == vote.creator or request.user.role in "director admin" %}
     <form method="post" action="{% url 'vote_delete' vote.pk %}" onsubmit="return confirm('Ви впевнені, що хочете видалити це голосування?');">
         {% csrf_token %}

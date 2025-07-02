@@ -13,8 +13,8 @@
 {% elif user.role == 'parent' %}
     <p><strong>Діти:</strong></p>
     <ul class="list-group mb-3">
-        {% for child in user.parent.children.all %}
-            <li class="list-group-item">{{ child.get_full_name }}</li>
+        {% for child in request.user.parent.children.all %}
+            <li class="list-group-item">{{ child }}</li>
         {% endfor %}
     </ul>
 {% endif %}

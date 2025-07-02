@@ -1,6 +1,5 @@
 from django.urls import path
 from .views import RoleSelectView, RegisterView, CustomLoginView, ProfileView, logout_view
-from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
     path("register/", RoleSelectView.as_view(), name="register"),

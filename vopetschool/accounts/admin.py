@@ -64,20 +64,5 @@ class ParentAdmin(admin.ModelAdmin):
         return ", ".join(child.user.get_full_name() for child in obj.children.all())
 
 
-@admin.register(TeacherGroup)
-class TeacherGroupAdmin(admin.ModelAdmin):
-    list_display = ("name", "get_teachers")
-    search_fields = ("name", "teachers__user__first_name", "teachers__user__last_name")
-
-    @admin.display(description="Вчителі")
-    def get_teachers(self, obj):
-        return ", ".join(teacher.get_full_name() for teacher in obj.teachers.all())
-    
-@admin.register(ClassGroup)
-class ClassGroupAdmin(admin.ModelAdmin):
-    list_display = ("name", "get_class_names")
-    search_fields = ("name",)
-
-    @admin.display(description="Класи")
-    def get_class_names(self, obj):
-        return ", ".join(obj.class_names) if obj.class_names else "Немає класів"
+admin.site.register(TeacherGroup)
+admin.site.register(ClassGroup) 

@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from .forms import (
     RoleChoiceForm, StudentRegisterForm,
     TeacherRegisterForm, ParentRegisterForm, CustomLoginForm,
-    DirectorRegisterForm, CustomLoginForm
+    DirectorRegisterForm, CustomLoginForm, EditProfileForm
 )
 
 
@@ -81,3 +81,20 @@ class DeleteAccountView(View):
 class ProfileView(View):
     def get(self, request):
         return render(request, "accounts/profile.html")
+    
+    
+# views.py
+class EditProfileView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        form = EditProfileForm(instance=request.user)
+        return render(request, "accounts/forms/edit.html", {"form": form})
+
+    @method_decorator(login_required)
+    def post(self, request):
+        form = EditProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect("profile")
+        return render(request, "accounts/forms/edit.html", {"form": form})
+

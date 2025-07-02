@@ -80,3 +80,15 @@ class DirectorRegisterForm(BaseRegisterForm):
 
 class CustomLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email")
+    
+
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name']
+        labels = {
+            'email': 'Email',
+            'first_name': "Ім'я",
+            'last_name': "Прізвище"
+        }
+

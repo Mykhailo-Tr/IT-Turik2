@@ -3,7 +3,7 @@ from .views import RoleSelectView, RegisterView, CustomLoginView, ProfileView, l
 
 urlpatterns = [
     path("register/", RoleSelectView.as_view(), name="register"),
-    path("register/<str:role>/", RegisterView.as_view(), name="register_role"),
+    path("accounts/register/<str:role>/", RegisterView.as_view(), name="register_role"),
     path("login/", CustomLoginView.as_view(), name="login"),
     path("logout/", logout_view, name="logout"),
     path("profile/", ProfileView.as_view(), name="profile"),

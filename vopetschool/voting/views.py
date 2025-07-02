@@ -3,10 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.views import View
 from django.views.generic import ListView
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils.decorators import method_decorator
 from .models import Vote, VoteOption, VoteAnswer
 from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
+from django.db.models import Count
+
 
 
 class VoteListView(ListView):
@@ -28,46 +30,56 @@ class VoteListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        voted_ids = VoteAnswer.objects.filter(voter=user).values_list("option__vote_id", flat=True).distinct()
+        voted_ids = VoteAnswer.objects.filter(voter=self.request.user).values_list("option__vote_id", flat=True)
         context["voted_ids"] = set(voted_ids)
         return context
+
 
 
 @login_required
 def vote_detail_view(request, pk):
     vote = get_object_or_404(Vote, pk=pk)
 
+    # 🔒 Перевірка доступу
     if vote.level == Vote.Level.SELECTED and request.user not in vote.participants.all():
         return render(request, "voting/access_denied.html")
 
+    # 👀 Чи вже голосував
     already_voted = VoteAnswer.objects.filter(
         voter=request.user,
         option__vote=vote
     ).exists()
 
-    form = None
-    if vote.is_active() and not already_voted:
-        if request.method == "POST":
-            form = VoteForm(vote, request.POST)
-            if form.is_valid():
-                selected_ids = form.cleaned_data["options"]
-                if not isinstance(selected_ids, list):
-                    selected_ids = [selected_ids]
+    # 🧮 Підрахунок голосів по кожному варіанту
+    options = vote.options.annotate(vote_count=Count("voteanswer"))
 
-                for option_id in selected_ids:
-                    option = get_object_or_404(VoteOption, id=option_id, vote=vote)
-                    VoteAnswer.objects.create(voter=request.user, option=option)
+    # 📅 Чи активне голосування
+    can_vote = vote.is_active() and not already_voted
 
-                already_voted = True
-        else:
-            form = VoteForm(vote)
+    if request.method == "POST" and can_vote:
+        form = VoteForm(vote, request.POST)
+        if form.is_valid():
+            selected_ids = form.cleaned_data["options"]
+            if not isinstance(selected_ids, list):
+                selected_ids = [selected_ids]
+
+            for option_id in selected_ids:
+                option = get_object_or_404(VoteOption, id=option_id, vote=vote)
+                VoteAnswer.objects.create(voter=request.user, option=option)
+
+            # Перенаправити назад на сторінку, щоб побачити результат
+            return redirect("vote_detail", pk=vote.pk)
+    else:
+        form = VoteForm(vote) if can_vote else None
 
     return render(request, "voting/vote_detail.html", {
         "vote": vote,
         "form": form,
+        "can_vote": can_vote,
         "already_voted": already_voted,
+        "options": options,
     })
+
 
 
 @method_decorator(login_required, name="dispatch")

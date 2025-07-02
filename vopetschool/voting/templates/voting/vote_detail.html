@@ -5,20 +5,35 @@
 {% block content %}
 <h2>{{ vote.title }}</h2>
 <p>{{ vote.description }}</p>
-<p><strong>Доступне до:</strong> {{ vote.end_date }}</p>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    {% if already_voted %}
-        <p class="alert alert-info">Ви вже проголосували у цьому опитуванні.</p>
-    {% elif not form %}
-        <p class="alert alert-warning">Голосування ще не почалося або вже завершилось.</p>
-    {% else %}
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Проголосувати</button>
-        </form>
+{% if vote.end_date %}
+    <p><strong>Доступне до:</strong> {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}</p>
 {% endif %}
+<p><strong>Статус:</strong> {{ vote.get_status_display }}</p>
+
+<hr>
+
+<h4>Варіанти:</h4>
+<ul class="list-group mb-3">
+    {% for option in options %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ option.text }}
+            <span class="badge bg-primary rounded-pill">{{ option.vote_count }}</span>
+        </li>
+    {% endfor %}
+</ul>
+
+{% if can_vote %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Проголосувати</button>
+    </form>
+{% elif already_voted %}
+    <div class="alert alert-info">Ви вже проголосували у цьому опитуванні.</div>
+{% else %}
+    <div class="alert alert-warning">Голосування ще не почалося або вже завершилось.</div>
+{% endif %}
+
+<a href="{% url 'vote_list' %}" class="btn btn-secondary mt-3">← Назад до списку</a>
 {% endblock %}

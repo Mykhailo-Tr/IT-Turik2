@@ -15,18 +15,30 @@
                 Основна інформація
             </div>
             <div class="card-body">
-                {% for field in vote_form %}
-                    <div class="mb-3">
-                        <label class="form-label">{{ field.label }}</label>
+            {% for field in vote_form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+
+                    {% if field.field.widget.input_type == "checkbox" %}
+                        <div class="form-check">
+                            {{ field|add_class:"form-check-input" }}
+                            <label class="form-check-label" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                        </div>
+                    {% else %}
                         {{ field|add_class:"form-control" }}
-                        {% if field.help_text %}
-                            <div class="form-text">{{ field.help_text }}</div>
-                        {% endif %}
-                        {% for error in field.errors %}
-                            <div class="text-danger small">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
+                    {% endif %}
+
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
             </div>
         </div>
 

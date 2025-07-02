@@ -3,10 +3,10 @@
 {% block title %}Вхід{% endblock %}
 
 {% block content %}
-<h2>Вхід</h2>
-<form method="post">
+<h2 class="mb-4">Вхід</h2>
+<form method="post" class="needs-validation" novalidate>
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Увійти</button>
+    <button type="submit" class="btn btn-primary">Увійти</button>
 </form>
 {% endblock %}

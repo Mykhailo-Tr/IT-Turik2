@@ -3,19 +3,19 @@
 {% block title %}Профіль{% endblock %}
 
 {% block content %}
-<h2>Привіт, {{ user.get_full_name }}!</h2>
-<p>Ваша роль: {{ user.get_role_display }}</p>
+<h2 class="mb-3">Привіт, {{ user.get_full_name }}!</h2>
+<p><strong>Ваша роль:</strong> {{ user.get_role_display }}</p>
+
 {% if user.role == 'student' %}
-    <p>Клас: {{ user.student.school_class }}</p>
+    <p><strong>Клас:</strong> {{ user.student.school_class }}</p>
 {% elif user.role == 'teacher' %}
-    <p>Предмет: {{ user.teacher.subject }}</p>
+    <p><strong>Предмет:</strong> {{ user.teacher.subject }}</p>
 {% elif user.role == 'parent' %}
-    <p>Діти:
-        <ul>
-            {% for child in user.parent.children.all %}
-                <li>{{ child.get_full_name }}</li>
-            {% endfor %}
-        </ul>
-    </p>
+    <p><strong>Діти:</strong></p>
+    <ul class="list-group mb-3">
+        {% for child in user.parent.children.all %}
+            <li class="list-group-item">{{ child.get_full_name }}</li>
+        {% endfor %}
+    </ul>
 {% endif %}
 {% endblock %}

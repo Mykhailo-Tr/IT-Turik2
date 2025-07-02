@@ -7,7 +7,8 @@ from django.utils.decorators import method_decorator
 
 from .forms import (
     RoleChoiceForm, StudentRegisterForm,
-    TeacherRegisterForm, ParentRegisterForm, CustomLoginForm
+    TeacherRegisterForm, ParentRegisterForm, CustomLoginForm,
+    DirectorRegisterForm, CustomLoginForm
 )
 
 
@@ -29,6 +30,7 @@ class RegisterView(View):
         'student': StudentRegisterForm,
         'teacher': TeacherRegisterForm,
         'parent': ParentRegisterForm,
+        'director': DirectorRegisterForm,
     }
 
     def get(self, request, role):

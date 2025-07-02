@@ -10,6 +10,15 @@
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Проголосувати</button>
-</form>
+    {% if already_voted %}
+        <p class="alert alert-info">Ви вже проголосували у цьому опитуванні.</p>
+    {% elif not form %}
+        <p class="alert alert-warning">Голосування ще не почалося або вже завершилось.</p>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Проголосувати</button>
+        </form>
+{% endif %}
 {% endblock %}

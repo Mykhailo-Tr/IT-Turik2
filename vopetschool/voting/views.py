@@ -11,57 +11,63 @@ from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
 
 class VoteListView(ListView):
     model = Vote
-    template_name = "votes/vote_list.html"
+    template_name = "voting/vote_list.html"
     context_object_name = "votes"
 
     def get_queryset(self):
         user = self.request.user
-        now = timezone.now()
 
-        return Vote.objects.filter(
+        base_qs = Vote.objects.filter(
             Q(level=Vote.Level.SCHOOL) |
             Q(level=Vote.Level.CLASS, creator__student__school_class=user.student.school_class if hasattr(user, 'student') else None) |
             Q(level=Vote.Level.TEACHERS, creator__role="teacher") |
             Q(level=Vote.Level.SELECTED, participants=user)
-        ).distinct().filter(start_date__lte=now).order_by("-start_date")
-        
+        ).distinct()
+
+        return base_qs.order_by("-start_date", "-id")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        voted_ids = VoteAnswer.objects.filter(voter=user).values_list("option__vote_id", flat=True).distinct()
+        context["voted_ids"] = set(voted_ids)
+        return context
+
+
 @login_required
 def vote_detail_view(request, pk):
     vote = get_object_or_404(Vote, pk=pk)
 
-    # 🔒 Перевірка доступу
     if vote.level == Vote.Level.SELECTED and request.user not in vote.participants.all():
         return render(request, "voting/access_denied.html")
 
-    # 📅 Чи активне
-    if not vote.is_active():
-        return render(request, "voting/vote_closed.html", {"vote": vote})
-
-    # ❌ Перевірка чи вже голосував
-    voted = VoteAnswer.objects.filter(
+    already_voted = VoteAnswer.objects.filter(
         voter=request.user,
         option__vote=vote
     ).exists()
-    if voted:
-        return render(request, "voting/already_voted.html", {"vote": vote})
 
-    # ✅ Голосування
-    if request.method == "POST":
-        form = VoteForm(vote, request.POST)
-        if form.is_valid():
-            selected_ids = form.cleaned_data["options"]
-            if not isinstance(selected_ids, list):
-                selected_ids = [selected_ids]
+    form = None
+    if vote.is_active() and not already_voted:
+        if request.method == "POST":
+            form = VoteForm(vote, request.POST)
+            if form.is_valid():
+                selected_ids = form.cleaned_data["options"]
+                if not isinstance(selected_ids, list):
+                    selected_ids = [selected_ids]
 
-            for option_id in selected_ids:
-                option = get_object_or_404(VoteOption, id=option_id, vote=vote)
-                VoteAnswer.objects.create(voter=request.user, option=option)
+                for option_id in selected_ids:
+                    option = get_object_or_404(VoteOption, id=option_id, vote=vote)
+                    VoteAnswer.objects.create(voter=request.user, option=option)
 
-            return render(request, "voting/vote_success.html", {"vote": vote})
-    else:
-        form = VoteForm(vote)
+                already_voted = True
+        else:
+            form = VoteForm(vote)
 
-    return render(request, "voting/vote_detail.html", {"vote": vote, "form": form})
+    return render(request, "voting/vote_detail.html", {
+        "vote": vote,
+        "form": form,
+        "already_voted": already_voted,
+    })
 
 
 @method_decorator(login_required, name="dispatch")
@@ -95,7 +101,7 @@ class VoteCreateView(View):
                     )
             return redirect("vote_detail", pk=vote.pk)
 
-        return render(request, "voting/vote_create.html", {
+        return render(request, "voting/forms/create.html", {
             "vote_form": vote_form,
             "formset": formset
         })

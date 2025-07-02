@@ -11,11 +11,25 @@
     <ul class="list-group">
         {% for vote in votes %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
+                
                 <div>
                     <strong>{{ vote.title }}</strong><br>
-                    <small class="text-muted">{{ vote.start_date|date:"SHORT_DATETIME_FORMAT" }} — {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}</small>
+
+                    <small class="text-muted">
+                        {{ vote.start_date|date:"SHORT_DATETIME_FORMAT" }} —
+                        {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}
+                    </small><br>
+                    <span class="badge 
+                        {% if vote.get_status_display == 'Активне' %}bg-success
+                        {% elif vote.get_status_display == 'Очікується початок' %}bg-secondary
+                        {% else %}bg-danger{% endif %}">
+                        {{ vote.get_status_display }}
+                    </span>
+                    {% if vote.id in voted_ids %}
+                        <span class="badge bg-success">Проголосовано</span>
+                    {% endif %}
                 </div>
-                <a href="{% url 'vote_detail' vote.pk %}" class="btn btn-primary btn-sm">Проголосувати</a>
+                <a href="{% url 'vote_detail' vote.pk %}" class="btn btn-primary btn-sm">Переглянути</a>
             </li>
         {% endfor %}
     </ul>

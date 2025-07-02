@@ -1,5 +1,3 @@
-# models.py
-
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -17,17 +15,29 @@ class Vote(models.Model):
     description = models.TextField(blank=True)
     level = models.CharField(max_length=20, choices=Level.choices)
 
-    start_date = models.DateTimeField(default=timezone.now)
-    end_date = models.DateTimeField()
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
 
-    multiple_choices_allowed = models.BooleanField(default=False)  # можна вибрати кілька варіантів
-    has_correct_answer = models.BooleanField(default=False)  # чи це тест (з правильною відповіддю)
+    multiple_choices_allowed = models.BooleanField(default=False)
+    has_correct_answer = models.BooleanField(default=False)
 
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="votes_available", blank=True)
 
     def is_active(self):
         now = timezone.now()
-        return self.start_date <= now <= self.end_date
+        if self.start_date and now < self.start_date:
+            return False
+        if self.end_date and now > self.end_date:
+            return False
+        return True
+
+    def get_status_display(self):
+        now = timezone.now()
+        if self.start_date and now < self.start_date:
+            return "Очікується початок"
+        if self.end_date and now > self.end_date:
+            return "Завершено"
+        return "Активне"
 
     def __str__(self):
         return self.title
@@ -36,7 +46,7 @@ class Vote(models.Model):
 class VoteOption(models.Model):
     vote = models.ForeignKey(Vote, related_name="options", on_delete=models.CASCADE)
     text = models.CharField(max_length=255)
-    is_correct = models.BooleanField(default=False)  # для тестів: чи це правильна відповідь
+    is_correct = models.BooleanField(default=False)
 
     def __str__(self):
         return self.text
@@ -48,4 +58,5 @@ class VoteAnswer(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("voter", "option")  
+        unique_together = ("voter", "option")
+

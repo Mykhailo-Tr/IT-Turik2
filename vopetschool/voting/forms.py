@@ -67,4 +67,4 @@ class VoteOptionForm(forms.Form):
     is_correct = forms.BooleanField(required=False, label="Правильний (для тестів)")
 
 
-VoteOptionFormSet = formset_factory(VoteOptionForm, extra=2, min_num=2, validate_min=True)
+VoteOptionFormSet = formset_factory(VoteOptionForm, extra=0, min_num=2, validate_min=True, can_delete=True,)

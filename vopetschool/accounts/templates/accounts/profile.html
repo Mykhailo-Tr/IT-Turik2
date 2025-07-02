@@ -3,20 +3,50 @@
 {% block title %}Профіль{% endblock %}
 
 {% block content %}
-<h2 class="mb-3">Привіт, {{ user.get_full_name }}!</h2>
-<p><strong>Електронна пошта:</strong> {{ user.email }}</p>
-<p><strong>Ваша роль:</strong> {{ user.get_role_display }}</p>
+<div class="container mt-5" style="max-width: 700px;">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title mb-4 text-center">Профіль користувача</h2>
 
-{% if user.role == 'student' %}
-    <p><strong>Клас:</strong> {{ user.student.school_class }}</p>
-{% elif user.role == 'teacher' %}
-    <p><strong>Предмет:</strong> {{ user.teacher.subject }}</p>
-{% elif user.role == 'parent' %}
-    <p><strong>Діти:</strong></p>
-    <ul class="list-group mb-3">
-        {% for child in request.user.parent.children.all %}
-            <li class="list-group-item">{{ child }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+            <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item">
+                    <strong>Ім’я:</strong> {{ user.get_full_name }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Електронна пошта:</strong> {{ user.email }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Роль:</strong> {{ user.get_role_display }}
+                </li>
+
+                {% if user.role == 'student' %}
+                    <li class="list-group-item">
+                        <strong>Клас:</strong> {{ user.student.school_class }}
+                    </li>
+                {% elif user.role == 'teacher' %}
+                    <li class="list-group-item">
+                        <strong>Предмет:</strong> {{ user.teacher.subject }}
+                    </li>
+                {% elif user.role == 'parent' %}
+                    <li class="list-group-item">
+                        <strong>Діти:</strong>
+                        {% if request.user.parent.children.exists %}
+                            <ul class="mt-2 mb-0 ps-3">
+                                {% for child in request.user.parent.children.all %}
+                                    <li>{{ child.get_full_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="mb-0 mt-2 text-muted">Немає доданих дітей.</p>
+                        {% endif %}
+                    </li>
+                {% endif %}
+            </ul>
+
+            <div class="text-end">
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger">Вийти</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

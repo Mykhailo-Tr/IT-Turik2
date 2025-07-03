@@ -53,8 +53,6 @@ class Parent(models.Model):
         return self.user.get_full_name()
 
 
-# accounts/models.py
-
 class TeacherGroup(models.Model):
     name = models.CharField(max_length=100)
     teachers = models.ManyToManyField(Teacher, related_name="groups")

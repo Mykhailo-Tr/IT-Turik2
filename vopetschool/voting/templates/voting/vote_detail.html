@@ -12,6 +12,7 @@
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-body p-5">
 
+                    <!-- Заголовок -->
                     <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
                         <div>
                             <h2 class="fw-bold">{{ vote.title }}</h2>
@@ -34,12 +35,13 @@
 
                     <hr class="my-4">
 
+                    <!-- Варіанти -->
                     <h5 class="mb-3">📝 Варіанти:</h5>
                     <ul class="list-group mb-4">
                         {% for option in options %}
                             <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#optionModal{{ option.id }}">
-                                <li class="list-group-item rounded-3 shadow-sm mb-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                <li class="list-group-item rounded-4 shadow-sm mb-3 p-0 overflow-hidden">
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light">
                                         <span class="fw-semibold">
                                             {{ option.text }}
                                             {% if user_can_see_votes and vote.has_correct_answer and option.is_correct %}
@@ -48,8 +50,13 @@
                                         </span>
                                         <span class="badge bg-primary rounded-pill vote-count" data-count="{{ option.vote_count }}">{{ option.vote_count }}</span>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar bg-info" style="width: 0%" data-bar-for="{{ option.id }}" id="progress-option-{{ option.id }}"></div>
+                                    <div class="progress rounded-0" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar bg-info" 
+                                            id="progress-option-{{ option.id }}"
+                                            data-bar-for="{{ option.id }}"
+                                            style="width: 0%;">
+                                            <span id="percent-option-{{ option.id }}"></span>
+                                        </div>
                                     </div>
                                 </li>
                             </a>
@@ -88,6 +95,7 @@
                         {% endfor %}
                     </ul>
 
+                    <!-- Голосування -->
                     {% if can_vote %}
                         <form method="post">
                             {% csrf_token %}
@@ -104,6 +112,7 @@
 
                     <hr class="my-4">
 
+                    <!-- Учасники -->
                     <div class="row">
                         <div class="col-md-6">
                             <h5>🧑‍🤝‍🧑 Хто може голосувати:</h5>
@@ -140,23 +149,33 @@
     </div>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Динамічний прогрес-бар -->
+<!-- JS для прогрес-барів -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const counts = Array.from(document.querySelectorAll(".vote-count")).map(el => parseInt(el.dataset.count));
-        const total = counts.reduce((a, b) => a + b, 0);
+document.addEventListener("DOMContentLoaded", function () {
+    const voteCounts = document.querySelectorAll(".vote-count");
+    let total = 0;
 
-        document.querySelectorAll(".vote-count").forEach(el => {
-            const count = parseInt(el.dataset.count);
-            const optionId = el.closest("a").querySelector(".progress-bar").dataset.barFor;
-            const percent = total > 0 ? Math.round((count / total) * 100) : 0;
-            const bar = document.getElementById("progress-option-" + optionId);
-            bar.style.width = percent + "%";
-            bar.textContent = percent + "%";
-        });
+    // Рахуємо загальну кількість голосів
+    voteCounts.forEach(el => {
+        total += parseInt(el.dataset.count);
     });
+
+    // Оновлюємо кожен прогрес-бар
+    voteCounts.forEach(el => {
+        const count = parseInt(el.dataset.count);
+        const optionId = el.closest("a").querySelector("[id^='progress-option-']").dataset.barFor;
+        const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+
+        const bar = document.getElementById("progress-option-" + optionId);
+        const percentLabel = document.getElementById("percent-option-" + optionId);
+
+        if (bar) {
+            bar.style.width = percent + "%";
+        }
+        if (percentLabel) {
+            percentLabel.textContent = percent + "%";
+        }
+    });
+});
 </script>
 {% endblock %}

@@ -55,7 +55,7 @@ class Parent(models.Model):
 
 class TeacherGroup(models.Model):
     name = models.CharField(max_length=100)
-    teachers = models.ManyToManyField(Teacher, related_name="groups")
+    teachers = models.ManyToManyField(Teacher, related_name="groups", blank=True)
 
     def __str__(self):
         return self.name
@@ -63,7 +63,7 @@ class TeacherGroup(models.Model):
 
 class ClassGroup(models.Model):
     name = models.CharField(max_length=100)
-    students = models.ManyToManyField(Student, related_name="class_groups")
+    students = models.ManyToManyField(Student, related_name="class_groups", blank=True)
 
     def __str__(self):
         return self.name

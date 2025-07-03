@@ -20,20 +20,12 @@ class PetitionListView(ListView):
     context_object_name = "petitions"
 
     def get_queryset(self):
-        user = self.request.user
-
-        base_qs = Petition.objects.filter(deadline__gte=timezone.now())
-
-        if user.role == "student":
-            return base_qs.filter(
-                Q(level=Petition.Level.SCHOOL) |
-                Q(level=Petition.Level.CLASS, class_group__name=user.student.school_class)
-            ).annotate(support_count=Count("supporters")).order_by("-created_at")
-
-        elif user.role in ["director", "admin"]:
-            return base_qs.annotate(support_count=Count("supporters")).order_by("-created_at")
-
-        return Petition.objects.none()
+        queryset = Petition.objects.annotate(support_count=Count("supporters", distinct=True))
+        for petition in queryset:
+            total = petition.get_eligible_voters_count()
+            support = petition.support_count
+            petition.support_percent = round((support / total * 100), 0) if total > 0 else 0
+        return queryset
 
 
 @login_required

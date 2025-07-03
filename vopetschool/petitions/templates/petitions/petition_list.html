@@ -42,8 +42,11 @@
                                                 {% if petition.class_group %}
                                                     <span class="badge bg-secondary">{{ petition.class_group }}</span>
                                                 {% endif %}
-                                                <span class="badge bg-primary rounded-pill mt-2">🙋 {{ petition.support_count }}</span>
 
+                                                <span class="badge bg-primary rounded-pill mt-2">
+                                                    🙋 {{ petition.support_count }}
+                                                    ({{ petition.support_percent|floatformat:0 }}%)
+                                                </span>
                                             </div>
                                         </div>
 

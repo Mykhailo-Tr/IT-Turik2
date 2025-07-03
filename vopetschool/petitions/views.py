@@ -46,16 +46,27 @@ def petition_detail_view(request, pk):
         if user.student.school_class != petition.class_group:
             return HttpResponseForbidden("Ця петиція не для вашого класу.")
 
+    if petition.level == Petition.Level.CLASS:
+        eligible_voters = User.objects.filter(role="student", student__school_class=petition.class_group).count()
+    elif petition.level == Petition.Level.SCHOOL:
+        eligible_voters = User.objects.filter(role="student").count()
+    else:
+        eligible_voters = 0  # fallback
+
+    supporters_count = petition.supporters.count()
+    support_percent = int((supporters_count / eligible_voters) * 100) if eligible_voters > 0 else 0
+
     return render(request, "petitions/petition_detail.html", {
         "petition": petition,
         "supported": supported,
         "can_support": user.role == "student" and not supported and timezone.now() <= petition.deadline,
-        "supporters_count": petition.supporters.count(),
+        "supporters_count": supporters_count,
+        "eligible_voters": eligible_voters,
+        "support_percent": support_percent,
     })
 
 
-@require_POST
-@login_required
+
 def support_petition_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
     user = request.user
@@ -70,8 +81,23 @@ def support_petition_view(request, pk):
         return HttpResponseForbidden("Ця петиція не для вашого класу.")
 
     petition.supporters.add(user)
-    return JsonResponse({"success": True, "supporters_count": petition.supporters.count()})
 
+    # Переобчислення після підтримки
+    if petition.level == Petition.Level.CLASS:
+        eligible_voters = User.objects.filter(role="student", student__school_class=petition.class_group).count()
+    elif petition.level == Petition.Level.SCHOOL:
+        eligible_voters = User.objects.filter(role="student").count()
+    else:
+        eligible_voters = 0
+
+    supporters_count = petition.supporters.count()
+    support_percent = int((supporters_count / eligible_voters) * 100) if eligible_voters > 0 else 0
+
+    return JsonResponse({
+        "success": True,
+        "supporters_count": supporters_count,
+        "support_percent": support_percent,
+    })
 
 @method_decorator(login_required, name="dispatch")
 class PetitionCreateView(View):

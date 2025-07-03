@@ -1,14 +1,15 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib import messages
 
 from .forms import (
     RoleChoiceForm, StudentRegisterForm,
     TeacherRegisterForm, ParentRegisterForm, CustomLoginForm,
-    DirectorRegisterForm, CustomLoginForm, EditProfileForm
+    DirectorRegisterForm, EditProfileForm
 )
 
 
@@ -48,42 +49,52 @@ class RegisterView(View):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            messages.success(request, "Реєстрація успішна! Вітаємо в системі.")
             return redirect("profile")
+        messages.error(request, "Помилка при реєстрації. Перевірте форму.")
         return render(request, "accounts/register.html", {"form": form})
 
 
 class CustomLoginView(LoginView):
     template_name = "accounts/login.html"
     authentication_form = CustomLoginForm
-    
-    
+
+    def form_valid(self, form):
+        messages.success(self.request, "Вхід виконано успішно.")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Невірні дані для входу. Спробуйте ще раз.")
+        return super().form_invalid(form)
+
+
 def logout_view(request):
     logout(request)
+    messages.info(request, "Ви вийшли з системи.")
     return redirect("login")
 
 
 class DeleteAccountView(View):
     def get(self, request):
-        user = request.user
-        if user.is_authenticated:
-            return render(request, "accounts/forms/delete.html", {"user": user})
+        if request.user.is_authenticated:
+            return render(request, "accounts/forms/delete.html", {"user": request.user})
         return redirect("login")
-    
+
     def post(self, request):
-        user = request.user
-        if user.is_authenticated:
-            user.delete()
+        if request.user.is_authenticated:
+            request.user.delete()
             logout(request)
+            messages.success(request, "Ваш акаунт було видалено.")
             return redirect("login")
         return redirect("profile")
+
 
 @method_decorator(login_required, name='dispatch')
 class ProfileView(View):
     def get(self, request):
         return render(request, "accounts/profile.html")
-    
-    
-# views.py
+
+
 class EditProfileView(View):
     @method_decorator(login_required)
     def get(self, request):
@@ -95,6 +106,7 @@ class EditProfileView(View):
         form = EditProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
+            messages.success(request, "Профіль оновлено успішно.")
             return redirect("profile")
+        messages.error(request, "Не вдалося оновити профіль. Перевірте форму.")
         return render(request, "accounts/forms/edit.html", {"form": form})
-

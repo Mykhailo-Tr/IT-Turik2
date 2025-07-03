@@ -6,7 +6,9 @@ from django.views.generic import ListView
 from django.db.models import Q, Count
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseForbidden
-from django.views.decorators.http import require_POST   
+from django.views.decorators.http import require_POST
+from django.contrib import messages
+
 from .models import Vote, VoteOption, VoteAnswer
 from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
 from accounts.models import User, TeacherGroup, ClassGroup, Student
@@ -43,12 +45,7 @@ def vote_detail_view(request, pk):
     if vote.level == Vote.Level.SELECTED and request.user not in vote.participants.all():
         return render(request, "voting/access_denied.html")
 
-    already_voted = VoteAnswer.objects.filter(
-        voter=request.user,
-        option__vote=vote
-    ).exists()
-
-    options = vote.options.annotate(vote_count=Count("voteanswer"))
+    already_voted = VoteAnswer.objects.filter(voter=request.user, option__vote=vote).exists()
     can_vote = vote.is_active() and not already_voted
 
     if request.method == "POST" and can_vote:
@@ -62,24 +59,21 @@ def vote_detail_view(request, pk):
                 option = get_object_or_404(VoteOption, id=option_id, vote=vote)
                 VoteAnswer.objects.create(voter=request.user, option=option)
 
+            messages.success(request, "Ваш голос успішно враховано.")
             return redirect("vote_detail", pk=vote.pk)
+        else:
+            messages.error(request, "Помилка при обробці голосу. Спробуйте ще раз.")
+
     else:
         form = VoteForm(vote) if can_vote else None
 
-    # 🔽 Визначення учасників голосування
     if vote.level == Vote.Level.SELECTED:
         eligible_users = vote.participants.all()
     elif vote.level == Vote.Level.TEACHERS:
-        eligible_users = User.objects.filter(
-            role="teacher",
-            teacher__groups__in=vote.teacher_groups.all()
-        ).distinct()
+        eligible_users = User.objects.filter(role="teacher", teacher__groups__in=vote.teacher_groups.all()).distinct()
     elif vote.level == Vote.Level.CLASS:
-        eligible_students = Student.objects.filter(
-            class_groups__in=vote.class_groups.all()
-        ).distinct()
+        eligible_students = Student.objects.filter(class_groups__in=vote.class_groups.all()).distinct()
         eligible_users = User.objects.filter(student__in=eligible_students)
-
     else:
         eligible_users = User.objects.all()
 
@@ -92,22 +86,16 @@ def vote_detail_view(request, pk):
         or not vote.is_active()
     )
 
-    options_with_voters = []
-    raw_options = vote.options.annotate(vote_count=Count("voteanswer"))
     options = []
+    raw_options = vote.options.annotate(vote_count=Count("voteanswer"))
     for option in raw_options:
-        if user_can_see_votes:
-            option.voted_users = User.objects.filter(voteanswer__option=option)
-        else:
-            option.voted_users = []
+        option.voted_users = User.objects.filter(voteanswer__option=option) if user_can_see_votes else []
         options.append(option)
-        
+
     option_voted_users_dict = {}
     if user_can_see_votes:
         for option in vote.options.all():
-            option_voted_users_dict[option.id] = list(
-                User.objects.filter(voteanswer__option=option)
-            )
+            option_voted_users_dict[option.id] = list(User.objects.filter(voteanswer__option=option))
 
     return render(request, "voting/vote_detail.html", {
         "vote": vote,
@@ -118,7 +106,6 @@ def vote_detail_view(request, pk):
         "eligible_users": eligible_users,
         "voted_users": voted_users,
         "user_can_see_votes": user_can_see_votes,
-        "options_with_voters": options_with_voters,
         "option_voted_users_dict": option_voted_users_dict,
     })
 
@@ -147,13 +134,12 @@ class VoteCreateView(View):
                 text = form.cleaned_data.get("text")
                 is_correct = form.cleaned_data.get("is_correct", False)
                 if text:
-                    VoteOption.objects.create(
-                        vote=vote,
-                        text=text,
-                        is_correct=is_correct
-                    )
+                    VoteOption.objects.create(vote=vote, text=text, is_correct=is_correct)
+
+            messages.success(request, "Голосування успішно створено!")
             return redirect("vote_detail", pk=vote.pk)
 
+        messages.error(request, "Помилка при створенні голосування. Перевірте форму.")
         return render(request, "voting/forms/create.html", {
             "vote_form": vote_form,
             "formset": formset
@@ -169,4 +155,5 @@ def vote_delete_view(request, pk):
         return HttpResponseForbidden("У вас немає прав на видалення цього голосування.")
 
     vote.delete()
+    messages.success(request, "Голосування успішно видалено.")
     return redirect("vote_list")

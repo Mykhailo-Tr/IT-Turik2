@@ -67,6 +67,8 @@ def petition_detail_view(request, pk):
 
 
 
+@login_required
+@require_POST
 def support_petition_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
     user = request.user
@@ -80,9 +82,14 @@ def support_petition_view(request, pk):
     if petition.level == Petition.Level.CLASS and user.student.school_class != petition.class_group:
         return HttpResponseForbidden("Ця петиція не для вашого класу.")
 
-    petition.supporters.add(user)
+    # Перемикаємо підтримку
+    if petition.supporters.filter(id=user.id).exists():
+        petition.supporters.remove(user)
+        supported = False
+    else:
+        petition.supporters.add(user)
+        supported = True
 
-    # Переобчислення після підтримки
     if petition.level == Petition.Level.CLASS:
         eligible_voters = User.objects.filter(role="student", student__school_class=petition.class_group).count()
     elif petition.level == Petition.Level.SCHOOL:
@@ -97,6 +104,7 @@ def support_petition_view(request, pk):
         "success": True,
         "supporters_count": supporters_count,
         "support_percent": support_percent,
+        "supported": supported,
     })
 
 @method_decorator(login_required, name="dispatch")

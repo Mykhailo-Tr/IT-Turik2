@@ -9,7 +9,7 @@
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-body p-5">
 
-                    <!-- Заголовок та повернення -->
+                    <!-- Заголовок -->
                     <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
                         <div>
                             <h2 class="fw-bold">📢 {{ petition.title }}</h2>
@@ -53,16 +53,21 @@
                         </div>
                     </div>
 
-                    {% if can_support %}
-                        <form method="post" action="{% url 'support_petition' petition.pk %}" id="support-form">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-primary rounded-pill">
-                                🙋 Підтримати петицію
-                            </button>
-                        </form>
-                    {% elif supported %}
-                        <div class="alert alert-info rounded-3 mt-3">
-                            ✅ Ви вже підтримали цю петицію.
+                    {% if can_support or supported %}
+                        <div id="support-button-wrapper">
+                            <form method="post" action="{% url 'support_petition' petition.pk %}" id="support-form">
+                                {% csrf_token %}
+                                {% if supported %}
+                                    <input type="hidden" name="cancel" value="1">
+                                    <button type="submit" class="btn btn-outline-danger rounded-pill">
+                                        ❌ Скасувати підтримку
+                                    </button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-outline-primary rounded-pill">
+                                        🙋 Підтримати петицію
+                                    </button>
+                                {% endif %}
+                            </form>
                         </div>
                     {% else %}
                         <div class="alert alert-warning rounded-3 mt-3">
@@ -87,27 +92,65 @@
     </div>
 </div>
 
-<!-- JS: Динамічне оновлення -->
+<!-- JS: Динамічна підтримка / скасування -->
 <script>
-document.getElementById("support-form")?.addEventListener("submit", function(e) {
-    e.preventDefault();
-    fetch(this.action, {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": this.querySelector('[name=csrfmiddlewaretoken]').value,
-        },
-    }).then(response => response.json())
-      .then(data => {
-        if (data.success) {
-            const countElem = document.getElementById("support-count");
-            const progressElem = document.getElementById("support-progress");
-            countElem.textContent = data.supporters_count;
-            progressElem.style.width = data.support_percent + "%";
-            progressElem.setAttribute("aria-valuenow", data.support_percent);
-            progressElem.textContent = data.support_percent + "%";
-            document.getElementById("support-form").remove();
-        }
-      });
+document.addEventListener("DOMContentLoaded", function () {
+    const formWrapper = document.getElementById("support-button-wrapper");
+    const countElem = document.getElementById("support-count");
+    const progressElem = document.getElementById("support-progress");
+
+    formWrapper?.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const isCancel = formData.get("cancel");
+
+        fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": form.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: formData
+        }).then(response => response.json())
+          .then(data => {
+            if (data.success) {
+                // Оновити лічильник і прогрес
+                countElem.textContent = data.supporters_count;
+                progressElem.style.width = data.support_percent + "%";
+                progressElem.setAttribute("aria-valuenow", data.support_percent);
+                progressElem.textContent = data.support_percent + "%";
+
+                // Змінити кнопку
+                const newForm = document.createElement("form");
+                newForm.method = "post";
+                newForm.action = form.action;
+                newForm.id = "support-form";
+
+                const csrf = document.createElement("input");
+                csrf.type = "hidden";
+                csrf.name = "csrfmiddlewaretoken";
+                csrf.value = form.querySelector('[name=csrfmiddlewaretoken]').value;
+                newForm.appendChild(csrf);
+
+                const btn = document.createElement("button");
+                btn.type = "submit";
+                btn.className = "btn rounded-pill " + (isCancel ? "btn-outline-primary" : "btn-outline-danger");
+                btn.innerHTML = isCancel ? "🙋 Підтримати петицію" : "❌ Скасувати підтримку";
+
+                if (!isCancel) {
+                    const hidden = document.createElement("input");
+                    hidden.type = "hidden";
+                    hidden.name = "cancel";
+                    hidden.value = "1";
+                    newForm.appendChild(hidden);
+                }
+
+                newForm.appendChild(btn);
+                formWrapper.innerHTML = "";
+                formWrapper.appendChild(newForm);
+            }
+          });
+    });
 });
 </script>
 {% endblock %}

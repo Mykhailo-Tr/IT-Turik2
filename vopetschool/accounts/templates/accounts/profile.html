@@ -3,36 +3,54 @@
 {% block title %}Профіль{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h2 class="card-title mb-3">Привіт, {{ user.get_full_name }}!</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <!-- Заголовок -->
+                    <h2 class="fw-bold mb-3 text-center">👋 Привіт, {{ user.get_full_name }}!</h2>
+                    <p class="text-center text-muted mb-4">Ось ваша персональна інформація</p>
 
-            <p><strong>Електронна пошта:</strong> {{ user.email }}</p>
-            <p><strong>Ваша роль:</strong> {{ user.get_role_display }}</p>
+                    <!-- Інформація -->
+                    <div class="mb-4">
+                        <h5 class="fw-semibold mb-3 text-uppercase text-secondary">🔎 Основна інформація</h5>
+                        <ul class="list-unstyled fs-5">
+                            <li class="mb-2"><strong>📧 Електронна пошта:</strong> {{ user.email }}</li>
+                            <li class="mb-2"><strong>🧩 Роль:</strong> {{ user.get_role_display }}</li>
+                            {% if user.role == 'student' %}
+                                <li class="mb-2"><strong>🏫 Клас:</strong> {{ user.student.school_class }}</li>
+                            {% elif user.role == 'teacher' %}
+                                <li class="mb-2"><strong>📘 Предмет:</strong> {{ user.teacher.subject }}</li>
+                            {% elif user.role == 'parent' %}
+                                <li class="mb-2"><strong>👨‍👩‍👧‍👦 Діти:</strong></li>
+                                {% if user.parent.children.all %}
+                                    <ul class="list-group list-group-flush ps-3">
+                                        {% for child in user.parent.children.all %}
+                                            <li class="list-group-item">{{ child }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted ps-3">Немає доданих дітей.</p>
+                                {% endif %}
+                            {% endif %}
+                        </ul>
+                    </div>
 
-            {% if user.role == 'student' %}
-                <p><strong>Клас:</strong> {{ user.student.school_class }}</p>
-            {% elif user.role == 'teacher' %}
-                <p><strong>Предмет:</strong> {{ user.teacher.subject }}</p>
-            {% elif user.role == 'parent' %}
-                <p><strong>Діти:</strong></p>
-                {% if request.user.parent.children.all %}
-                    <ul class="list-group mb-3">
-                        {% for child in request.user.parent.children.all %}
-                            <li class="list-group-item">{{ child }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted">Немає доданих дітей.</p>
-                {% endif %}
-            {% endif %}
+                    <!-- Кнопки справа знизу -->
+                    <div class="d-flex justify-content-end mt-5 gap-2">
+                        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary btn-lg rounded-pill">
+                            ✏️ Редагувати
+                        </a>
+                        <a href="{% url 'delete_account' %}" class="btn btn-outline-danger btn-lg rounded-pill">
+                            ❌ Видалити
+                        </a>
+                        <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-lg rounded-pill">
+                            🚪 Вийти
+                        </a>
+                    </div>
 
-            <!-- Кнопки праворуч -->
-            <div class="mt-4 text-end">
-                <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary me-2">✏️ Редагувати</a>
-                <a href="{% url 'delete_account' %}" class="btn btn-outline-danger me-2">❌ Видалити</a>
-                <a href="{% url 'logout' %}" class="btn btn-outline-secondary">🚪 Вийти</a>
+                </div>
             </div>
         </div>
     </div>

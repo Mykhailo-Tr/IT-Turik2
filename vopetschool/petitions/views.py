@@ -103,3 +103,15 @@ class PetitionCreateView(View):
 
         messages.error(request, "Помилка при створенні петиції.")
         return render(request, "petitions/create.html", {"form": form})
+
+@login_required
+def delete_petition_view(request, pk):
+    petition = get_object_or_404(Petition, pk=pk)
+    
+    if request.user != petition.creator:
+        messages.error(request, "Тільки автор петиції може її видалити.")
+        return redirect("petition_detail", pk=pk)
+
+    petition.delete()
+    messages.success(request, "Петиція успішно видалена.")
+    return redirect("petition_list")

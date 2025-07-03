@@ -44,8 +44,14 @@
                     {% else %}
                         <div class="alert alert-warning rounded-3 mt-3">⚠️ Ви не можете підтримати цю петицію.</div>
                     {% endif %}
-
+                    {% if request.user == petition.creator %}
+                        <form method="post" action="{% url 'petition_delete' petition.pk %}" onsubmit="return confirm('Ви впевнені, що хочете видалити цю петицію?');" class="mt-4">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger rounded-pill">🗑️ Видалити петицію</button>
+                        </form>
+                    {% endif %}
                 </div>
+
             </div>
         </div>
     </div>

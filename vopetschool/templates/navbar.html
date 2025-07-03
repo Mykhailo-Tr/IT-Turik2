@@ -11,7 +11,6 @@
                     <a class="nav-link" href="{% url 'profile' %}">Головна</a>
                 </li>
 
-
                 {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'vote_list' %}">Голосування</a>
@@ -20,7 +19,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ user.email }}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" href="{% url 'profile' %}">Профіль</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'logout' %}">Вийти</a></li>

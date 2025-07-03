@@ -18,3 +18,16 @@ class PetitionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.user and self.user.role != "student":
             self.fields.clear()
+            
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.user and self.user.role != "student":
+            raise forms.ValidationError("Тільки учні можуть створювати петиції.")
+        
+        if not cleaned_data.get("title"):
+            raise forms.ValidationError("Заголовок обов'язковий.")
+        
+        if not cleaned_data.get("text"):
+            raise forms.ValidationError("Текст петиції обов'язковий.")
+        
+        return cleaned_data

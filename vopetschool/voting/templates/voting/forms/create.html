@@ -138,18 +138,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     addBtn.addEventListener("click", function () {
-        const firstForm = container.querySelector(".formset-form");
-        const newForm = firstForm.cloneNode(true);
+        const total = parseInt(totalForms.value);
+        const newForm = container.querySelector(".formset-form").cloneNode(true);
 
+        // Очистити поля в клоні
         newForm.querySelectorAll("input").forEach(input => {
             if (input.type === "checkbox") input.checked = false;
             else input.value = "";
         });
 
+        // Замінити індекси name/id
+        newForm.querySelectorAll("input, label").forEach(el => {
+            if (el.name) el.name = el.name.replace(/form-(\d+)-/, `form-${total}-`);
+            if (el.id) el.id = el.id.replace(/form-(\d+)-/, `form-${total}-`);
+            if (el.htmlFor) el.htmlFor = el.htmlFor.replace(/form-(\d+)-/, `form-${total}-`);
+        });
+
         container.appendChild(newForm);
-        updateFormIndexes();
+        totalForms.value = total + 1;
         attachRemoveHandlers();
     });
+
 
     attachRemoveHandlers();
 

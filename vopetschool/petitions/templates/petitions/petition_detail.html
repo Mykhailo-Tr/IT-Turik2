@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{ petition.title }}{% endblock %}
+{% block title %}📢 {{ petition.title }}{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -9,36 +9,39 @@
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-body p-5">
 
-                    <!-- Заголовок і повернення -->
+                    <!-- Заголовок та повернення -->
                     <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
                         <div>
-                            <h2 class="fw-bold">{{ petition.title }}</h2>
-                            <p class="text-muted mb-2">{{ petition.description }}</p>
-                            <p class="mb-1"><strong>Автор:</strong> {{ petition.creator.get_full_name }}</p>
-                            <p class="mb-1"><strong>Дата створення:</strong> {{ petition.created_at|date:"SHORT_DATETIME_FORMAT" }}</p>
+                            <h2 class="fw-bold">📢 {{ petition.title }}</h2>
+                            <p class="text-muted mb-2">📝 {{ petition.text }}</p>
+                            <p class="mb-1">👤 <strong>Автор:</strong> {{ petition.creator.get_full_name }}</p>
+                            <p class="mb-1">📅 <strong>Створено:</strong> {{ petition.created_at|date:"SHORT_DATETIME_FORMAT" }}</p>
                             {% if petition.deadline %}
-                                <p class="mb-1"><strong>Дедлайн:</strong> {{ petition.deadline|date:"SHORT_DATETIME_FORMAT" }}</p>
+                                <p class="mb-1">⏳ <strong>Дедлайн:</strong> {{ petition.deadline|date:"SHORT_DATETIME_FORMAT" }}</p>
                             {% endif %}
                             <p>
-                                <strong>Рівень:</strong>
+                                🏷️ <strong>Рівень:</strong>
                                 <span class="badge bg-secondary">{{ petition.get_level_display }}</span>
                                 {% if petition.class_group %}
-                                    <span class="badge bg-info text-dark">Клас: {{ petition.class_group }}</span>
+                                    <span class="badge bg-info text-dark">🎓 Клас: {{ petition.class_group }}</span>
                                 {% endif %}
                             </p>
                         </div>
-                        <a href="{% url 'petition_list' %}" class="btn btn-outline-secondary rounded-pill">← Назад до петицій</a>
+                        <a href="{% url 'petition_list' %}" class="btn btn-outline-secondary rounded-pill">⬅️ Назад до петицій</a>
                     </div>
 
                     <hr class="my-4">
 
-                    <!-- Блок підтримки -->
-                    <h5 class="mb-3">Підтримка:</h5>
+                    <!-- Підтримка -->
+                    <h5 class="mb-3">🙋‍♀️ Підтримка:</h5>
 
-                    <p><strong>Кількість підтримки:</strong> <span id="support-count" class="fw-bold">{{ supporters_count }}</span> / {{ eligible_voters }}</p>
+                    <p>
+                        <strong>🔢 Кількість голосів:</strong>
+                        <span id="support-count" class="fw-bold">{{ supporters_count }}</span>
+                        / {{ eligible_voters }}
+                    </p>
 
-                    <!-- Прогрес-бар -->
-                    <div class="progress mb-3 rounded-pill" style="height: 20px;">
+                    <div class="progress mb-3 rounded-pill" style="height: 24px;">
                         <div class="progress-bar bg-success text-dark fw-semibold"
                              id="support-progress"
                              role="progressbar"
@@ -50,25 +53,31 @@
                         </div>
                     </div>
 
-                    <!-- Кнопка підтримки -->
                     {% if can_support %}
                         <form method="post" action="{% url 'support_petition' petition.pk %}" id="support-form">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-primary rounded-pill">🙋 Підтримати петицію</button>
+                            <button type="submit" class="btn btn-outline-primary rounded-pill">
+                                🙋 Підтримати петицію
+                            </button>
                         </form>
                     {% elif supported %}
-                        <div class="alert alert-info rounded-3 mt-3">✅ Ви вже підтримали цю петицію.</div>
+                        <div class="alert alert-info rounded-3 mt-3">
+                            ✅ Ви вже підтримали цю петицію.
+                        </div>
                     {% else %}
-                        <div class="alert alert-warning rounded-3 mt-3">⚠️ Ви не можете підтримати цю петицію.</div>
+                        <div class="alert alert-warning rounded-3 mt-3">
+                            ⚠️ Ви не можете підтримати цю петицію.
+                        </div>
                     {% endif %}
 
-                    <!-- Видалення (доступно автору, директору, адміну) -->
                     {% if request.user == petition.creator or request.user.role in "director admin" %}
                         <form method="post" action="{% url 'petition_delete' petition.pk %}"
-                              onsubmit="return confirm('Ви впевнені, що хочете видалити цю петицію?');"
+                              onsubmit="return confirm('❗ Ви впевнені, що хочете видалити цю петицію?');"
                               class="mt-4">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger rounded-pill">🗑️ Видалити петицію</button>
+                            <button type="submit" class="btn btn-danger rounded-pill">
+                                🗑️ Видалити петицію
+                            </button>
                         </form>
                     {% endif %}
 
@@ -78,7 +87,7 @@
     </div>
 </div>
 
-<!-- JS: динамічне оновлення прогресу -->
+<!-- JS: Динамічне оновлення -->
 <script>
 document.getElementById("support-form")?.addEventListener("submit", function(e) {
     e.preventDefault();
@@ -94,8 +103,9 @@ document.getElementById("support-form")?.addEventListener("submit", function(e) 
             const progressElem = document.getElementById("support-progress");
             countElem.textContent = data.supporters_count;
             progressElem.style.width = data.support_percent + "%";
+            progressElem.setAttribute("aria-valuenow", data.support_percent);
             progressElem.textContent = data.support_percent + "%";
-            this.remove();
+            document.getElementById("support-form").remove();
         }
       });
 });

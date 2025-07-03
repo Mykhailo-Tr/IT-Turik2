@@ -5,15 +5,13 @@
 {% block content %}
 <h2>{{ vote.title }}</h2>
 <p>{{ vote.description }}</p>
-{% if request.user == vote.creator %}
-    <p class="mb-1"><strong>Author:</strong> {{ vote.creator.get_full_name }} <span class="badge bg-secondary">You</span></p>
-{% else %}
-    <p class="mb-1"><strong>Author:</strong> {{ vote.creator.get_full_name }}</p>
-{% endif %}
+
+<p><strong>Автор:</strong> {{ vote.creator.get_full_name }}{% if request.user == vote.creator %} <span class="badge bg-secondary">Ви</span>{% endif %}</p>
 
 {% if vote.end_date %}
     <p><strong>Доступне до:</strong> {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}</p>
 {% endif %}
+
 <p><strong>Статус:</strong> {{ vote.get_status_display }}</p>
 
 <hr>
@@ -21,15 +19,48 @@
 <h4>Варіанти:</h4>
 <ul class="list-group mb-3">
     {% for option in options %}
-        <li class="list-group-item d-flex justify-content-between align-items-center {% if vote.has_correct_answer and option.is_correct and not can_vote %}border border-success{% endif %}">
-            <span>
-                {{ option.text }}
-                {% if vote.has_correct_answer and option.is_correct and not can_vote %}
-                    <span class="badge bg-success ms-2">Правильний</span>
+        <a href="#" class="text-decoration-none option-detail" data-bs-toggle="modal" data-bs-target="#optionModal{{ option.id }}">
+
+            <li class="list-group-item d-flex justify-content-between align-items-center 
+                {% if vote.has_correct_answer and option.is_correct %}border-success{% endif %}"
+                style="{% if vote.has_correct_answer and option.is_correct %}border: 2px solid #198754;{% endif %}">
+                
+                <span>
+                        {{ option.text }}
+                    {% if vote.has_correct_answer and option.is_correct %}
+                        <span class="badge bg-success">Правильна</span>
+                    {% endif %}
+                </span>
+                <span class="badge bg-primary rounded-pill">{{ option.vote_count }}</span>
+            </li>
+        </a>
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="optionModal{{ option.id }}" tabindex="-1" aria-labelledby="optionModalLabel{{ option.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="optionModalLabel{{ option.id }}">Голосували за: "{{ option.text }}"</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+            </div>
+            <div class="modal-body">
+                {% if option.voted_users %}
+                    <ul class="list-group">
+                        {% for user in option.voted_users %}
+                            <li class="list-group-item">{{ user.get_full_name }} ({{ user.role }})</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Ніхто ще не проголосував за цей варіант.</p>
                 {% endif %}
-            </span>
-            <span class="badge bg-primary rounded-pill">{{ option.vote_count }}</span>
-        </li>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+            </div>
+            </div>
+        </div>
+        </div>
     {% endfor %}
 </ul>
 
@@ -45,12 +76,23 @@
     <div class="alert alert-warning">Голосування ще не почалося або вже завершилось.</div>
 {% endif %}
 
-<h5 class="mt-4">Хто може голосувати:</h5>
+<hr>
+
+<h5 class="mt-4">🧑‍🤝‍🧑 Хто може голосувати:</h5>
 <ul>
     {% for user in eligible_users %}
         <li>{{ user.get_full_name }} ({{ user.role }})</li>
     {% empty %}
         <li>Немає доступних учасників</li>
+    {% endfor %}
+</ul>
+
+<h5 class="mt-4">✅ Хто вже проголосував:</h5>
+<ul>
+    {% for user in voted_users %}
+        <li>{{ user.get_full_name }} ({{ user.role }})</li>
+    {% empty %}
+        <li>Ще ніхто не проголосував</li>
     {% endfor %}
 </ul>
 
@@ -62,4 +104,7 @@
 {% endif %}
 
 <a href="{% url 'vote_list' %}" class="btn btn-secondary mt-3">← Назад до списку</a>
+
+<!-- Bootstrap JS (для модальних вікон) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

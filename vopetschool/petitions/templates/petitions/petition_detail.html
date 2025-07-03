@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ petition.title }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2>{{ petition.title }}</h2>
+    <p class="text-muted">Дедлайн: {{ petition.deadline }}</p>
+    <p>{{ petition.description }}</p>
+
+    <p><strong>Кількість підтримки:</strong> <span id="support-count">{{ supporters_count }}</span></p>
+
+    {% if can_support %}
+        <form method="post" action="{% url 'support_petition' petition.pk %}" id="support-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-primary">Підтримати</button>
+        </form>
+    {% elif supported %}
+        <div class="alert alert-info">Ви вже підтримали цю петицію.</div>
+    {% else %}
+        <div class="alert alert-warning">Ви не можете підтримати цю петицію.</div>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById("support-form")?.addEventListener("submit", function(e) {
+    e.preventDefault();
+    fetch(this.action, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": this.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    }).then(response => response.json())
+      .then(data => {
+        if (data.success) {
+            document.getElementById("support-count").textContent = data.supporters_count;
+            this.remove();
+        }
+      });
+});
+</script>
+{% endblock %}

@@ -2,47 +2,74 @@
 {% block title %}Голосування{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Доступні голосування</h2>
-    <a href="{% url 'vote_create' %}" class="btn btn-success">Створити голосування</a>
-</div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
 
-{% if votes %}
-    <ul class="list-group">
-        {% for vote in votes %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                
-                <div>
-                    <strong>{{ vote.title }}</strong><br>
+                    <!-- Заголовок та кнопка -->
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <h2 class="fw-bold mb-0">🗳️ Доступні голосування</h2>
+                        <a href="{% url 'vote_create' %}" class="btn btn-outline-success rounded-pill">
+                            ➕ Створити голосування
+                        </a>
+                    </div>
 
-                    <small class="text-muted">
-                        {{ vote.start_date|date:"SHORT_DATETIME_FORMAT" }} —
-                        {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}
-                    </small><br>
-                    {% if request.user == vote.creator %}
-                        <p class="mb-1">Author: {{ vote.creator.get_full_name }} <span class="badge bg-secondary">You</span></p>
+                    {% if votes %}
+                        <div class="row g-4">
+                            {% for vote in votes %}
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                    <div class="border rounded-4 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
+
+                                        <div>
+                                            <h5 class="mb-2">{{ vote.title }}</h5>
+
+                                            <small class="text-muted">
+                                                📅 {{ vote.start_date|date:"SHORT_DATETIME_FORMAT" }}
+                                                — {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}
+                                            </small><br>
+
+                                            <small class="text-muted d-block mt-1">
+                                                👤 Автор: {{ vote.creator.get_full_name }}
+                                                {% if request.user == vote.creator %}
+                                                    <span class="badge bg-secondary">ви</span>
+                                                {% endif %}
+                                            </small>
+
+                                            <div class="mt-2">
+                                                <span class="badge 
+                                                    {% if vote.get_status_display == 'Активне' %}bg-success
+                                                    {% elif vote.get_status_display == 'Очікується початок' %}bg-secondary
+                                                    {% else %}bg-danger{% endif %}">
+                                                    {{ vote.get_status_display }}
+                                                </span>
+
+                                                {% if vote.id in voted_ids %}
+                                                    <span class="badge bg-primary">Проголосовано</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark">Не проголосовано</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="text-end mt-3">
+                                            <a href="{% url 'vote_detail' vote.pk %}" class="btn btn-outline-primary btn-sm rounded-pill w-100">
+                                                🔍 Переглянути
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
                     {% else %}
-                        <p class="mb-1">Author: {{ vote.creator.get_full_name }}</p>
-                    {% endif %}
-                    <span class="badge 
-                        {% if vote.get_status_display == 'Активне' %}bg-success
-                        {% elif vote.get_status_display == 'Очікується початок' %}bg-secondary
-                        {% else %}bg-danger{% endif %}">
-                        {{ vote.get_status_display }}
-                    </span>
-
-                    {% if vote.id in voted_ids %}
-                        <span class="badge bg-success">Проголосовано</span>
-                    {% else %}
-                        <span class="badge bg-secondary">Не проголосовано</span>
+                        <p class="text-muted text-center mt-4">Наразі немає доступних голосувань.</p>
                     {% endif %}
 
                 </div>
-                <a href="{% url 'vote_detail' vote.pk %}" class="btn btn-primary btn-sm">Переглянути</a>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Наразі немає доступних голосувань.</p>
-{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

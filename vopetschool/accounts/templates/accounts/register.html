@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% load form_extras %}
 
 {% block title %}Реєстрація{% endblock %}
 
@@ -19,7 +20,17 @@
                                 <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
                                     {{ field.label }}
                                 </label>
-                                {{ field|add_class:"form-control form-control-lg rounded-pill" }}
+                                {% if field|widget_type == "checkboxselectmultiple" %}
+                                    {% for checkbox in field %}
+                                        <div class="form-check">
+                                            {{ checkbox.tag }}
+                                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    {{ field|add_class:"form-control form-control-lg rounded-pill" }}
+                                {% endif %}
+
                                 
                                 {% if field.help_text %}
                                     <div class="form-text">

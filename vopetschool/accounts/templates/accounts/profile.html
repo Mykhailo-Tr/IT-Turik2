@@ -22,6 +22,16 @@
                                 <li class="mb-2"><strong>🏫 Клас:</strong> {{ user.student.school_class }}</li>
                             {% elif user.role == 'teacher' %}
                                 <li class="mb-2"><strong>📘 Предмет:</strong> {{ user.teacher.subject }}</li>
+                                <li class="mb-2"><strong>👥 Групи:</strong></li>
+                                {% if user.teacher.groups.all %}
+                                    <ul class="list-group list-group-flush ps-3">
+                                        {% for group in user.teacher.groups.all %}
+                                            <li class="list-group-item">{{ group }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted ps-3">Немає доданих груп.</p>
+                                {% endif %}
                             {% elif user.role == 'parent' %}
                                 <li class="mb-2"><strong>👨‍👩‍👧‍👦 Діти:</strong></li>
                                 {% if user.parent.children.all %}

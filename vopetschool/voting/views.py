@@ -5,13 +5,11 @@ from django.views import View
 from django.views.generic import ListView
 from django.db.models import Q, Count
 from django.utils.decorators import method_decorator
-from django.db.models import Count
 from django.http import HttpResponseForbidden
 from django.views.decorators.http import require_POST   
 from .models import Vote, VoteOption, VoteAnswer
 from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
 from accounts.models import User, TeacherGroup, ClassGroup
-
 
 
 class VoteListView(ListView):
@@ -36,7 +34,6 @@ class VoteListView(ListView):
         voted_ids = VoteAnswer.objects.filter(voter=self.request.user).values_list("option__vote_id", flat=True)
         context["voted_ids"] = set(voted_ids)
         return context
-
 
 
 @login_required
@@ -85,6 +82,24 @@ def vote_detail_view(request, pk):
     else:
         eligible_users = User.objects.all()
 
+    voted_users = User.objects.filter(voteanswer__option__vote=vote).distinct()
+
+    user_can_see_votes = (
+        request.user == vote.creator
+        or request.user.role in ["director", "admin"]
+        or already_voted
+        or not vote.is_active()
+    )
+
+    options_with_voters = []
+    raw_options = vote.options.annotate(vote_count=Count("voteanswer"))
+    options = []
+    for option in raw_options:
+        if user_can_see_votes:
+            option.voted_users = User.objects.filter(voteanswer__option=option)
+        else:
+            option.voted_users = []
+        options.append(option)
 
     return render(request, "voting/vote_detail.html", {
         "vote": vote,
@@ -92,10 +107,11 @@ def vote_detail_view(request, pk):
         "can_vote": can_vote,
         "already_voted": already_voted,
         "options": options,
-        "eligible_users": eligible_users,  # 🆕
+        "eligible_users": eligible_users,
+        "voted_users": voted_users,
+        "user_can_see_votes": user_can_see_votes,
+        "options_with_voters": options_with_voters,
     })
-
-
 
 
 @method_decorator(login_required, name="dispatch")

@@ -20,20 +20,12 @@ class PetitionListView(ListView):
     context_object_name = "petitions"
 
     def get_queryset(self):
-        user = self.request.user
-
-        base_qs = Petition.objects.filter(deadline__gte=timezone.now())
-
-        if user.role == "student":
-            return base_qs.filter(
-                Q(level=Petition.Level.SCHOOL) |
-                Q(level=Petition.Level.CLASS, class_group__name=user.student.school_class)
-            ).annotate(support_count=Count("supporters")).order_by("-created_at")
-
-        elif user.role in ["director", "admin"]:
-            return base_qs.annotate(support_count=Count("supporters")).order_by("-created_at")
-
-        return Petition.objects.none()
+        queryset = Petition.objects.annotate(support_count=Count("supporters", distinct=True))
+        for petition in queryset:
+            total = petition.get_eligible_voters_count()
+            support = petition.support_count
+            petition.support_percent = round((support / total * 100), 0) if total > 0 else 0
+        return queryset
 
 
 @login_required
@@ -67,6 +59,8 @@ def petition_detail_view(request, pk):
 
 
 
+@login_required
+@require_POST
 def support_petition_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
     user = request.user
@@ -80,9 +74,14 @@ def support_petition_view(request, pk):
     if petition.level == Petition.Level.CLASS and user.student.school_class != petition.class_group:
         return HttpResponseForbidden("Ця петиція не для вашого класу.")
 
-    petition.supporters.add(user)
+    # Перемикаємо підтримку
+    if petition.supporters.filter(id=user.id).exists():
+        petition.supporters.remove(user)
+        supported = False
+    else:
+        petition.supporters.add(user)
+        supported = True
 
-    # Переобчислення після підтримки
     if petition.level == Petition.Level.CLASS:
         eligible_voters = User.objects.filter(role="student", student__school_class=petition.class_group).count()
     elif petition.level == Petition.Level.SCHOOL:
@@ -97,6 +96,7 @@ def support_petition_view(request, pk):
         "success": True,
         "supporters_count": supporters_count,
         "support_percent": support_percent,
+        "supported": supported,
     })
 
 @method_decorator(login_required, name="dispatch")

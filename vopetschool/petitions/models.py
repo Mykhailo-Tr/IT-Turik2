@@ -1,7 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from accounts.models import ClassGroup
+from accounts.models import ClassGroup, User
+
 
 class Petition(models.Model):
     class Level(models.TextChoices):
@@ -30,6 +31,16 @@ class Petition(models.Model):
         elif self.level == self.Level.CLASS and self.class_group:
             return (self.class_group.students.count() // 2) + 1
         return 0
+    
+    def get_eligible_voters_count(self):
+        if self.level == self.Level.SCHOOL:
+            return User.objects.filter(role="student").count()
+
+        elif self.level == self.Level.CLASS and self.class_group:
+            return self.class_group.students.count()
+
+        return 0
+
 
     def is_ready_for_review(self):
         return self.supporters.count() >= self.total_needed_supporters()

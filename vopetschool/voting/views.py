@@ -9,7 +9,7 @@ from django.http import HttpResponseForbidden
 from django.views.decorators.http import require_POST   
 from .models import Vote, VoteOption, VoteAnswer
 from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
-from accounts.models import User, TeacherGroup, ClassGroup
+from accounts.models import User, TeacherGroup, ClassGroup, Student
 
 
 class VoteListView(ListView):
@@ -75,10 +75,11 @@ def vote_detail_view(request, pk):
             teacher__groups__in=vote.teacher_groups.all()
         ).distinct()
     elif vote.level == Vote.Level.CLASS:
-        eligible_users = User.objects.filter(
-            role="student",
-            student__school_class__in=[cg.name for cg in vote.class_groups.all()]
+        eligible_students = Student.objects.filter(
+            class_groups__in=vote.class_groups.all()
         ).distinct()
+        eligible_users = User.objects.filter(student__in=eligible_students)
+
     else:
         eligible_users = User.objects.all()
 

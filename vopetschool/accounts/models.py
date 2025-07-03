@@ -63,7 +63,7 @@ class TeacherGroup(models.Model):
 
 class ClassGroup(models.Model):
     name = models.CharField(max_length=100)
-    class_names = models.JSONField(default=list)  # напр. ["5-А", "6-Б"]
+    students = models.ManyToManyField(Student, related_name="class_groups")
 
     def __str__(self):
         return self.name

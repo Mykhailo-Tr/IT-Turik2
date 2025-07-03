@@ -22,6 +22,9 @@ class VoteListView(ListView):
     def get_queryset(self):
         user = self.request.user
 
+        if user.role in ["director", "admin"]:
+            return Vote.objects.all().order_by("-start_date", "-id")
+
         base_qs = Vote.objects.filter(
             Q(level=Vote.Level.SCHOOL) |
             Q(level=Vote.Level.CLASS, creator__student__school_class=user.student.school_class if hasattr(user, 'student') else None) |
@@ -30,6 +33,7 @@ class VoteListView(ListView):
         ).distinct()
 
         return base_qs.order_by("-start_date", "-id")
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -113,15 +117,16 @@ def vote_detail_view(request, pk):
 @method_decorator(login_required, name="dispatch")
 class VoteCreateView(View):
     def get(self, request):
-        vote_form = VoteCreateForm()
+        vote_form = VoteCreateForm(user=request.user)
         formset = VoteOptionFormSet()
         return render(request, "voting/forms/create.html", {
             "vote_form": vote_form,
             "formset": formset
         })
 
+
     def post(self, request):
-        vote_form = VoteCreateForm(request.POST)
+        vote_form = VoteCreateForm(request.POST, user=request.user)
         formset = VoteOptionFormSet(request.POST)
 
         if vote_form.is_valid() and formset.is_valid():
@@ -129,6 +134,10 @@ class VoteCreateView(View):
             vote.creator = request.user
             vote.save()
             vote_form.save_m2m()
+
+            # Додай автора в учасники, якщо рівень SELECTED
+            if vote.level == Vote.Level.SELECTED:
+                vote.participants.add(request.user)
 
             for form in formset:
                 text = form.cleaned_data.get("text")
@@ -144,6 +153,7 @@ class VoteCreateView(View):
             "vote_form": vote_form,
             "formset": formset
         })
+
 
 
 @require_POST

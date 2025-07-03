@@ -46,14 +46,21 @@ class VoteCreateForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)  # Отримаємо автора
         super().__init__(*args, **kwargs)
-        self.fields["participants"].queryset = User.objects.all()
+
+        qs = User.objects.all()
+        if user:
+            qs = qs.exclude(id=user.id)  # Прибрати автора зі списку
+
+        self.fields["participants"].queryset = qs
         self.fields["teacher_groups"].queryset = TeacherGroup.objects.all()
         self.fields["class_groups"].queryset = ClassGroup.objects.all()
 
         self.fields["participants"].required = False
         self.fields["teacher_groups"].required = False
         self.fields["class_groups"].required = False
+
 
 
 

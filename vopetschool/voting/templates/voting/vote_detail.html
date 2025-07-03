@@ -7,7 +7,6 @@
 <p>{{ vote.description }}</p>
 {% if request.user == vote.creator %}
     <p class="mb-1"><strong>Author:</strong> {{ vote.creator.get_full_name }} <span class="badge bg-secondary">You</span></p>
-    
 {% else %}
     <p class="mb-1"><strong>Author:</strong> {{ vote.creator.get_full_name }}</p>
 {% endif %}
@@ -22,8 +21,13 @@
 <h4>Варіанти:</h4>
 <ul class="list-group mb-3">
     {% for option in options %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ option.text }}
+        <li class="list-group-item d-flex justify-content-between align-items-center {% if vote.has_correct_answer and option.is_correct and not can_vote %}border border-success{% endif %}">
+            <span>
+                {{ option.text }}
+                {% if vote.has_correct_answer and option.is_correct and not can_vote %}
+                    <span class="badge bg-success ms-2">Правильний</span>
+                {% endif %}
+            </span>
             <span class="badge bg-primary rounded-pill">{{ option.vote_count }}</span>
         </li>
     {% endfor %}
@@ -50,14 +54,12 @@
     {% endfor %}
 </ul>
 
-
 {% if request.user == vote.creator or request.user.role in "director admin" %}
     <form method="post" action="{% url 'vote_delete' vote.pk %}" onsubmit="return confirm('Ви впевнені, що хочете видалити це голосування?');">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger mt-3">🗑️ Видалити голосування</button>
     </form>
 {% endif %}
-
 
 <a href="{% url 'vote_list' %}" class="btn btn-secondary mt-3">← Назад до списку</a>
 {% endblock %}

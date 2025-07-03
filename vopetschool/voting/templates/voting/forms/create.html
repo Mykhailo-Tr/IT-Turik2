@@ -4,97 +4,105 @@
 {% block title %}Створити голосування{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h2 class="mb-4 text-center">Створити нове голосування</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h2 class="fw-bold mb-4 text-center">🗳️ Створити нове голосування</h2>
 
-    <form method="post" id="vote-form">
-        {% csrf_token %}
+                    <form method="post" id="vote-form" novalidate>
+                        {% csrf_token %}
 
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-primary text-white">
-                Основна інформація
-            </div>
-            <div class="card-body">
-                {% for field in vote_form %}
-                    {% if field.name == "participants" %}
-                        <div class="mb-3 field-participants">
-                    {% elif field.name == "teacher_groups" %}
-                        <div class="mb-3 field-teacher_groups">
-                    {% elif field.name == "class_groups" %}
-                        <div class="mb-3 field-class_groups">
-                    {% else %}
-                        <div class="mb-3">
-                    {% endif %}
-
-                        {% if field.field.widget.input_type == "checkbox" %}
-                            <div class="form-check">
-                                {{ field|add_class:"form-check-input" }}
-                                <label class="form-check-label" for="{{ field.id_for_label }}">
-                                    {{ field.label }}
-                                </label>
-                            </div>
-                        {% else %}
-                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {{ field|add_class:"form-control" }}
-                        {% endif %}
-
-                        {% if field.help_text %}
-                            <div class="form-text">{{ field.help_text }}</div>
-                        {% endif %}
-                        {% for error in field.errors %}
-                            <div class="text-danger small">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="mb-0">Варіанти відповіді</h4>
-            <button type="button" class="btn btn-outline-primary" id="add-option">
-                <i class="bi bi-plus-circle"></i> Додати варіант
-            </button>
-        </div>
-
-        {{ formset.management_form }}
-        <div id="formset-container">
-            {% for form in formset %}
-                <div class="card formset-form mb-3 shadow-sm">
-                    <div class="card-body">
-                        <div class="row align-items-end">
-                            <div class="col-md-7">
-                                <label class="form-label">{{ form.text.label }}</label>
-                                {{ form.text|add_class:"form-control" }}
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check mt-4">
-                                    {{ form.is_correct|add_class:"form-check-input" }}
-                                    <label class="form-check-label">{{ form.is_correct.label }}</label>
+                        {% for field in vote_form %}
+                            {% if field.name == "level" %}
+                                <div class="mb-4">
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
+                            {% elif field.name == "participants" %}
+                                <div class="mb-4 field-participants" style="display: none;">
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
+                            {% elif field.name == "teacher_groups" %}
+                                <div class="mb-4 field-teacher_groups" style="display: none;">
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
+                            {% elif field.name == "class_groups" %}
+                                <div class="mb-4 field-class_groups" style="display: none;">
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
+                            {% elif field.field.widget.input_type == "checkbox" %}
+                                <div class="form-check form-switch mb-4">
+                                    {{ field|add_class:"form-check-input" }}
+                                    <label class="form-check-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% elif field.name == "description" %}
+                                <div class="mb-4">
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
+                            {% else %}
+                                <div class="mb-4">
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                                    {{ field|add_class:"form-control form-control-lg rounded-pill shadow-sm" }}
+                            {% endif %}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text|safe }}</div>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block mt-1">{{ field.errors|striptags }}</div>
+                                {% endif %}
                                 </div>
-                            </div>
-                            <div class="col-md-2 text-end mt-4">
-                                <button type="button" class="btn btn-outline-danger btn-sm remove-option" title="Видалити">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+                        {% endfor %}
 
-        <div class="text-center mt-4">
-            <button type="submit" class="btn btn-success btn-lg px-4">
-                <i class="bi bi-check-circle"></i> Створити голосування
-            </button>
+                        <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+                            <h5 class="fw-bold mb-0">Варіанти відповіді</h5>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="add-option">
+                                <i class="bi bi-plus-circle"></i> Додати варіант
+                            </button>
+                        </div>
+
+                        {{ formset.management_form }}
+                        <div id="formset-container">
+                            {% for form in formset %}
+                                <div class="card formset-form mb-3 shadow-sm border-0 rounded-3">
+                                    <div class="card-body">
+                                        <div class="row align-items-end">
+                                            <div class="col-md-8">
+                                                <label class="form-label">{{ form.text.label }}</label>
+                                                {{ form.text|add_class:"form-control form-control-lg rounded-pill" }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-check mt-4">
+                                                    {{ form.is_correct|add_class:"form-check-input" }}
+                                                    <label class="form-check-label">{{ form.is_correct.label }}</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 text-end mt-4">
+                                                <button type="button" class="btn btn-outline-danger btn-sm remove-option" title="Видалити">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5">
+                                <i class="bi bi-check-circle"></i> Створити голосування
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 
 <!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-<!-- JS: Динамічне додавання/видалення варіантів -->
+<!-- JS -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const container = document.getElementById("formset-container");
@@ -105,10 +113,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const forms = container.querySelectorAll(".formset-form");
         forms.forEach((form, index) => {
             form.querySelectorAll("input, label").forEach(el => {
-                if (el.name) el.name = el.name.replace(/form-\d+-/, `form-${index}-`);
-                if (el.id) el.id = el.id.replace(/form-\d+-/, `form-${index}-`);
+                if (el.name) el.name = el.name.replace(/form-\\d+-/, `form-${index}-`);
+                if (el.id) el.id = el.id.replace(/form-\\d+-/, `form-${index}-`);
                 if (el.tagName.toLowerCase() === "label" && el.htmlFor)
-                    el.htmlFor = el.htmlFor.replace(/form-\d+-/, `form-${index}-`);
+                    el.htmlFor = el.htmlFor.replace(/form-\\d+-/, `form-${index}-`);
             });
         });
         totalForms.value = forms.length;
@@ -145,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     attachRemoveHandlers();
 
-    // Динамічне перемикання видимості полів
+    // Перемикання полів залежно від рівня доступу
     const levelField = document.getElementById("id_level");
     const participantsField = document.querySelector(".field-participants");
     const teacherGroupsField = document.querySelector(".field-teacher_groups");
@@ -153,14 +161,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function toggleFields() {
         const level = levelField.value;
-
         if (participantsField) participantsField.style.display = (level === "selected") ? "block" : "none";
         if (teacherGroupsField) teacherGroupsField.style.display = (level === "teachers") ? "block" : "none";
         if (classGroupsField) classGroupsField.style.display = (level === "class") ? "block" : "none";
     }
 
-    levelField.addEventListener("change", toggleFields);
-    toggleFields();  // при завантаженні
+    if (levelField) {
+        levelField.addEventListener("change", toggleFields);
+        toggleFields();
+    }
 });
 </script>
 {% endblock %}

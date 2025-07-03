@@ -1,24 +1,69 @@
 {% extends "base.html" %}
 {% block title %}Петиції{% endblock %}
+
 {% block content %}
 <div class="container py-5">
-    <h2 class="mb-4">📢 Петиції</h2>
-    {% if petitions %}
-        <ul class="list-group">
-            {% for petition in petitions %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="{% url 'petition_detail' petition.pk %}" class="text-decoration-none">
-                        {{ petition.title }}
-                    </a>
-                    <span class="badge bg-primary rounded-pill">{{ petition.support_count }}</span>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Немає активних петицій.</p>
-    {% endif %}
-    <div class="mt-4">
-        <a href="{% url 'petition_create' %}" class="btn btn-success rounded-pill">Створити петицію</a>
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+
+                    <!-- Заголовок і кнопка -->
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <h2 class="fw-bold mb-0">📢 Активні петиції</h2>
+                        <a href="{% url 'petition_create' %}" class="btn btn-outline-success rounded-pill">
+                            ➕ Створити петицію
+                        </a>
+                    </div>
+
+                    {% if petitions %}
+                        <div class="row g-4">
+                            {% for petition in petitions %}
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                    <div class="border rounded-4 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
+
+                                        <div>
+                                            <h5 class="mb-2">{{ petition.title }}</h5>
+
+                                            <small class="text-muted d-block mt-1">
+                                                ⏳ {{ petition.deadline|date:"SHORT_DATETIME_FORMAT" }}
+                                            </small>
+
+                                            <small class="text-muted d-block mt-1">
+                                                👤 Автор: {{ petition.creator.get_full_name }}
+                                                {% if request.user == petition.creator %}
+                                                    <span class="badge bg-secondary">ви</span>
+                                                {% endif %}
+                                            </small>
+
+                                            <div class="mt-2">
+                                                <span class="badge bg-info text-dark">Рівень: {{ petition.get_level_display }}</span>
+
+                                                {% if petition.class_group %}
+                                                    <span class="badge bg-secondary">{{ petition.class_group }}</span>
+                                                {% endif %}
+                                                <span class="badge bg-primary rounded-pill mt-2">🙋 {{ petition.support_count }}</span>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="text-end mt-3">
+                                            <a href="{% url 'petition_detail' petition.pk %}" class="btn btn-outline-primary btn-sm rounded-pill w-100">
+                                                🔍 Переглянути
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center mt-4">Наразі немає активних петицій.</p>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

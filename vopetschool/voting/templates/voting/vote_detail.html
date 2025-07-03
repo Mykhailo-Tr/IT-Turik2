@@ -37,18 +37,20 @@
                     <h5 class="mb-3">📝 Варіанти:</h5>
                     <ul class="list-group mb-4">
                         {% for option in options %}
-                            <a href="#" class="text-decoration-none option-detail" data-bs-toggle="modal" data-bs-target="#optionModal{{ option.id }}">
-                                <li class="list-group-item d-flex justify-content-between align-items-center rounded-3 shadow-sm mb-2
-                                    {% if user_can_see_votes and vote.has_correct_answer and option.is_correct %}border-success{% endif %}"
-                                    style="{% if user_can_see_votes and vote.has_correct_answer and option.is_correct %}border: 2px solid #198754;{% endif %}">
-                                    
-                                    <span>
-                                        {{ option.text }}
-                                        {% if user_can_see_votes and vote.has_correct_answer and option.is_correct %}
-                                            <span class="badge bg-success">Правильна</span>
-                                        {% endif %}
-                                    </span>
-                                    <span class="badge bg-primary rounded-pill">{{ option.vote_count }}</span>
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#optionModal{{ option.id }}">
+                                <li class="list-group-item rounded-3 shadow-sm mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-semibold">
+                                            {{ option.text }}
+                                            {% if user_can_see_votes and vote.has_correct_answer and option.is_correct %}
+                                                <span class="badge bg-success">Правильна</span>
+                                            {% endif %}
+                                        </span>
+                                        <span class="badge bg-primary rounded-pill vote-count" data-count="{{ option.vote_count }}">{{ option.vote_count }}</span>
+                                    </div>
+                                    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar bg-info" style="width: 0%" data-bar-for="{{ option.id }}" id="progress-option-{{ option.id }}"></div>
+                                    </div>
                                 </li>
                             </a>
 
@@ -138,6 +140,23 @@
     </div>
 </div>
 
-<!-- Bootstrap JS (для модальних вікон) -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Динамічний прогрес-бар -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const counts = Array.from(document.querySelectorAll(".vote-count")).map(el => parseInt(el.dataset.count));
+        const total = counts.reduce((a, b) => a + b, 0);
+
+        document.querySelectorAll(".vote-count").forEach(el => {
+            const count = parseInt(el.dataset.count);
+            const optionId = el.closest("a").querySelector(".progress-bar").dataset.barFor;
+            const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+            const bar = document.getElementById("progress-option-" + optionId);
+            bar.style.width = percent + "%";
+            bar.textContent = percent + "%";
+        });
+    });
+</script>
 {% endblock %}

@@ -100,6 +100,13 @@ def vote_detail_view(request, pk):
         else:
             option.voted_users = []
         options.append(option)
+        
+    option_voted_users_dict = {}
+    if user_can_see_votes:
+        for option in vote.options.all():
+            option_voted_users_dict[option.id] = list(
+                User.objects.filter(voteanswer__option=option)
+            )
 
     return render(request, "voting/vote_detail.html", {
         "vote": vote,
@@ -111,6 +118,7 @@ def vote_detail_view(request, pk):
         "voted_users": voted_users,
         "user_can_see_votes": user_can_see_votes,
         "options_with_voters": options_with_voters,
+        "option_voted_users_dict": option_voted_users_dict,
     })
 
 

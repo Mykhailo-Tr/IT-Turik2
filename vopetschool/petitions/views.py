@@ -31,7 +31,7 @@ class PetitionListView(ListView):
             ).annotate(support_count=Count("supporters")).order_by("-created_at")
 
         elif user.role in ["director", "admin"]:
-            return base_qs.annotate(support_count=Count("supporters")).order_by("-created")
+            return base_qs.annotate(support_count=Count("supporters")).order_by("-created_at")
 
         return Petition.objects.none()
 

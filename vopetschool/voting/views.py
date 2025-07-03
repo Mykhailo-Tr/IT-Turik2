@@ -47,7 +47,8 @@ def vote_detail_view(request, pk):
     vote = get_object_or_404(Vote, pk=pk)
 
     if vote.level == Vote.Level.SELECTED and request.user not in vote.participants.all():
-        return render(request, "voting/access_denied.html")
+        messages.error(request, "Ви не можете голосувати в цьому голосуванні.")
+        return redirect("vote_list")
 
     already_voted = VoteAnswer.objects.filter(voter=request.user, option__vote=vote).exists()
     can_vote = vote.is_active() and not already_voted
@@ -119,7 +120,7 @@ class VoteCreateView(View):
     def get(self, request):
         vote_form = VoteCreateForm(user=request.user)
         formset = VoteOptionFormSet()
-        return render(request, "voting/forms/create.html", {
+        return render(request, "voting/create.html", {
             "vote_form": vote_form,
             "formset": formset
         })
@@ -149,7 +150,7 @@ class VoteCreateView(View):
             return redirect("vote_detail", pk=vote.pk)
 
         messages.error(request, "Помилка при створенні голосування. Перевірте форму.")
-        return render(request, "voting/forms/create.html", {
+        return render(request, "voting/create.html", {
             "vote_form": vote_form,
             "formset": formset
         })

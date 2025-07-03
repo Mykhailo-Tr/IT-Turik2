@@ -24,7 +24,6 @@ class Vote(models.Model):
     has_correct_answer = models.BooleanField(default=False)
 
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="votes_available", blank=True)
-    
     teacher_groups = models.ManyToManyField(TeacherGroup, blank=True)
     class_groups = models.ManyToManyField(ClassGroup, blank=True)   
     

@@ -15,43 +15,61 @@
                         {% csrf_token %}
 
                         {% for field in vote_form %}
-                            {% if field.name == "level" %}
+                            {% if field.name == "level" or field.name == "description" %}
                                 <div class="mb-4">
                                     <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
                                     {{ field|add_class:"form-control rounded-4 shadow-sm" }}
+                            
                             {% elif field.name == "participants" %}
                                 <div class="mb-4 field-participants" style="display: none;">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
+                                    <label class="form-label fw-semibold">{{ field.label }}</label>
+                                    {% for checkbox in field %}
+                                        <div class="form-check">
+                                            {{ checkbox.tag }}
+                                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                        </div>
+                                    {% endfor %}
+                            
                             {% elif field.name == "teacher_groups" %}
                                 <div class="mb-4 field-teacher_groups" style="display: none;">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
+                                    <label class="form-label fw-semibold">{{ field.label }}</label>
+                                    {% for checkbox in field %}
+                                        <div class="form-check">
+                                            {{ checkbox.tag }}
+                                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                        </div>
+                                    {% endfor %}
+
                             {% elif field.name == "class_groups" %}
                                 <div class="mb-4 field-class_groups" style="display: none;">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
+                                    <label class="form-label fw-semibold">{{ field.label }}</label>
+                                    {% for checkbox in field %}
+                                        <div class="form-check">
+                                            {{ checkbox.tag }}
+                                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                        </div>
+                                    {% endfor %}
+                            
                             {% elif field.field.widget.input_type == "checkbox" %}
                                 <div class="form-check form-switch mb-4">
                                     {{ field|add_class:"form-check-input" }}
                                     <label class="form-check-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {% elif field.name == "description" %}
-                                <div class="mb-4">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
+                            
                             {% else %}
                                 <div class="mb-4">
                                     <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
                                     {{ field|add_class:"form-control form-control-lg rounded-pill shadow-sm" }}
                             {% endif %}
-                                {% if field.help_text %}
-                                    <div class="form-text">{{ field.help_text|safe }}</div>
-                                {% endif %}
-                                {% if field.errors %}
-                                    <div class="invalid-feedback d-block mt-1">{{ field.errors|striptags }}</div>
-                                {% endif %}
-                                </div>
+                            
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text|safe }}</div>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="invalid-feedback d-block mt-1">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                            </div>
                         {% endfor %}
+
 
                         <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
                             <h5 class="fw-bold mb-0">Варіанти відповіді</h5>

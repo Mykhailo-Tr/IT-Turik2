@@ -40,9 +40,9 @@ class VoteCreateForm(forms.ModelForm):
         widgets = {
             "start_date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
             "end_date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
-            "participants": forms.SelectMultiple(attrs={"size": 10}),
-            "teacher_groups": forms.SelectMultiple(attrs={"size": 5}),
-            "class_groups": forms.SelectMultiple(attrs={"size": 5}),
+            "participants": forms.CheckboxSelectMultiple(attrs={"size": 5}),
+            "teacher_groups": forms.CheckboxSelectMultiple(attrs={"size": 5}),
+            "class_groups": forms.CheckboxSelectMultiple(attrs={"size": 5}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -60,6 +60,8 @@ class VoteCreateForm(forms.ModelForm):
         self.fields["participants"].required = False
         self.fields["teacher_groups"].required = False
         self.fields["class_groups"].required = False
+        
+        
 
 
 

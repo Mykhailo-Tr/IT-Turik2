@@ -14,7 +14,12 @@
                         <div>
                             <h2 class="fw-bold">📢 {{ petition.title }}</h2>
                             <p class="text-muted mb-2">📝 {{ petition.text }}</p>
-                            <p class="mb-1">👤 <strong>Автор:</strong> {{ petition.creator.get_full_name }}</p>
+                            <p class="mb-1">👤 <strong>Автор:</strong> {{ petition.creator.get_full_name }}
+                                <span class="text-muted">({{ petition.creator.role }})</span>
+                                {% if request.user == petition.creator %}
+                                    <span class="badge bg-secondary">Ви</span>
+                                {% endif %}
+                            </p>
                             <p class="mb-1">📅 <strong>Створено:</strong> {{ petition.created_at|date:"SHORT_DATETIME_FORMAT" }}</p>
                             {% if petition.deadline %}
                                 <p class="mb-1">⏳ <strong>Дедлайн:</strong> {{ petition.deadline|date:"SHORT_DATETIME_FORMAT" }}</p>
@@ -112,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // 🔄 Завжди запускаємо оновлення, навіть якщо форми немає
-    setInterval(refreshSupportData, 5000);
+    setInterval(refreshSupportData, 2000);
 
     // 📨 Обробка кнопки підтримки, якщо вона є
     if (formWrapper) {

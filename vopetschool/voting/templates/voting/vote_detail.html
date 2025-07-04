@@ -17,7 +17,12 @@
                         <div>
                             <h2 class="fw-bold">{{ vote.title }}</h2>
                             <p class="text-muted mb-2">{{ vote.description }}</p>
-                            <p class="mb-1"><strong>Автор:</strong> {{ vote.creator.get_full_name }}{% if request.user == vote.creator %} <span class="badge bg-secondary">Ви</span>{% endif %}</p>
+                            <p class="mb-1"><strong>Автор:</strong> {{ vote.creator.get_full_name }}
+                                <span class="text-muted">({{ vote.creator.role }})</span>
+                                {% if request.user == vote.creator %}
+                                    <span class="badge bg-secondary">Ви</span>
+                                {% endif %}
+                            </p>
                             {% if vote.end_date %}
                                 <p class="mb-1"><strong>Доступне до:</strong> {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}</p>
                             {% endif %}
@@ -149,7 +154,6 @@
     </div>
 </div>
 
-<!-- JS для прогрес-барів -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const voteCounts = document.querySelectorAll(".vote-count");

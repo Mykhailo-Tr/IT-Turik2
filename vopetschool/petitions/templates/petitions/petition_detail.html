@@ -99,58 +99,75 @@ document.addEventListener("DOMContentLoaded", function () {
     const countElem = document.getElementById("support-count");
     const progressElem = document.getElementById("support-progress");
 
-    formWrapper?.addEventListener("submit", function (e) {
-        e.preventDefault();
-        const form = e.target;
-        const formData = new FormData(form);
-        const isCancel = formData.get("cancel");
-
-        fetch(form.action, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": form.querySelector('[name=csrfmiddlewaretoken]').value,
-            },
-            body: formData
-        }).then(response => response.json())
-          .then(data => {
-            if (data.success) {
-                // Оновити лічильник і прогрес
+    // 🔁 Функція оновлення лічильників
+    function refreshSupportData() {
+        fetch("{% url 'support_petition' petition.pk %}?refresh=1")
+            .then(r => r.json())
+            .then(data => {
                 countElem.textContent = data.supporters_count;
                 progressElem.style.width = data.support_percent + "%";
                 progressElem.setAttribute("aria-valuenow", data.support_percent);
                 progressElem.textContent = data.support_percent + "%";
+            });
+    }
 
-                // Змінити кнопку
-                const newForm = document.createElement("form");
-                newForm.method = "post";
-                newForm.action = form.action;
-                newForm.id = "support-form";
+    // 🔄 Завжди запускаємо оновлення, навіть якщо форми немає
+    setInterval(refreshSupportData, 5000);
 
-                const csrf = document.createElement("input");
-                csrf.type = "hidden";
-                csrf.name = "csrfmiddlewaretoken";
-                csrf.value = form.querySelector('[name=csrfmiddlewaretoken]').value;
-                newForm.appendChild(csrf);
+    // 📨 Обробка кнопки підтримки, якщо вона є
+    if (formWrapper) {
+        formWrapper.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const isCancel = formData.get("cancel");
 
-                const btn = document.createElement("button");
-                btn.type = "submit";
-                btn.className = "btn rounded-pill " + (isCancel ? "btn-outline-primary" : "btn-outline-danger");
-                btn.innerHTML = isCancel ? "🙋 Підтримати петицію" : "❌ Скасувати підтримку";
+            fetch(form.action, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": form.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                    countElem.textContent = data.supporters_count;
+                    progressElem.style.width = data.support_percent + "%";
+                    progressElem.setAttribute("aria-valuenow", data.support_percent);
+                    progressElem.textContent = data.support_percent + "%";
 
-                if (!isCancel) {
-                    const hidden = document.createElement("input");
-                    hidden.type = "hidden";
-                    hidden.name = "cancel";
-                    hidden.value = "1";
-                    newForm.appendChild(hidden);
+                    const newForm = document.createElement("form");
+                    newForm.method = "post";
+                    newForm.action = form.action;
+                    newForm.id = "support-form";
+
+                    const csrf = document.createElement("input");
+                    csrf.type = "hidden";
+                    csrf.name = "csrfmiddlewaretoken";
+                    csrf.value = form.querySelector('[name=csrfmiddlewaretoken]').value;
+                    newForm.appendChild(csrf);
+
+                    const btn = document.createElement("button");
+                    btn.type = "submit";
+                    btn.className = "btn rounded-pill " + (isCancel ? "btn-outline-primary" : "btn-outline-danger");
+                    btn.innerHTML = isCancel ? "🙋 Підтримати петицію" : "❌ Скасувати підтримку";
+
+                    if (!isCancel) {
+                        const hidden = document.createElement("input");
+                        hidden.type = "hidden";
+                        hidden.name = "cancel";
+                        hidden.value = "1";
+                        newForm.appendChild(hidden);
+                    }
+
+                    newForm.appendChild(btn);
+                    formWrapper.innerHTML = "";
+                    formWrapper.appendChild(newForm);
                 }
-
-                newForm.appendChild(btn);
-                formWrapper.innerHTML = "";
-                formWrapper.appendChild(newForm);
-            }
-          });
-    });
+              });
+        });
+    }
 });
 </script>
+
 {% endblock %}

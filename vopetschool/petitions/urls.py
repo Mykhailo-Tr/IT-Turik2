@@ -4,7 +4,8 @@ from .views import (
     petition_detail_view,
     support_petition_view,
     PetitionCreateView,
-    delete_petition_view
+    delete_petition_view,
+   
 )
 
 urlpatterns = [

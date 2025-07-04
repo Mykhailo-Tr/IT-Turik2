@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import ListView
 from django.http import JsonResponse, HttpResponseForbidden
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.db.models import Count, Q
@@ -59,29 +59,10 @@ def petition_detail_view(request, pk):
 
 
 
-@login_required
-@require_POST
-def support_petition_view(request, pk):
-    petition = get_object_or_404(Petition, pk=pk)
-    user = request.user
-
-    if user.role != "student":
-        return HttpResponseForbidden("Тільки учні можуть підтримувати петиції.")
-
-    if timezone.now() > petition.deadline:
-        return HttpResponseForbidden("Петиція завершена.")
-
-    if petition.level == Petition.Level.CLASS and user.student.school_class != petition.class_group:
-        return HttpResponseForbidden("Ця петиція не для вашого класу.")
-
-    # Перемикаємо підтримку
-    if petition.supporters.filter(id=user.id).exists():
-        petition.supporters.remove(user)
-        supported = False
-    else:
-        petition.supporters.add(user)
-        supported = True
-
+def calculate_petition_support(petition):
+    """
+    Обчислює кількість голосів і % підтримки
+    """
     if petition.level == Petition.Level.CLASS:
         eligible_voters = User.objects.filter(role="student", student__school_class=petition.class_group).count()
     elif petition.level == Petition.Level.SCHOOL:
@@ -92,12 +73,48 @@ def support_petition_view(request, pk):
     supporters_count = petition.supporters.count()
     support_percent = int((supporters_count / eligible_voters) * 100) if eligible_voters > 0 else 0
 
-    return JsonResponse({
-        "success": True,
+    return {
         "supporters_count": supporters_count,
         "support_percent": support_percent,
-        "supported": supported,
-    })
+        "eligible_voters": eligible_voters,
+    }
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def support_petition_view(request, pk):
+    petition = get_object_or_404(Petition, pk=pk)
+    user = request.user
+
+    # ❓ API GET-запит на оновлення даних
+    if request.method == "GET" and request.GET.get("refresh") == "1":
+        data = calculate_petition_support(petition)
+        return JsonResponse(data)
+
+    # 🛑 Захист: лише учні
+    if user.role != "student":
+        return HttpResponseForbidden("Тільки учні можуть підтримувати петиції.")
+
+    # 🛑 Перевірка дедлайну
+    if petition.deadline and timezone.now() > petition.deadline:
+        return HttpResponseForbidden("Петиція завершена.")
+
+    # 🛑 Обмеження на рівні класу
+    if petition.level == Petition.Level.CLASS and user.student.school_class != petition.class_group:
+        return HttpResponseForbidden("Ця петиція не для вашого класу.")
+
+    # ✅ Перемикання підтримки
+    if petition.supporters.filter(id=user.id).exists():
+        petition.supporters.remove(user)
+        supported = False
+    else:
+        petition.supporters.add(user)
+        supported = True
+
+    data = calculate_petition_support(petition)
+    data["success"] = True
+    data["supported"] = supported
+    return JsonResponse(data)
 
 @method_decorator(login_required, name="dispatch")
 class PetitionCreateView(View):

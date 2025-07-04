@@ -57,9 +57,18 @@ class Comment(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     text = models.TextField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(blank=True, null=True)
+
 
     class Meta:
         ordering = ["-created_at"]
+        
+    
+    def was_edited(self):
+        if not self.updated_at:
+            return False
+        return self.created_at < self.updated_at
+        
 
     def __str__(self):
         return f"Comment by {self.author.get_full_name()} on {self.petition.title}"

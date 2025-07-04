@@ -99,44 +99,84 @@
 
                     <!-- Коментарі -->
                     <h5 class="mb-3">💬 Коментарі:</h5>
+
                     <!-- Кнопка відкриття модального вікна -->
                     <button class="btn btn-outline-success rounded-pill mb-4" data-bs-toggle="modal" data-bs-target="#commentModal">
                         ➕ Додати коментар
                     </button>
 
-                    <!-- Модальне вікно -->
+                    <!-- Модальне вікно додавання коментаря -->
                     <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content rounded-4 shadow">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="commentModalLabel">💬 Новий коментар</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
-                        </div>
-                        <form method="post" action="{% url 'add_comment' petition.pk %}">
-                            {% csrf_token %}
-                            <div class="modal-body">
-                            <textarea name="text" rows="4" class="form-control" placeholder="Введіть ваш коментар..." required></textarea>
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content rounded-4 shadow">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="commentModalLabel">💬 Новий коментар</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                                </div>
+                                <form method="post" action="{% url 'add_comment' petition.pk %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <textarea name="text" rows="4" class="form-control" placeholder="Введіть ваш коментар..." required></textarea>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Закрити</button>
+                                        <button type="submit" class="btn btn-primary rounded-pill">💬 Надіслати</button>
+                                    </div>
+                                </form>
                             </div>
-                            <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Закрити</button>
-                            <button type="submit" class="btn btn-primary rounded-pill">💬 Надіслати</button>
-                            </div>
-                        </form>
                         </div>
                     </div>
-                    </div>
-
 
                     {% if comments %}
                         <div class="list-group">
                             {% for comment in comments %}
                                 <div class="list-group-item mb-2 border rounded-3">
-                                    <div class="d-flex justify-content-between">
+                                    <div class="d-flex justify-content-between align-items-start">
                                         <strong>{{ comment.author.get_full_name }}</strong>
-                                        <small class="text-muted">{{ comment.created_at|date:"SHORT_DATETIME_FORMAT" }}</small>
+                                        {% if comment.was_edited %}
+                                            <span class="badge bg-warning text-dark">📝 Редаговано {{ comment.updated_at|date:"SHORT_DATETIME_FORMAT" }}</span>
+                                        {% endif %}
+                                        <small class="badge bg-success text-dark">Створено {{ comment.created_at|date:"SHORT_DATETIME_FORMAT" }}</small>
                                     </div>
-                                    <p class="mb-0 mt-2">{{ comment.text }}</p>
+                                    <p class="mb-1 mt-2">{{ comment.text }}</p>
+
+                                    {% if comment.author == request.user %}
+                                        <div class="mt-2 d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editCommentModal-{{ comment.pk }}"
+                                                data-comment-id="{{ comment.pk }}"
+                                                data-comment-text="{{ comment.text|escapejs }}">
+                                            ✏️
+                                        </button>
+                                            <form method="post" action="{% url 'delete_comment' petition.pk comment.pk %}" onsubmit="return confirm('❗ Ви впевнені, що хочете видалити коментар?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">🗑️</button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
                                 </div>
+                                <div class="modal fade" id="editCommentModal-{{ comment.pk }}" tabindex="-1" aria-labelledby="editCommentModalLabel-{{ comment.pk }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-4 shadow">
+                                        <form method="post" action="{% url 'edit_comment' petition.pk comment.pk %}" class="edit-comment-form">
+                                            {% csrf_token %}
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editCommentModalLabel-{{ comment.pk }}">✏️ Редагувати коментар</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <textarea name="text" class="form-control" rows="4" required>{{ comment.text }}</textarea>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Скасувати</button>
+                                                <button type="submit" class="btn btn-primary rounded-pill">💾 Зберегти</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
                             {% endfor %}
                         </div>
                     {% else %}
@@ -148,9 +188,8 @@
         </div>
     </div>
 </div>
-
-
 {% endblock %}
+
 {% block scripts %}
 <script src="{% static 'petitions/js/petition.js' %}"></script>
 {% endblock %}

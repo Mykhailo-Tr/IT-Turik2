@@ -99,10 +99,13 @@ class DeleteAccountView(View):
 @method_decorator(login_required, name='dispatch')
 class ProfileView(View):
     def get(self, request):
-        class_group = request.user.student.get_class_group()
-        context = {
-            "class_group": class_group,
-        }
+        context = {}
+        if request.user.role == "student":
+            class_group = request.user.student.get_class_group()
+            context = {
+                "class_group": class_group,
+            }
+            
         return render(request, "accounts/profile.html", context)
 
 

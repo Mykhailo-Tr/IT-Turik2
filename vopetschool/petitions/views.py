@@ -66,29 +66,61 @@ def petition_detail_view(request, pk):
 def add_comment_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
     form = CommentForm(request.POST)
+
     if form.is_valid():
         comment = form.save(commit=False)
         comment.petition = petition
         comment.author = request.user
         comment.save()
-
-        if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            return JsonResponse({
-                "success": True,
-                "author": comment.author.get_full_name(),
-                "created_at": comment.created_at.strftime("%d.%m.%Y %H:%M"),
-                "text": comment.text,
-            })
-
-    if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        return JsonResponse({
-            "success": True,
-            "author": comment.author.get_full_name(),
-            "created_at": comment.created_at.strftime("%d.%m.%Y %H:%M"),
-            "text": comment.text,
-        })
+        messages.success(request, "✅ Коментар додано успішно.")
+    else:
+        messages.error(request, "❌ Помилка при додаванні коментаря.")
 
     return redirect("petition_detail", pk=pk)
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def edit_comment_view(request, petition_pk, comment_pk):
+    petition = get_object_or_404(Petition, pk=petition_pk)
+    comment = get_object_or_404(petition.comments, pk=comment_pk)
+
+    if request.user != comment.author:
+        messages.error(request, "❌ Ви не можете редагувати цей коментар.")
+        return redirect("petition_detail", pk=petition_pk)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.instance.updated_at = timezone.now()  # Оновлюємо час редагування
+
+            form.save()
+            messages.success(request, "✅ Коментар оновлено успішно.")
+            return redirect("petition_detail", pk=petition_pk)
+        else:
+            messages.error(request, "❌ Помилка при оновленні коментаря.")
+    else:
+        form = CommentForm(instance=comment)
+
+    return render(request, "petitions/edit_comment.html", {
+        "form": form,
+        "petition": petition,
+        "comment": comment,
+    })
+    
+
+@login_required
+@require_POST
+def delete_comment_view(request, petition_pk, comment_pk):
+    petition = get_object_or_404(Petition, pk=petition_pk)
+    comment = get_object_or_404(petition.comments, pk=comment_pk)
+
+    if request.user != comment.author:
+        messages.error(request, "❌ Ви не можете видалити цей коментар.")
+        return redirect("petition_detail", pk=petition_pk)
+
+    comment.delete()
+    messages.success(request, "🗑️ Коментар видалено успішно.")
+    return redirect("petition_detail", pk=petition_pk)
 
 
 def calculate_petition_support(petition):

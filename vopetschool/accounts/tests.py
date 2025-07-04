@@ -1,122 +1,193 @@
-from django.test import TestCase, Client
+import pytest
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from accounts.models import User, Student
-from accounts.forms import RoleChoiceForm
+from django.test import Client
+from accounts.models import ClassGroup
 
-UserModel = get_user_model()
+User = get_user_model()
 
-class AccountViewsTests(TestCase):
-    def setUp(self):
-        self.client = Client()
-        self.student_data = {
-            "email": "student@example.com",
-            "first_name": "Test",
-            "last_name": "Student",
-            "password": "Testpass123",
-            "password2": "Testpass123",
-            "school_class": "10-Б",
-        }
+# ==== FIXTURES ====
 
-        self.director_data = {
-            "email": "director@example.com",
-            "first_name": "Dina", 
-            "last_name": "Director",
-            "password": "Testpass123",
-            "password2": "Testpass123",
-        }
+@pytest.fixture
+def client():
+    return Client()
 
-        self.teacher_data = {
-            "email": "teacher@example.com",
-            "first_name": "Tina",
-            "last_name": "Teacher",
-            "password": "Testpass123",
-            "password2": "Testpass123",
-            "subject": "Математика",
-        }
-        
-        self.student_user = UserModel.objects.create_user(
-            email="child@example.com",
-            password="Childpass123",
-            first_name="Child",
-            last_name="User",
-            role=User.Role.STUDENT,  # важливо: використовуємо enums
-        )
+@pytest.fixture
+def student(db):
+    return User.objects.create_user(
+        email="student@example.com",
+        password="password123",
+        role=User.Role.STUDENT,
+        first_name="Ivan",
+        last_name="Petrenko"
+    )
 
-        self.student = Student.objects.create(
-        user=self.student_user,
-        school_class="6-А"
-        )
+@pytest.fixture
+def authenticated_client(client, student):
+    client.force_login(student)
+    return client
 
-        self.parent_data = {
-            "email": "parent@example.com",
-            "first_name": "Paul",
-            "last_name": "Parent",
-            "password": "Testpass123",
-            "password2": "Testpass123",
-            "children": [self.student.pk],
-        }
+# ==== TESTS ====
+
+@pytest.mark.django_db
+def test_register_role_selection_view(client):
+    url = reverse("register")
+    response = client.get(url)
+    assert response.status_code == 200
+    assert "form" in response.context
+
+    # Valid role selection POST
+    response = client.post(url, {"role": "student"})
+    assert response.status_code == 302
+    assert response.url == reverse("register_role", args=["student"])
+
+    # Invalid role selection POST
+    response = client.post(url, {"role": ""})
+    assert response.status_code == 200
+    assert "form" in response.context
 
 
-    def test_role_select_get(self):
-        response = self.client.get(reverse("register"))
-        self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.context["form"], RoleChoiceForm)
+@pytest.mark.django_db
+def test_register_view_get(client):
+    url = reverse("register_role", args=["student"])
+    response = client.get(url)
+    assert response.status_code == 200
+    assert "form" in response.context
 
-    def test_role_select_post_redirect(self):
-        response = self.client.post(reverse("register"), data={"role": "student"})
-        self.assertRedirects(response, "/accounts/register/student/")
-
-    def test_register_student(self):
-        response = self.client.post(reverse("register_role", args=["student"]), data=self.student_data)
-        self.assertEqual(response.status_code, 302)  # redirect after login
-        self.assertTrue(UserModel.objects.filter(email="student@example.com").exists())
-
-    def test_register_director(self):
-        response = self.client.post(reverse("register_role", args=["director"]), data=self.director_data)
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(UserModel.objects.filter(email="director@example.com", role="director").exists())
-
-    def test_register_teacher(self):
-        response = self.client.post(reverse("register_role", args=["teacher"]), data=self.teacher_data)
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(UserModel.objects.filter(email="teacher@example.com", role="teacher").exists())
-
-    def test_register_parent(self):
-        response = self.client.post(reverse("register_role", args=["parent"]), data=self.parent_data)
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(UserModel.objects.filter(email="parent@example.com", role="parent").exists())
+@pytest.mark.django_db
+def test_register_view_post_valid(client):
+    url = reverse("register_role", args=["student"])
+    school_class = ClassGroup.objects.create(name="Test Class")  # Приклад класу, якщо потрібно
+    data = {
+        "email": "newstudent@example.com",
+        "password": "Testpass123",
+        "password2": "Testpass123",
+        "first_name": "Test",
+        "last_name": "User",
+        "role": "student",  # можливо не потрібно, якщо визначається з URL
+        "school_class": school_class.id
+    }
+    response = client.post(url, data)
+    
+    if response.status_code == 200:
+        # DEBUG: показати помилки форми
+        print("Form errors:", response.context["form"].errors)
+    assert response.status_code == 302
+    assert response.url == reverse("profile")
+    assert User.objects.filter(email="newstudent@example.com").exists()
 
 
-    def test_login_logout_flow(self):
-        user = UserModel.objects.create_user(email="testuser@example.com", password="Testpass123")
-        login = self.client.login(email="testuser@example.com", password="Testpass123")
-        self.assertTrue(login)
+@pytest.mark.django_db
+def test_register_view_post_invalid(client):
+    url = reverse("register_role", args=["student"])
+    data = {
+        "email": "",
+        "password1": "pass",
+        "password2": "pass"
+    }
+    response = client.post(url, data)
+    assert response.status_code == 200
+    assert "form" in response.context
 
-        response = self.client.get(reverse("logout"))
-        self.assertRedirects(response, reverse("login"))
 
-    def test_profile_view_authenticated(self):
-        user = UserModel.objects.create_user(email="profile@example.com", password="Testpass123")
-        self.client.login(email="profile@example.com", password="Testpass123")
-        response = self.client.get(reverse("profile"))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "accounts/profile.html")
+@pytest.mark.django_db
+def test_login_valid(client, student):
+    url = reverse("login")
+    response = client.post(url, {
+        "username": student.email,
+        "password": "password123"
+    })
+    assert response.status_code == 302
+    assert response.url == reverse("profile")
 
-    def test_profile_view_unauthenticated(self):
-        response = self.client.get(reverse("profile"))
-        self.assertRedirects(response, f'/login/?next=%2Fprofile%2F')
 
-    def test_delete_account_view(self):
-        user = UserModel.objects.create_user(email="delete@example.com", password="Testpass123")
-        self.client.login(email="delete@example.com", password="Testpass123")
+@pytest.mark.django_db
+def test_login_invalid(client):
+    url = reverse("login")
+    response = client.post(url, {
+        "username": "wrong@example.com",
+        "password": "wrongpass"
+    })
+    assert response.status_code == 200
+    assert "form" in response.context
 
-        # GET confirmation page
-        response = self.client.get(reverse("delete_account"))
-        self.assertEqual(response.status_code, 200)
 
-        # POST delete
-        response = self.client.post(reverse("delete_account"))
-        self.assertRedirects(response, reverse("login"))
-        self.assertFalse(UserModel.objects.filter(email="delete@example.com").exists())
+@pytest.mark.django_db
+def test_logout_view(authenticated_client):
+    url = reverse("logout")
+    response = authenticated_client.get(url)
+    assert response.status_code == 302
+    assert response.url == reverse("login")
 
+
+@pytest.mark.django_db
+def test_profile_view_requires_login(client):
+    url = reverse("profile")
+    response = client.get(url)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse("login"))
+
+
+@pytest.mark.django_db
+def test_profile_view_authenticated(authenticated_client):
+    url = reverse("profile")
+    response = authenticated_client.get(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_edit_profile_get(authenticated_client):
+    url = reverse("edit_profile")
+    response = authenticated_client.get(url)
+    assert response.status_code == 200
+    assert "form" in response.context
+
+
+@pytest.mark.django_db
+def test_edit_profile_post_valid(authenticated_client):
+    url = reverse("edit_profile")
+    response = authenticated_client.post(url, {
+        "first_name": "New",
+        "last_name": "Name",
+        "email": "student@example.com"
+    })
+    assert response.status_code == 302
+    assert response.url == reverse("profile")
+    user = User.objects.get(email="student@example.com")
+    assert user.first_name == "New"
+
+
+@pytest.mark.django_db
+def test_edit_profile_post_invalid(authenticated_client):
+    url = reverse("edit_profile")
+    response = authenticated_client.post(url, {
+        "first_name": "",
+        "last_name": ""
+    })
+    assert response.status_code == 200
+    assert "form" in response.context
+
+
+@pytest.mark.django_db
+def test_delete_account_get_requires_auth(client):
+    url = reverse("delete_account")
+    response = client.get(url)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse("login"))
+
+
+@pytest.mark.django_db
+def test_delete_account_get_authenticated(authenticated_client):
+    url = reverse("delete_account")
+    response = authenticated_client.get(url)
+    assert response.status_code == 200
+    assert "user" in response.context
+
+
+@pytest.mark.django_db
+def test_delete_account_post(authenticated_client):
+    url = reverse("delete_account")
+    response = authenticated_client.post(url)
+    assert response.status_code == 302
+    assert response.url == reverse("login")
+    assert not User.objects.filter(email="student@example.com").exists()

@@ -42,7 +42,6 @@ def petition_detail_view(request, pk):
     # Перевірка доступу для класових петицій
     if petition.level == Petition.Level.CLASS and user.role == "student":
         if user.student.school_class != petition.class_group:
-            print(f"User {user} from class {user.student.school_class.pk} tried to access petition {petition} for class {petition.class_group.pk}")
             return HttpResponseForbidden("Ця петиція не для вашого класу.")
 
     eligible_voters = petition.get_eligible_voters_count()

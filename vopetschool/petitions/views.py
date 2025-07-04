@@ -39,9 +39,10 @@ def petition_detail_view(request, pk):
     user = request.user
     supported = petition.supporters.filter(id=user.id).exists()
 
-    if petition.level == Petition.Level.CLASS and not user.is_in_classgroup(petition.class_group):
-        messages.error(request, "❌ Ця петиція не для вашого класу.")
-        return redirect("petition_list")
+    if request.user.role != "director":
+        if petition.level == Petition.Level.CLASS and not user.is_in_classgroup(petition.class_group):
+            messages.error(request, "❌ Ця петиція не для вашого класу.")
+            return redirect("petition_list")
 
     eligible_voters = petition.get_eligible_voters_count()
     supporters_count = petition.supporters.count()

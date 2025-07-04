@@ -19,7 +19,7 @@
                             <li class="mb-2"><strong>📧 Електронна пошта:</strong> {{ user.email }}</li>
                             <li class="mb-2"><strong>🧩 Роль:</strong> {{ user.get_role_display }}</li>
                             {% if user.role == 'student' %}
-                                <li class="mb-2"><strong>🏫 Клас:</strong> {{ user.student.school_class }}</li>
+                                <li class="mb-2"><strong>🏫 Клас:</strong> {{ class_group }}</li>
                             {% elif user.role == 'teacher' %}
                                 <li class="mb-2"><strong>📘 Предмет:</strong> {{ user.teacher.subject }}</li>
                                 <li class="mb-2"><strong>👥 Групи:</strong></li>

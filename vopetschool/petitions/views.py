@@ -40,7 +40,8 @@ def petition_detail_view(request, pk):
     supported = petition.supporters.filter(id=user.id).exists()
 
     if petition.level == Petition.Level.CLASS and not user.is_in_classgroup(petition.class_group):
-        return HttpResponseForbidden("Ця петиція не для вашого класу.")
+        messages.error(request, "❌ Ця петиція не для вашого класу.")
+        return redirect("petition_list")
 
     eligible_voters = petition.get_eligible_voters_count()
     supporters_count = petition.supporters.count()

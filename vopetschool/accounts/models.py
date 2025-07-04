@@ -37,6 +37,11 @@ class User(AbstractUser):
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 
+    
+    def get_class_group(self):
+        if ClassGroup.objects.filter(students=self).exists():
+            return ClassGroup.objects.filter(students=self).first()
+    
     def __str__(self):
         return self.user.get_full_name()
 

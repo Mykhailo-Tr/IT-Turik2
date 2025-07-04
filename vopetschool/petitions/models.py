@@ -17,30 +17,24 @@ class Petition(models.Model):
     class_group = models.ForeignKey(ClassGroup, on_delete=models.CASCADE, null=True, blank=True)
 
     supporters = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="supported_petitions", blank=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     def is_active(self):
         return timezone.now() < self.deadline
 
     def total_needed_supporters(self):
-        from accounts.models import User
-
         if self.level == self.Level.SCHOOL:
             return (User.objects.filter(role="student").count() // 2) + 1
         elif self.level == self.Level.CLASS and self.class_group:
             return (self.class_group.students.count() // 2) + 1
         return 0
-    
+
     def get_eligible_voters_count(self):
         if self.level == self.Level.SCHOOL:
             return User.objects.filter(role="student").count()
-
         elif self.level == self.Level.CLASS and self.class_group:
             return self.class_group.students.count()
-
         return 0
-
 
     def is_ready_for_review(self):
         return self.supporters.count() >= self.total_needed_supporters()
@@ -50,7 +44,7 @@ class Petition(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-        
+
 
 class Comment(models.Model):
     petition = models.ForeignKey(Petition, related_name="comments", on_delete=models.CASCADE)
@@ -59,16 +53,11 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
-
     class Meta:
         ordering = ["-created_at"]
-        
-    
+
     def was_edited(self):
-        if not self.updated_at:
-            return False
-        return self.created_at < self.updated_at
-        
+        return self.updated_at and self.created_at < self.updated_at
 
     def __str__(self):
         return f"Comment by {self.author.get_full_name()} on {self.petition.title}"

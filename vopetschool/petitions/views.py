@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.db.models import Count
 
-from .models import Petition
+from .models import Petition, Comment
 from .forms import PetitionForm, CommentForm
 from accounts.models import User, ClassGroup
 
@@ -26,7 +26,7 @@ class PetitionListView(ListView):
             support = petition.support_count
             petition.support_percent = round((support / total * 100), 0) if total > 0 else 0
         return queryset
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["petitions"] = list(self.get_queryset())
@@ -39,16 +39,12 @@ def petition_detail_view(request, pk):
     user = request.user
     supported = petition.supporters.filter(id=user.id).exists()
 
-    # Перевірка доступу для класових петицій
-    if petition.level == Petition.Level.CLASS and user.role == "student":
-        if user.student.school_class != petition.class_group:
-            return HttpResponseForbidden("Ця петиція не для вашого класу.")
+    if petition.level == Petition.Level.CLASS and not user.is_in_classgroup(petition.class_group):
+        return HttpResponseForbidden("Ця петиція не для вашого класу.")
 
     eligible_voters = petition.get_eligible_voters_count()
     supporters_count = petition.supporters.count()
     support_percent = int((supporters_count / eligible_voters) * 100) if eligible_voters > 0 else 0
-
-    comment_form = CommentForm()
 
     return render(request, "petitions/petition_detail.html", {
         "petition": petition,
@@ -57,7 +53,7 @@ def petition_detail_view(request, pk):
         "supporters_count": supporters_count,
         "eligible_voters": eligible_voters,
         "support_percent": support_percent,
-        "comment_form": comment_form,
+        "comment_form": CommentForm(),
         "comments": petition.comments.all(),
     })
 
@@ -79,6 +75,7 @@ def add_comment_view(request, pk):
 
     return redirect("petition_detail", pk=pk)
 
+
 @login_required
 @require_http_methods(["GET", "POST"])
 def edit_comment_view(request, petition_pk, comment_pk):
@@ -92,8 +89,7 @@ def edit_comment_view(request, petition_pk, comment_pk):
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
-            form.instance.updated_at = timezone.now()  # Оновлюємо час редагування
-
+            form.instance.updated_at = timezone.now()
             form.save()
             messages.success(request, "✅ Коментар оновлено успішно.")
             return redirect("petition_detail", pk=petition_pk)
@@ -107,7 +103,7 @@ def edit_comment_view(request, petition_pk, comment_pk):
         "petition": petition,
         "comment": comment,
     })
-    
+
 
 @login_required
 @require_POST
@@ -126,7 +122,7 @@ def delete_comment_view(request, petition_pk, comment_pk):
 
 def calculate_petition_support(petition):
     if petition.level == Petition.Level.CLASS:
-        eligible_voters = User.objects.filter(role="student", student__school_class=petition.class_group).count()
+        eligible_voters = petition.class_group.students.count()
     elif petition.level == Petition.Level.SCHOOL:
         eligible_voters = User.objects.filter(role="student").count()
     else:
@@ -149,8 +145,7 @@ def support_petition_view(request, pk):
     user = request.user
 
     if request.method == "GET" and request.GET.get("refresh") == "1":
-        data = calculate_petition_support(petition)
-        return JsonResponse(data)
+        return JsonResponse(calculate_petition_support(petition))
 
     if user.role != "student":
         return HttpResponseForbidden("Тільки учні можуть підтримувати петиції.")
@@ -158,7 +153,7 @@ def support_petition_view(request, pk):
     if petition.deadline and timezone.now() > petition.deadline:
         return HttpResponseForbidden("Петиція завершена.")
 
-    if petition.level == Petition.Level.CLASS and user.student.school_class != petition.class_group:
+    if petition.level == Petition.Level.CLASS and not user.is_in_classgroup(petition.class_group):
         return HttpResponseForbidden("Ця петиція не для вашого класу.")
 
     if petition.supporters.filter(id=user.id).exists():
@@ -188,15 +183,15 @@ class PetitionCreateView(View):
         if request.user.role != "student":
             messages.warning(request, "Тільки учні можуть створювати петиції.")
             return redirect("petition_list")
-        
+
         form = PetitionForm(request.POST)
         if form.is_valid():
             petition = form.save(commit=False)
             petition.creator = request.user
 
             if petition.level == Petition.Level.CLASS:
-                class_group = request.POST.get("class_group")
-                petition.class_group = ClassGroup.objects.get(pk=class_group)
+                class_group_id = request.POST.get("class_group")
+                petition.class_group = ClassGroup.objects.get(pk=class_group_id)
 
             petition.save()
             form.save_m2m()

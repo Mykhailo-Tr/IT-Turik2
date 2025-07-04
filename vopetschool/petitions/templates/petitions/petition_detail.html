@@ -58,6 +58,10 @@
                         </div>
                     </div>
 
+                    {% if user.role == "director" %}
+                    <div id="support-button-wrapper"
+                             data-support-url="{% url 'support_petition' petition.pk %}"></div>
+                    {% endif %}
                     {% if can_support or supported %}
                         <div id="support-button-wrapper"
                              data-support-url="{% url 'support_petition' petition.pk %}">

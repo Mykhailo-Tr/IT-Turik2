@@ -10,7 +10,13 @@
                 <div class="card-body p-5">
 
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                        <h2 class="fw-bold mb-0">📢 Активні петиції</h2>
+                        <h2 class="fw-bold mb-0">
+                            {% if request.user.role == 'director' %}
+                                📢 Петиції на розгляд
+                            {% else %}
+                                📢 Активні петиції
+                            {% endif %}
+                        </h2>
                         {% if request.user.role == 'student' %}
                             <a href="{% url 'petition_create' %}" class="btn btn-outline-success rounded-pill">
                                 ➕ Створити петицію

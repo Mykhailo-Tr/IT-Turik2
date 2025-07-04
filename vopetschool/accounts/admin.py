@@ -32,12 +32,16 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ("get_full_name", "school_class")
-    search_fields = ("user__first_name", "user__last_name", "school_class")
+    list_display = ("get_full_name", "get_class_groups")
+    search_fields = ("user__first_name", "user__last_name")
 
     @admin.display(description="Ім'я")
     def get_full_name(self, obj):
         return obj.user.get_full_name()
+
+    @admin.display(description="Класи")
+    def get_class_groups(self, obj):
+        return ", ".join(group.name for group in obj.class_groups.all())
 
 
 @admin.register(Teacher)

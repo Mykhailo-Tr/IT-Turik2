@@ -28,10 +28,14 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.get_full_name()} ({self.role})"
 
+    def is_in_classgroup(self, class_group):
+        if self.role != "student":
+            return False
+        return class_group.students.filter(pk=self.student.pk).exists()
+
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    school_class = models.CharField(max_length=20) 
 
     def __str__(self):
         return self.user.get_full_name()

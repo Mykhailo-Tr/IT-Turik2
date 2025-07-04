@@ -5,8 +5,9 @@ from django.views import View
 from django.views.generic import ListView
 from django.db.models import Q, Count
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
 from django.contrib import messages
 
 from .models import Vote, VoteOption, VoteAnswer
@@ -168,3 +169,39 @@ def vote_delete_view(request, pk):
     vote.delete()
     messages.success(request, "Голосування успішно видалено.")
     return redirect("vote_list")
+
+
+@never_cache
+@login_required
+def vote_stats_api(request, pk):
+    vote = get_object_or_404(Vote, pk=pk)
+
+    if vote.level == Vote.Level.SELECTED and request.user not in vote.participants.all():
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
+    # Перевірка дозволу бачити голоси
+    user_can_see_votes = (
+        request.user == vote.creator or
+        request.user.role in ["director", "admin"] or
+        VoteAnswer.objects.filter(voter=request.user, option__vote=vote).exists() or
+        not vote.is_active()
+    )
+
+    if not user_can_see_votes:
+        return JsonResponse({"error": "Access denied"}, status=403)
+
+    options = vote.options.annotate(vote_count=Count("voteanswer"))
+    total_votes = sum(option.vote_count for option in options)
+
+    return JsonResponse({
+        "total_votes": total_votes,
+        "options": [
+            {
+                "id": option.id,
+                "text": option.text,
+                "count": option.vote_count,
+                "percent": round((option.vote_count / total_votes) * 100) if total_votes else 0
+            }
+            for option in options
+        ]
+    })

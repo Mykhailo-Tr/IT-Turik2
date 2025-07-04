@@ -53,7 +53,7 @@
                                                 <span class="badge bg-success">Правильна</span>
                                             {% endif %}
                                         </span>
-                                        <span class="badge bg-primary rounded-pill vote-count" data-count="{{ option.vote_count }}">{{ option.vote_count }}</span>
+                                        <span class="badge bg-primary rounded-pill vote-count" data-count="{{ option.vote_count }}" data-id="{{ option.id }}">{{ option.vote_count }}</span>
                                     </div>
                                     <div class="progress rounded-0" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar bg-info" 
@@ -181,5 +181,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+{% if user_can_see_votes %}
+setInterval(function () {
+    fetch("{% url 'vote_stats_api' vote.pk %}")
+        .then(response => response.json())
+        .then(data => {
+            const totalVotes = data.total_votes;
+
+            data.options.forEach(option => {
+                const countElem = document.querySelector(`.vote-count[data-count][data-id='${option.id}']`);
+                const bar = document.getElementById(`progress-option-${option.id}`);
+                const percentLabel = document.getElementById(`percent-option-${option.id}`);
+
+                if (countElem) {
+                    countElem.textContent = option.count;
+                    countElem.dataset.count = option.count;
+                }
+                if (bar) {
+                    bar.style.width = option.percent + "%";
+                }
+                if (percentLabel) {
+                    percentLabel.textContent = option.percent + "%";
+                }
+            });
+        });
+}, 6000); // оновлення кожні X сек
+{% endif %}
+
 </script>
 {% endblock %}

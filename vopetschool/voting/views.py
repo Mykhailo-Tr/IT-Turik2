@@ -19,21 +19,26 @@ class VoteListView(ListView):
     model = Vote
     template_name = "voting/vote_list.html"
     context_object_name = "votes"
-
+    
     def get_queryset(self):
         user = self.request.user
 
         if user.role in ["director", "admin"]:
             return Vote.objects.all().order_by("-start_date", "-id")
 
+        class_group_ids = []
+        if hasattr(user, 'student'):
+            class_group_ids = user.student.class_groups.values_list("id", flat=True)
+
         base_qs = Vote.objects.filter(
             Q(level=Vote.Level.SCHOOL) |
-            Q(level=Vote.Level.CLASS, creator__student__school_class=user.student.school_class if hasattr(user, 'student') else None) |
+            Q(level=Vote.Level.CLASS, class_groups__in=class_group_ids) |
             Q(level=Vote.Level.TEACHERS, creator__role="teacher") |
             Q(level=Vote.Level.SELECTED, participants=user)
         ).distinct()
 
         return base_qs.order_by("-start_date", "-id")
+
 
 
     def get_context_data(self, **kwargs):

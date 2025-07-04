@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
 from .models import User, Student, Teacher, Parent, ClassGroup, TeacherGroup
 
 
@@ -39,17 +40,22 @@ class BaseRegisterForm(forms.ModelForm):
 
 
 class StudentRegisterForm(BaseRegisterForm):
-    school_class = forms.ModelChoiceField(
+    class_group = forms.ModelChoiceField(
         queryset=ClassGroup.objects.all(),
-        label="Оберіть клас",
-        empty_label="(Не вибрано)"
+        required=False,
+        label="Клас (необов'язково)"
     )
+
+    class Meta(BaseRegisterForm.Meta):
+        fields = BaseRegisterForm.Meta.fields + ['class_group']
 
     def save(self, commit=True):
         user = self.save_user(User.Role.STUDENT, commit=commit)
         if commit:
-            student = Student.objects.create(user=user, school_class=self.cleaned_data["school_class"].name)
-            self.cleaned_data["school_class"].students.add(student)  # додати в групу
+            student = Student.objects.create(user=user)
+            class_group = self.cleaned_data.get("class_group")
+            if class_group:
+                class_group.students.add(student)
         return user
 
 
@@ -58,8 +64,12 @@ class TeacherRegisterForm(BaseRegisterForm):
     groups = forms.ModelMultipleChoiceField(
         queryset=TeacherGroup.objects.all(),
         widget=forms.CheckboxSelectMultiple,
-        label="Групи вчителів"
+        label="Групи вчителів",
+        required=False
     )
+
+    class Meta(BaseRegisterForm.Meta):
+        fields = BaseRegisterForm.Meta.fields + ['subject', 'groups']
 
     def save(self, commit=True):
         user = self.save_user(User.Role.TEACHER, commit=commit)
@@ -68,12 +78,17 @@ class TeacherRegisterForm(BaseRegisterForm):
             teacher.groups.set(self.cleaned_data["groups"])
         return user
 
+
 class ParentRegisterForm(BaseRegisterForm):
     children = forms.ModelMultipleChoiceField(
         queryset=Student.objects.all(),
         widget=forms.CheckboxSelectMultiple,
-        label="Оберіть своїх дітей"
+        label="Оберіть своїх дітей",
+        required=False
     )
+
+    class Meta(BaseRegisterForm.Meta):
+        fields = BaseRegisterForm.Meta.fields + ['children']
 
     def save(self, commit=True):
         user = self.save_user(User.Role.PARENT, commit=commit)
@@ -84,13 +99,14 @@ class ParentRegisterForm(BaseRegisterForm):
 
 
 class DirectorRegisterForm(BaseRegisterForm):
+    # Директор не має додаткових полів
     def save(self, commit=True):
         return self.save_user(User.Role.DIRECTOR, commit=commit)
 
 
 class CustomLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email")
-    
+
 
 class EditProfileForm(forms.ModelForm):
     class Meta:
@@ -101,4 +117,3 @@ class EditProfileForm(forms.ModelForm):
             'first_name': "Ім'я",
             'last_name': "Прізвище"
         }
-

@@ -1,59 +1,66 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.views import LoginView
-from django.contrib.auth import login, logout
+from django.contrib.auth import login
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.contrib import messages
+from django.contrib.auth import logout
 
 from .forms import (
     RoleChoiceForm, StudentRegisterForm,
-    TeacherRegisterForm, ParentRegisterForm, CustomLoginForm,
-    DirectorRegisterForm, EditProfileForm
+    TeacherRegisterForm, ParentRegisterForm,
+    DirectorRegisterForm, CustomLoginForm,
+    EditProfileForm
 )
+from .models import User
 
 
 class RoleSelectView(View):
+    """Перший крок реєстрації — вибір ролі"""
     def get(self, request):
         form = RoleChoiceForm()
-        return render(request, "accounts/register.html", {"form": form})
+        return render(request, "accounts/register.html", {"form": form, "step": "choose"})
 
     def post(self, request):
         form = RoleChoiceForm(request.POST)
         if form.is_valid():
             role = form.cleaned_data["role"]
-            return redirect(f"/accounts/register/{role}/")
-        return render(request, "accounts/register.html", {"form": form})
+            return redirect("register_role", role=role)
+        return render(request, "accounts/register.html", {"form": form, "step": "choose"})
 
 
 class RegisterView(View):
+    """Другий крок — форма реєстрації для обраної ролі"""
     form_classes = {
-        'student': StudentRegisterForm,
-        'teacher': TeacherRegisterForm,
-        'parent': ParentRegisterForm,
-        'director': DirectorRegisterForm,
+        User.Role.STUDENT: StudentRegisterForm,
+        User.Role.TEACHER: TeacherRegisterForm,
+        User.Role.PARENT: ParentRegisterForm,
+        User.Role.DIRECTOR: DirectorRegisterForm,
     }
 
     def get(self, request, role):
         form_class = self.form_classes.get(role)
         if not form_class:
+            messages.error(request, "Невідома роль.")
             return redirect("register")
-        return render(request, "accounts/register.html", {"form": form_class()})
+        form = form_class()
+        return render(request, "accounts/register.html", {"form": form, "step": "form", "role": role})
 
     def post(self, request, role):
         form_class = self.form_classes.get(role)
         if not form_class:
+            messages.error(request, "Невідома роль.")
             return redirect("register")
 
         form = form_class(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, "Реєстрація успішна! Вітаємо в системі.")
+            messages.success(request, "✅ Реєстрація успішна! Вітаємо в системі.")
             return redirect("profile")
-        messages.error(request, "Помилка при реєстрації. Перевірте форму.")
-        return render(request, "accounts/register.html", {"form": form})
-
+        messages.error(request, "❌ Помилка при реєстрації. Перевірте введені дані.")
+        return render(request, "accounts/register.html", {"form": form, "step": "form", "role": role})
 
 class CustomLoginView(LoginView):
     template_name = "accounts/login.html"

@@ -2,7 +2,7 @@ import pytest
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.test import Client
-from accounts.models import ClassGroup
+from accounts.models import ClassGroup, Student
 
 User = get_user_model()
 
@@ -14,13 +14,15 @@ def client():
 
 @pytest.fixture
 def student(db):
-    return User.objects.create_user(
+    student = User.objects.create_user(
         email="student@example.com",
         password="password123",
         role=User.Role.STUDENT,
         first_name="Ivan",
         last_name="Petrenko"
     )
+    Student.objects.create(user=student)
+    return student
 
 @pytest.fixture
 def authenticated_client(client, student):

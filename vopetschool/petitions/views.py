@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.db.models import Count, Q
 
 from .models import Petition
-from .forms import PetitionForm
+from .forms import PetitionForm, CommentForm
 from accounts.models import Student, User, ClassGroup
 
 
@@ -38,20 +38,16 @@ def petition_detail_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
     user = request.user
     supported = petition.supporters.filter(id=user.id).exists()
-    
+
     if petition.level == Petition.Level.CLASS and user.role == "student":
         if user.student.school_class != petition.class_group:
             return HttpResponseForbidden("Ця петиція не для вашого класу.")
 
-    if petition.level == Petition.Level.CLASS:
-        eligible_voters = User.objects.filter(role="student", student__school_class=petition.class_group).count()
-    elif petition.level == Petition.Level.SCHOOL:
-        eligible_voters = User.objects.filter(role="student").count()
-    else:
-        eligible_voters = 0  # fallback
-
+    eligible_voters = petition.get_eligible_voters_count()
     supporters_count = petition.supporters.count()
     support_percent = int((supporters_count / eligible_voters) * 100) if eligible_voters > 0 else 0
+
+    comment_form = CommentForm()
 
     return render(request, "petitions/petition_detail.html", {
         "petition": petition,
@@ -60,8 +56,22 @@ def petition_detail_view(request, pk):
         "supporters_count": supporters_count,
         "eligible_voters": eligible_voters,
         "support_percent": support_percent,
+        "comment_form": comment_form,
+        "comments": petition.comments.all(),
     })
-
+    
+    
+@login_required
+@require_POST
+def add_comment_view(request, pk):
+    petition = get_object_or_404(Petition, pk=pk)
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.petition = petition
+        comment.author = request.user
+        comment.save()
+    return redirect("petition_detail", pk=pk)
 
 
 def calculate_petition_support(petition):

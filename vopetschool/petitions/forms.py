@@ -1,5 +1,5 @@
 from django import forms
-from .models import Petition
+from .models import Petition, Comment   
 
 class PetitionForm(forms.ModelForm):
     class Meta:
@@ -31,3 +31,16 @@ class PetitionForm(forms.ModelForm):
             raise forms.ValidationError("Текст петиції обов'язковий.")
         
         return cleaned_data
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Напишіть свій коментар...',
+                'rows': 3,
+            }),
+        }

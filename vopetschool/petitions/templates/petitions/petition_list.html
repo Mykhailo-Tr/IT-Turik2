@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Петиції{% endblock %}
 
 {% block content %}
@@ -8,7 +9,6 @@
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-body p-5">
 
-                    <!-- Заголовок і кнопка -->
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                         <h2 class="fw-bold mb-0">📢 Активні петиції</h2>
                         {% if request.user.role == 'student' %}
@@ -22,7 +22,8 @@
                         <div class="row g-4">
                             {% for petition in petitions %}
                                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                                    <div class="border rounded-4 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
+                                    <div class="border rounded-4 shadow-sm h-100 p-3 d-flex flex-column justify-content-between"
+                                         data-petition-id="{{ petition.id }}">
 
                                         <div>
                                             <h5 class="mb-2">{{ petition.title }}</h5>
@@ -45,7 +46,7 @@
                                                     <span class="badge bg-secondary">{{ petition.class_group }}</span>
                                                 {% endif %}
 
-                                                <span class="badge bg-primary rounded-pill mt-2">
+                                                <span id="support-count-{{ petition.id }}" class="badge bg-primary rounded-pill mt-2">
                                                     🙋 {{ petition.support_count }}
                                                     ({{ petition.support_percent|floatformat:0 }}%)
                                                 </span>
@@ -71,4 +72,27 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const petitionBlocks = document.querySelectorAll("[data-petition-id]");
+
+    function refreshSupport() {
+        petitionBlocks.forEach(block => {
+            const id = block.getAttribute("data-petition-id");
+            fetch(`/petitions/${id}/support/?refresh=1`)
+                .then(res => res.json())
+                .then(data => {
+                    const el = document.getElementById(`support-count-${id}`);
+                    if (el) {
+                        el.textContent = `🙋 ${data.supporters_count} (${data.support_percent}%)`;
+                    }
+                })
+                .catch(err => console.warn("Помилка оновлення:", id, err));
+        });
+    }
+
+    setInterval(refreshSupport, 3000); // кожні 3    сек
+});
+</script>
 {% endblock %}

@@ -26,6 +26,11 @@ class PetitionListView(ListView):
             support = petition.support_count
             petition.support_percent = round((support / total * 100), 0) if total > 0 else 0
         return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["petitions"] = list(self.get_queryset())  # вже в базовому context_object_name
+        return context
 
 
 @login_required

@@ -80,9 +80,11 @@
                               onsubmit="return confirm('❗ Ви впевнені, що хочете видалити цю петицію?');"
                               class="mt-4">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger rounded-pill">
-                                🗑️ Видалити петицію
-                            </button>
+                            {% if request.user == petition.creator %}
+                                <button type="submit" class="btn btn-danger rounded-pill">
+                                    🗑️ Видалити петицію
+                                </button>
+                            {% endif %}
                         </form>
                     {% endif %}
 

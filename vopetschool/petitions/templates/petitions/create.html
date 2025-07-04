@@ -15,33 +15,15 @@
                         {% csrf_token %}
 
                         {% for field in form %}
-                            {% if field.name == "text" %}
-                                <div class="mb-4">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
-                            
-                            {% elif field.name == "level" %}
-                                <div class="mb-4">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                                    {{ field|add_class:"form-select rounded-4 shadow-sm" }}
-
-                            {% elif field.name == "deadline" %}
-                                <div class="mb-4">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                                    {{ field|add_class:"form-control rounded-4 shadow-sm" }}
-
-                            {% else %}
-                                <div class="mb-4">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                                    {{ field|add_class:"form-control form-control-lg rounded-pill shadow-sm" }}
-                            {% endif %}
-
-                            {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text|safe }}</div>
-                            {% endif %}
-                            {% if field.errors %}
-                                <div class="invalid-feedback d-block mt-1">{{ field.errors|striptags }}</div>
-                            {% endif %}
+                            <div class="mb-4" id="field-wrapper-{{ field.name }}">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                                {{ field|add_class:field.field.widget.attrs.class }}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text|safe }}</div>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block mt-1">{{ field.errors|striptags }}</div>
+                                {% endif %}
                             </div>
                         {% endfor %}
 
@@ -59,4 +41,22 @@
 
 <!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const levelSelect = document.getElementById("id_level");
+    const classGroupWrapper = document.getElementById("field-wrapper-class_group");
+
+    function toggleClassGroupField() {
+        if (levelSelect.value === "class") {
+            classGroupWrapper.style.display = "block";
+        } else {
+            classGroupWrapper.style.display = "none";
+        }
+    }
+
+    levelSelect.addEventListener("change", toggleClassGroupField);
+    toggleClassGroupField();  // initial call
+});
+</script>
 {% endblock %}

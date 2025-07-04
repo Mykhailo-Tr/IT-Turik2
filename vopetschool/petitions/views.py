@@ -7,11 +7,11 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.http import require_POST, require_http_methods
 from django.utils.decorators import method_decorator
 from django.contrib import messages
-from django.db.models import Count, Q
+from django.db.models import Count
 
 from .models import Petition
 from .forms import PetitionForm, CommentForm
-from accounts.models import Student, User, ClassGroup
+from accounts.models import User, ClassGroup
 
 
 class PetitionListView(ListView):
@@ -29,7 +29,7 @@ class PetitionListView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["petitions"] = list(self.get_queryset())  # вже в базовому context_object_name
+        context["petitions"] = list(self.get_queryset())
         return context
 
 
@@ -39,6 +39,7 @@ def petition_detail_view(request, pk):
     user = request.user
     supported = petition.supporters.filter(id=user.id).exists()
 
+    # Перевірка доступу для класових петицій
     if petition.level == Petition.Level.CLASS and user.role == "student":
         if user.student.school_class != petition.class_group:
             return HttpResponseForbidden("Ця петиція не для вашого класу.")
@@ -59,8 +60,8 @@ def petition_detail_view(request, pk):
         "comment_form": comment_form,
         "comments": petition.comments.all(),
     })
-    
-    
+
+
 @login_required
 @require_POST
 def add_comment_view(request, pk):
@@ -124,9 +125,6 @@ def delete_comment_view(request, petition_pk, comment_pk):
 
 
 def calculate_petition_support(petition):
-    """
-    Обчислює кількість голосів і % підтримки
-    """
     if petition.level == Petition.Level.CLASS:
         eligible_voters = User.objects.filter(role="student", student__school_class=petition.class_group).count()
     elif petition.level == Petition.Level.SCHOOL:
@@ -150,24 +148,19 @@ def support_petition_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
     user = request.user
 
-    # ❓ API GET-запит на оновлення даних
     if request.method == "GET" and request.GET.get("refresh") == "1":
         data = calculate_petition_support(petition)
         return JsonResponse(data)
 
-    # 🛑 Захист: лише учні
     if user.role != "student":
         return HttpResponseForbidden("Тільки учні можуть підтримувати петиції.")
 
-    # 🛑 Перевірка дедлайну
     if petition.deadline and timezone.now() > petition.deadline:
         return HttpResponseForbidden("Петиція завершена.")
 
-    # 🛑 Обмеження на рівні класу
     if petition.level == Petition.Level.CLASS and user.student.school_class != petition.class_group:
         return HttpResponseForbidden("Ця петиція не для вашого класу.")
 
-    # ✅ Перемикання підтримки
     if petition.supporters.filter(id=user.id).exists():
         petition.supporters.remove(user)
         supported = False
@@ -179,6 +172,7 @@ def support_petition_view(request, pk):
     data["success"] = True
     data["supported"] = supported
     return JsonResponse(data)
+
 
 @method_decorator(login_required, name="dispatch")
 class PetitionCreateView(View):
@@ -201,7 +195,8 @@ class PetitionCreateView(View):
             petition.creator = request.user
 
             if petition.level == Petition.Level.CLASS:
-                petition.class_group = request.user.student.school_class
+                class_group = request.POST.get("class_group")
+                petition.class_group = ClassGroup.objects.get(pk=class_group)
 
             petition.save()
             form.save_m2m()
@@ -211,10 +206,11 @@ class PetitionCreateView(View):
         messages.error(request, "Помилка при створенні петиції.")
         return render(request, "petitions/create.html", {"form": form})
 
+
 @login_required
 def delete_petition_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
-    
+
     if request.user != petition.creator:
         messages.error(request, "Тільки автор петиції може її видалити.")
         return redirect("petition_detail", pk=pk)

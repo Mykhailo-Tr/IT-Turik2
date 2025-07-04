@@ -71,6 +71,23 @@ def add_comment_view(request, pk):
         comment.petition = petition
         comment.author = request.user
         comment.save()
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({
+                "success": True,
+                "author": comment.author.get_full_name(),
+                "created_at": comment.created_at.strftime("%d.%m.%Y %H:%M"),
+                "text": comment.text,
+            })
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({
+            "success": True,
+            "author": comment.author.get_full_name(),
+            "created_at": comment.created_at.strftime("%d.%m.%Y %H:%M"),
+            "text": comment.text,
+        })
+
     return redirect("petition_detail", pk=pk)
 
 

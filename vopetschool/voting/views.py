@@ -120,7 +120,11 @@ def vote_detail_view(request, pk):
 class VoteCreateView(View):
     def get(self, request):
         vote_form = VoteCreateForm(user=request.user)
-        formset = VoteOptionFormSet()
+        formset = VoteOptionFormSet(initial=[
+            {"text": "Так"},
+            {"text": "Ні"},
+            {"text": "Утримуюсь"}
+        ])
         return render(request, "voting/create.html", {
             "vote_form": vote_form,
             "formset": formset

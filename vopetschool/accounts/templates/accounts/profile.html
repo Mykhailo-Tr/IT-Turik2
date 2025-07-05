@@ -131,42 +131,57 @@
 
                     <!-- Створення класів і груп (тільки директор) -->
                     {% if viewed_user.role == 'director' and request.user == viewed_user %}
-                        <hr class="my-5">
-                        <div class="mb-5">
-                            <h5 class="text-uppercase text-secondary fw-semibold mb-3">
-                                ➕ Створити новий клас
-                            </h5>
-                            <form method="post" class="mb-4">
+                    <hr class="my-5">
+                    <div class="mb-5">
+                        <div class="p-4 bg-light border border-2 rounded-4 shadow-sm">
+                            <h4 class="text-uppercase text-secondary fw-bold mb-4">
+                                <i class="bi bi-plus-circle me-2"></i>Створити новий клас
+                            </h4>
+                            <form method="post" class="mb-5">
                                 {% csrf_token %}
                                 {{ class_form.management_form }}
-                                <div class="mb-2">
+                                <div class="mb-3">
                                     {{ class_form.name.label_tag }}
-                                    {{ class_form.name|add_class:"form-control w-50" }}
+                                    {{ class_form.name|add_class:"form-control w-100" }}
                                 </div>
                                 <button type="submit" name="submit_class" class="btn btn-success rounded-pill px-4">
                                     ➕ Додати клас
                                 </button>
                             </form>
 
-                            <h5 class="text-uppercase text-secondary fw-semibold mb-3">
-                                ➕ Створити групу вчителів
-                            </h5>
+                            <h4 class="text-uppercase text-secondary fw-bold mb-4">
+                                <i class="bi bi-person-plus-fill me-2"></i>Створити групу вчителів
+                            </h4>
                             <form method="post">
                                 {% csrf_token %}
                                 {{ group_form.management_form }}
-                                <div class="mb-2">
-                                    {{ group_form.name.label_tag }}
-                                    {{ group_form.name|add_class:"form-control w-50" }}
-                                </div>
                                 <div class="mb-3">
-                                    {{ group_form.teachers.label_tag }}
-                                    {{ group_form.teachers }}
+                                    {{ group_form.name.label_tag }}
+                                    {{ group_form.name|add_class:"form-control w-100" }}
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">Виберіть вчителів:</label>
+                                    <div class="row row-cols-1 row-cols-md-2 g-3" style="max-height: 400px; overflow-y: auto;">
+                                        {% for checkbox in group_form.teachers %}
+                                            <div class="col">
+                                                <label for="{{ checkbox.id_for_label }}" class="card border-0 shadow-sm h-100 mb-0 cursor-pointer">
+                                                    <div class="card-body d-flex align-items-center">
+                                                        <div class="form-check me-2">
+                                                            {{ checkbox.tag|safe }}
+                                                        </div>
+                                                        <span class="fw-medium">{{ checkbox.choice_label }}</span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
                                 </div>
                                 <button type="submit" name="submit_group" class="btn btn-info text-white rounded-pill px-4">
                                     ➕ Додати групу
                                 </button>
                             </form>
                         </div>
+                    </div>
                     {% endif %}
 
                 </div>
@@ -183,6 +198,9 @@
     .hover-shadow-sm:hover {
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) !important;
         transition: 0.2s ease-in-out;
+    }
+    .cursor-pointer {
+        cursor: pointer;
     }
 </style>
 {% endblock %}

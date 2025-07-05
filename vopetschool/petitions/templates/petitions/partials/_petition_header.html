@@ -31,6 +31,10 @@
                 <span class="badge bg-danger">❌ Відхилена</span>
             {% endif %}
         </p>
+        {% if petition.status == 'approved' or petition.status == 'rejected' %}
+                <p class="mb-0">👤 <strong>Розглянув:</strong> {{ petition.reviewed_by.get_full_name }} ({{ petition.reviewed_by.role }})</p>
+                <p class="">📅 <strong>Дата розгляду:</strong> {{ petition.reviewed_at|date:"d E Y, H:i" }}</p>
+        {% endif %}
     </div>
     <a href="{% url 'petition_list' %}" class="btn btn-outline-secondary rounded-pill">⬅️ Назад до петицій</a>
 </div>

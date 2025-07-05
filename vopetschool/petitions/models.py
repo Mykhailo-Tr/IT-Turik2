@@ -26,6 +26,9 @@ class Petition(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.NEW)
 
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="reviewed_petitions")
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
     def is_active(self):
         return timezone.now() < self.deadline
 
@@ -73,11 +76,3 @@ class Comment(models.Model):
         return f"Comment by {self.author.get_full_name()} on {self.petition.title}"
     
     
-class PetitionReview(models.Model):
-    petition = models.OneToOneField(Petition, on_delete=models.CASCADE, related_name="review_status")
-    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
-    reviewed_at = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.petition.title} reviewed by {self.reviewed_by}"
-

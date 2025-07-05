@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.db.models import Count
 
-from .models import Petition, Comment, PetitionReview
+from .models import Petition, Comment
 from .forms import PetitionForm, CommentForm
 from accounts.models import User, ClassGroup
 
@@ -48,7 +48,6 @@ def petition_detail_view(request, pk):
     eligible_voters = petition.get_eligible_voters_count()
     supporters_count = petition.supporters.count()
     support_percent = int((supporters_count / eligible_voters) * 100) if eligible_voters > 0 else 0
-
     return render(request, "petitions/petition_detail.html", {
         "petition": petition,
         "supported": supported,
@@ -230,30 +229,6 @@ def delete_petition_view(request, pk):
 
 
 @login_required
-@require_POST
-def confirm_review_view(request, pk):
-    petition = get_object_or_404(Petition, pk=pk)
-
-    if request.user.role != ["director", "teacher"]:
-        messages.error(request, "❌ Ви не маєте прав для підтвердження.")
-        return redirect("petition_detail", pk=pk)
-
-    if not petition.is_ready_for_review():
-        messages.error(request, "⛔ Петиція ще не досягла порогу.")
-        return redirect("petition_detail", pk=pk)
-
-    PetitionReview.objects.update_or_create(
-        petition=petition,
-        defaults={"reviewed_by": request.user, "reviewed_at": timezone.now()}
-    )
-    petition.status = Petition.Status.PENDING
-    petition.save()
-
-    messages.success(request, "✅ Петиція позначена як розглянута.")
-    return redirect("petition_detail", pk=pk)
-
-
-@login_required
 def set_petition_status(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
 
@@ -265,6 +240,8 @@ def set_petition_status(request, pk):
         status = request.POST.get("status")
         if status in [Petition.Status.APPROVED, Petition.Status.REJECTED]:
             petition.status = status
+            petition.reviewed_by = request.user
+            petition.reviewed_at = timezone.now()
             petition.save()
             messages.success(request, f"✅ Статус петиції оновлено: {status}")
         else:

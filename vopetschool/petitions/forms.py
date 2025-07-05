@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from .models import Petition, Comment
 from accounts.models import ClassGroup
 
@@ -50,6 +51,22 @@ class PetitionForm(forms.ModelForm):
             raise forms.ValidationError("Оберіть клас для петиції рівня 'Конкретний клас'.")
 
         return cleaned_data
+    
+    def clean_deadline(self):
+        deadline = self.cleaned_data.get("deadline")
+        if deadline and deadline < timezone.now():
+            raise forms.ValidationError("Термін дії петиції не може бути в минулому.")
+        return deadline
+    
+    def save(self, commit=True):
+        petition = super().save(commit=False)
+        petition.creator = self.user
+        if commit:
+            petition.save()
+            self.save_m2m()
+            
+        return petition
+    
 
 
 class CommentForm(forms.ModelForm):

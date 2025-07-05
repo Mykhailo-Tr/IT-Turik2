@@ -1,0 +1,14 @@
+{% if request.user.role == 'director' and support_percent >= 50 and petition.status == 'pending' %}
+    <div class="mt-4">
+        <h5>⚙️ Дії з петицією:</h5>
+        <form method="post" action="{% url 'petition_set_status' petition.pk %}" class="d-flex gap-2 flex-wrap mt-2">
+            {% csrf_token %}
+            <button name="status" value="approved" class="btn btn-success rounded-pill" onclick="return confirm('✅ Прийняти петицію?')">
+                ✅ Прийняти
+            </button>
+            <button name="status" value="rejected" class="btn btn-danger rounded-pill" onclick="return confirm('❌ Відхилити петицію?')">
+                ❌ Відхилити
+            </button>
+        </form>
+    </div>
+{% endif %}

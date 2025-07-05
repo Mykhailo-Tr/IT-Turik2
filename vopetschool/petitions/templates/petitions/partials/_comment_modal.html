@@ -1,0 +1,20 @@
+<div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="commentModalLabel">💬 Новий коментар</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+            </div>
+            <form method="post" action="{% url 'add_comment' petition.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <textarea name="text" rows="4" class="form-control" placeholder="Введіть ваш коментар..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-primary rounded-pill">💬 Надіслати</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

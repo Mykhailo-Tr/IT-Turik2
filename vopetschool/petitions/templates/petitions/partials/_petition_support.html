@@ -1,0 +1,24 @@
+<h5 class="mb-3">🙋‍♀️ Підтримка:</h5>
+
+<p>
+    <strong>🔢 Кількість голосів:</strong>
+    <span id="support-count" class="fw-bold">{{ supporters_count }}</span>
+    / {{ eligible_voters }}
+</p>
+
+<div class="progress mb-3 rounded-pill" style="height: 24px;">
+    <div class="progress-bar fw-semibold text-white"
+         id="support-progress"
+         role="progressbar"
+         style="width: {{ support_percent }}%; background: linear-gradient(90deg, #00c6ff, #0072ff); transition: width 0.6s ease;"
+         aria-valuenow="{{ support_percent }}"
+         aria-valuemin="0"
+         aria-valuemax="100">
+        {{ support_percent }}%
+    </div>
+</div>
+
+<p>
+    <strong>📈 Потрібно для розгляду:</strong> {{ required_supporters }} голосів<br>
+    <strong>🔁 Залишилось зібрати:</strong> {{ remaining_supporters }}
+</p>

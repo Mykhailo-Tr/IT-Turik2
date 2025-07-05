@@ -149,8 +149,9 @@ def support_petition_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
     user = request.user
 
-    if petition.status != Petition.Status.NEW:
-        return HttpResponseForbidden("Петиція вже закрита або розглядається.")
+    if request.method == "POST":
+        if petition.status != Petition.Status.NEW:
+            return HttpResponseForbidden("Петиція вже закрита або розглядається.")
 
     if request.method == "GET" and request.GET.get("refresh") == "1":
         return JsonResponse(calculate_petition_support(petition))

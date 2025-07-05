@@ -16,9 +16,10 @@
         </form>
     </div>
 {% else %}
-    {% if request.user.role != "director"%}
-        <div id="support-button-wrapper"
+<div id="support-button-wrapper"
             data-support-url="{% url 'support_petition' petition.pk %}"></div>
+    {% if request.user.role != "director"%}
+        
         <div class="alert alert-warning rounded-3 mt-3">
             ⚠️ Ви не можете підтримати цю петицію.
         </div>

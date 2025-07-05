@@ -1,4 +1,4 @@
-{% if petition.status == Petition.Status.NEW %}
+{% if petition.status == 'new' %}
     {% if can_support or supported %}
         <div id="support-button-wrapper"
             data-support-url="{% url 'support_petition' petition.pk %}">

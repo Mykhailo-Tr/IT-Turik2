@@ -14,7 +14,6 @@ from .forms import PetitionForm, CommentForm
 from accounts.models import User, ClassGroup
 
 
-
 class PetitionListView(ListView):
     model = Petition
     template_name = "petitions/petition_list.html"
@@ -23,10 +22,10 @@ class PetitionListView(ListView):
     def get_queryset(self):
         queryset = Petition.objects.all()
 
+        # --- Фільтрація ---
         if self.request.user.role == "director":
             queryset = queryset.exclude(status=Petition.Status.NEW)
 
-        # --- Фільтрація ---
         status = self.request.GET.get("status")
         level = self.request.GET.get("level")
         creator = self.request.GET.get("creator")
@@ -38,14 +37,7 @@ class PetitionListView(ListView):
         if creator:
             queryset = queryset.filter(creator__id=creator)
 
-        # --- Анотація підтримки ---
-        queryset = queryset.annotate(support_count=Count("supporters", distinct=True))
-        for petition in queryset:
-            total = petition.get_eligible_voters_count()
-            support = petition.support_count
-            petition.support_percent = round((support / total * 100), 0) if total > 0 else 0
-
-        return queryset
+        return queryset.order_by("-created_at")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -55,9 +47,8 @@ class PetitionListView(ListView):
         context["selected_status"] = self.request.GET.get("status", "")
         context["selected_level"] = self.request.GET.get("level", "")
         context["selected_creator"] = self.request.GET.get("creator", "")
-        context["petitions"] = list(self.get_queryset())
         return context
-
+    
 @login_required
 def petition_detail_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
@@ -73,6 +64,7 @@ def petition_detail_view(request, pk):
     eligible_voters = petition.get_eligible_voters_count()
     supporters_count = petition.supporters.count()
     support_percent = int((supporters_count / eligible_voters) * 100) if eligible_voters > 0 else 0
+    
     return render(request, "petitions/petition_detail.html", {
         "petition": petition,
         "supported": supported,
@@ -198,7 +190,7 @@ def support_petition_view(request, pk):
         petition.supporters.add(user)
         supported = True
 
-    if petition.is_ready_for_review():
+    if petition.status == Petition.Status.NEW and petition.is_ready_for_review():
         petition.status = Petition.Status.PENDING
         petition.save()
 

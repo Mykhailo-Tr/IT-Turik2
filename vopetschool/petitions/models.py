@@ -34,9 +34,9 @@ class Petition(models.Model):
 
     def total_needed_supporters(self):
         if self.level == self.Level.SCHOOL:
-            return (User.objects.filter(role="student").count() // 2) + 1
+            return (User.objects.filter(role="student").count() // 2) 
         elif self.level == self.Level.CLASS and self.class_group:
-            return (self.class_group.students.count() // 2) + 1
+            return (self.class_group.students.count() // 2) 
         return 0
     
     def remaining_supporters_needed(self):
@@ -50,7 +50,8 @@ class Petition(models.Model):
         return 0
 
     def is_ready_for_review(self):
-        return self.supporters.count() >= self.total_needed_supporters()
+        print(f"Supporters count: {self.supporters.count()}, Total needed: {self.total_needed_supporters()}")
+        return self.supporters.count() > self.total_needed_supporters()
 
     def __str__(self):
         return self.title

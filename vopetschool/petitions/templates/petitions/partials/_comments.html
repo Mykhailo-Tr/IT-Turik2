@@ -5,6 +5,7 @@
 </button>
 
 {% include "petitions/partials/_comment_modal.html" %}
+<p class="text-muted mb-3">Загалом коментарів: <strong>{{ comments|length }}</strong></p>
 
 {% if comments %}
     <div class="list-group">

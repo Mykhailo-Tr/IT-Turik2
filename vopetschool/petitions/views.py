@@ -14,6 +14,7 @@ from .forms import PetitionForm, CommentForm
 from accounts.models import User, ClassGroup
 
 
+
 class PetitionListView(ListView):
     model = Petition
     template_name = "petitions/petition_list.html"
@@ -25,6 +26,19 @@ class PetitionListView(ListView):
         if self.request.user.role == "director":
             queryset = queryset.exclude(status=Petition.Status.NEW)
 
+        # --- Фільтрація ---
+        status = self.request.GET.get("status")
+        level = self.request.GET.get("level")
+        creator = self.request.GET.get("creator")
+
+        if status:
+            queryset = queryset.filter(status=status)
+        if level:
+            queryset = queryset.filter(level=level)
+        if creator:
+            queryset = queryset.filter(creator__id=creator)
+
+        # --- Анотація підтримки ---
         queryset = queryset.annotate(support_count=Count("supporters", distinct=True))
         for petition in queryset:
             total = petition.get_eligible_voters_count()
@@ -33,12 +47,16 @@ class PetitionListView(ListView):
 
         return queryset
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["statuses"] = Petition.Status.choices
+        context["levels"] = Petition.Level.choices
+        context["students"] = User.objects.filter(role="student")
+        context["selected_status"] = self.request.GET.get("status", "")
+        context["selected_level"] = self.request.GET.get("level", "")
+        context["selected_creator"] = self.request.GET.get("creator", "")
         context["petitions"] = list(self.get_queryset())
         return context
-
 
 @login_required
 def petition_detail_view(request, pk):

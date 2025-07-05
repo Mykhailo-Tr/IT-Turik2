@@ -214,7 +214,7 @@ def vote_stats_api(request, pk):
     if not user_can_see_votes:
         return JsonResponse({"error": "Access denied"}, status=403)
 
-    options = vote.options.annotate(vote_count=Count("voteanswer"))
+    options = vote.options.annotate(vote_count=Count("answers")).select_related("vote")
     total_votes = sum(option.vote_count for option in options)
 
     return JsonResponse({

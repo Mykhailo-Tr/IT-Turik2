@@ -15,8 +15,10 @@
                             ➕ Створити голосування
                         </a>
                     </div>
+
+                    <!-- Фільтрація -->
                     <div class="mb-4">
-                        <div class="btn-group" role="group">
+                        <div class="d-flex flex-wrap gap-2">
                             <a href="{% url 'vote_list' %}" class="btn btn-outline-secondary {% if not current_filter %}active{% endif %}">Усі</a>
                             <a href="?filter=active" class="btn btn-outline-success {% if current_filter == 'active' %}active{% endif %}">Активні</a>
                             <a href="?filter=voted" class="btn btn-outline-primary {% if current_filter == 'voted' %}active{% endif %}">Проголосовані</a>
@@ -24,7 +26,7 @@
                         </div>
                     </div>
 
-
+                    <!-- Список голосувань -->
                     {% if votes %}
                         <div class="row g-4">
                             {% for vote in votes %}

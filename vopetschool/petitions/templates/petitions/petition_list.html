@@ -57,6 +57,16 @@
                                                     ({{ petition.support_percent|floatformat:0 }}%)
                                                 </span>
                                             </div>
+
+                                            {% if petition.status == 'approved' %}
+                                                <span class="badge bg-success mt-2">✅ Прийнята</span>
+                                            {% elif petition.status == 'rejected' %}
+                                                <span class="badge bg-danger mt-2">❌ Відхилена</span>
+                                            {% elif petition.status == 'new' %}
+                                                <span class="badge bg-warning text-dark mt-2">Нова</span>
+                                            {% elif petition.status == 'pending' %}
+                                                <span class="badge bg-info text-dark mt-2">Очікується</span>
+                                            {% endif %}
                                         </div>
 
                                         <div class="text-end mt-3">

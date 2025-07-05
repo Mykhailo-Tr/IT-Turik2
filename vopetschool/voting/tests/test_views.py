@@ -67,7 +67,6 @@ def vote(user):
     VoteOption.objects.create(vote=vote, text="Ні", is_correct=False)
     return vote
 
-
 # ===== TESTS =====
 
 @pytest.mark.django_db
@@ -76,12 +75,10 @@ def test_vote_list_view(authenticated_client):
     assert response.status_code == 200
     assert "votes" in response.context
 
-
 @pytest.mark.django_db
 def test_vote_list_view_admin_sees_all(admin_client, vote):
     response = admin_client.get(reverse("vote_list"))
     assert vote in response.context["votes"]
-
 
 @pytest.mark.django_db
 def test_vote_detail_view(authenticated_client, vote):
@@ -89,7 +86,6 @@ def test_vote_detail_view(authenticated_client, vote):
     response = authenticated_client.get(url)
     assert response.status_code == 200
     assert response.context["vote"].pk == vote.pk
-
 
 @pytest.mark.django_db
 def test_vote_submission_success(authenticated_client, vote, user):
@@ -99,7 +95,6 @@ def test_vote_submission_success(authenticated_client, vote, user):
 
     assert response.status_code == 302
     assert VoteAnswer.objects.filter(voter=user, option=option).exists()
-
 
 @pytest.mark.django_db
 def test_vote_submission_after_end(authenticated_client, vote):
@@ -114,7 +109,6 @@ def test_vote_submission_after_end(authenticated_client, vote):
     assert response.status_code == 200
     assert not VoteAnswer.objects.filter(option=option).exists()
 
-
 @pytest.mark.django_db
 def test_prevent_double_vote(authenticated_client, vote, user):
     option = vote.options.first()
@@ -127,7 +121,6 @@ def test_prevent_double_vote(authenticated_client, vote, user):
 
     assert response.status_code == 200
     assert "form" not in response.context or response.context["form"] is None
-
 
 @pytest.mark.django_db
 def test_vote_create_valid(authenticated_client, user):
@@ -150,7 +143,6 @@ def test_vote_create_valid(authenticated_client, user):
     assert response.status_code == 302
     assert Vote.objects.filter(title="New Vote").exists()
 
-
 @pytest.mark.django_db
 def test_vote_create_invalid_form(authenticated_client):
     url = reverse("vote_create")
@@ -170,14 +162,12 @@ def test_vote_create_invalid_form(authenticated_client):
     assert response.status_code == 200
     assert "form" in response.context
 
-
 @pytest.mark.django_db
 def test_vote_delete_by_creator(authenticated_client, vote):
     url = reverse("vote_delete", args=[vote.pk])
     response = authenticated_client.post(url)
     assert response.status_code == 302
     assert not Vote.objects.filter(pk=vote.pk).exists()
-
 
 @pytest.mark.django_db
 def test_vote_delete_by_non_creator(client, vote, teacher):
@@ -187,14 +177,12 @@ def test_vote_delete_by_non_creator(client, vote, teacher):
     assert response.status_code == 403
     assert Vote.objects.filter(pk=vote.pk).exists()
 
-
 @pytest.mark.django_db
 def test_vote_delete_by_admin(admin_client, vote):
     url = reverse("vote_delete", args=[vote.pk])
     response = admin_client.post(url)
     assert response.status_code == 302
     assert not Vote.objects.filter(pk=vote.pk).exists()
-
 
 @pytest.mark.django_db
 def test_vote_stats_api_access(authenticated_client, vote, user):
@@ -206,7 +194,6 @@ def test_vote_stats_api_access(authenticated_client, vote, user):
     assert response.status_code == 200
     assert "total_votes" in data
     assert isinstance(data["options"], list)
-
 
 @pytest.mark.django_db
 def test_vote_stats_access_denied_if_not_voted(authenticated_client, vote):

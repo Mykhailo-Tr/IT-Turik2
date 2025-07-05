@@ -103,7 +103,7 @@ def vote_detail_view(request, pk):
     else:
         eligible_users = User.objects.all()
 
-    voted_users = User.objects.filter(voteanswer__option__vote=vote).distinct()
+    voted_users = User.objects.filter(vote_answers__option__vote=vote).distinct()
 
     user_can_see_votes = (
         request.user == vote.creator
@@ -113,15 +113,15 @@ def vote_detail_view(request, pk):
     )
 
     options = []
-    raw_options = vote.options.annotate(vote_count=Count("voteanswer")).select_related("vote")
+    raw_options = vote.options.annotate(vote_count=Count("answers")).select_related("vote")
     for option in raw_options:
-        option.voted_users = User.objects.filter(voteanswer__option=option) if user_can_see_votes else []
+        option.voted_users = User.objects.filter(vote_answers__option=option) if user_can_see_votes else []
         options.append(option)
 
     option_voted_users_dict = {}
     if user_can_see_votes:
         for option in vote.options.all():
-            option_voted_users_dict[option.id] = list(User.objects.filter(voteanswer__option=option))
+            option_voted_users_dict[option.id] = list(User.objects.filter(vote_answers__option=option))
 
     return render(request, "voting/vote_detail.html", {
         "vote": vote,
@@ -214,7 +214,7 @@ def vote_stats_api(request, pk):
     if not user_can_see_votes:
         return JsonResponse({"error": "Access denied"}, status=403)
 
-    options = vote.options.annotate(vote_count=Count("voteanswer"))
+    options = vote.options.annotate(vote_count=Count("answers")).select_related("vote")
     total_votes = sum(option.vote_count for option in options)
 
     return JsonResponse({

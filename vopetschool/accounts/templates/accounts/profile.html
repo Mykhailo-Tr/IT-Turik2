@@ -50,6 +50,7 @@
                         </ul>
                     </div>
 
+                    <!-- Групи викладання (для вчителів) -->
                     {% if viewed_user.role == 'teacher' and viewed_user.teacher.groups.all %}
                         <div class="mb-5">
                             <h5 class="text-uppercase text-secondary fw-semibold mb-3">
@@ -63,6 +64,8 @@
                                 {% endfor %}
                             </div>
                         </div>
+
+                    <!-- Діти (для батьків) -->
                     {% elif viewed_user.role == 'parent' and viewed_user.parent.children.all %}
                         <div class="mb-5">
                             <h5 class="text-uppercase text-secondary fw-semibold mb-3">
@@ -81,6 +84,28 @@
                                                     <p class="mb-0 fs-6">
                                                         {{ child.get_class_group.name|default:"—" }}
                                                     </p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    <!-- Батьки (для учнів) -->
+                    {% elif viewed_user.role == 'student' and viewed_user.student.parents.all %}
+                        <div class="mb-5">
+                            <h5 class="text-uppercase text-secondary fw-semibold mb-3">
+                                <i class="bi bi-people-fill me-2"></i> Батьки
+                            </h5>
+                            <div class="row g-3">
+                                {% for parent in viewed_user.student.parents.all %}
+                                    <div class="col-md-6 col-lg-4">
+                                        <a href="{% url 'user_profile' user_id=parent.user.id %}" class="text-decoration-none text-dark">
+                                            <div class="card border-0 shadow-sm rounded-3 h-100 hover-shadow-sm">
+                                                <div class="card-body px-4 py-3">
+                                                    <h6 class="fw-bold text-muted small mb-1">Імʼя:</h6>
+                                                    <p class="mb-0 fs-6">{{ parent.get_full_name|default:parent }}</p>
                                                 </div>
                                             </div>
                                         </a>

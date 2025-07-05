@@ -80,7 +80,12 @@
                                                     {% if option_voters %}
                                                         <ul class="list-group">
                                                             {% for user in option_voters %}
-                                                                <li class="list-group-item">{{ user.get_full_name }} ({{ user.role }})</li>
+                                                                <a href="{% url 'user_profile' user.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                                                    <span>{{ user.get_full_name }} ({{ user.role }})</span>
+                                                                    {% if request.user == user %}
+                                                                        <span class="badge bg-secondary">Ви</span>
+                                                                    {% endif %}
+                                                                </a>
                                                             {% endfor %}
                                                         </ul>
                                                     {% else %}

@@ -12,16 +12,16 @@
 
                     <!-- Заголовок -->
                     <div class="text-center mb-4">
-                        <h2 class="fw-bold">{{ user.get_full_name }}</h2>
+                        <h2 class="fw-bold">{{ viewed_user.get_full_name }}</h2>
                         <p class="text-muted">Персональний профіль користувача</p>
                         <span class="badge 
-                            {% if user.role == 'student' %}bg-primary
-                            {% elif user.role == 'teacher' %}bg-info
-                            {% elif user.role == 'parent' %}bg-warning text-dark
-                            {% elif user.role == 'director' %}bg-success
+                            {% if viewed_user.role == 'student' %}bg-primary
+                            {% elif viewed_user.role == 'teacher' %}bg-info
+                            {% elif viewed_user.role == 'parent' %}bg-warning text-dark
+                            {% elif viewed_user.role == 'director' %}bg-success
                             {% else %}bg-secondary{% endif %}
                             px-3 py-2 rounded-pill">
-                            🧩 {{ user.get_role_display }}
+                            🧩 {{ viewed_user.get_role_display }}
                         </span>
                     </div>
 
@@ -32,44 +32,44 @@
                         </h5>
                         <ul class="list-group list-group-flush shadow-sm rounded-3">
                             <li class="list-group-item py-3">
-                                <strong>📧 Email:</strong> {{ user.email }}
+                                <strong>📧 Email:</strong> {{ viewed_user.email }}
                             </li>
-                            {% if user.role == 'student' %}
+                            {% if viewed_user.role == 'student' %}
                                 <li class="list-group-item py-3">
                                     <strong>🏫 Клас:</strong> {{ class_group }}
                                 </li>
-                            {% elif user.role == 'teacher' %}
+                            {% elif viewed_user.role == 'teacher' %}
                                 <li class="list-group-item py-3">
-                                    <strong>📘 Предмет:</strong> {{ user.teacher.subject }}
+                                    <strong>📘 Предмет:</strong> {{ viewed_user.teacher.subject }}
                                 </li>
-                            {% elif user.role == 'parent' %}
+                            {% elif viewed_user.role == 'parent' %}
                                 <li class="list-group-item py-3">
-                                    <strong>👨‍👩‍👧‍👦 Кількість дітей:</strong> {{ user.parent.children.count }}
+                                    <strong>👨‍👩‍👧‍👦 Кількість дітей:</strong> {{ viewed_user.parent.children.count }}
                                 </li>
                             {% endif %}
                         </ul>
                     </div>
 
-                    {% if user.role == 'teacher' and user.teacher.groups.all %}
+                    {% if viewed_user.role == 'teacher' and viewed_user.teacher.groups.all %}
                         <div class="mb-5">
                             <h5 class="text-uppercase text-secondary fw-semibold mb-3">
                                 <i class="bi bi-people-fill me-2"></i> Групи викладання
                             </h5>
                             <div class="d-flex flex-wrap gap-2">
-                                {% for group in user.teacher.groups.all %}
+                                {% for group in viewed_user.teacher.groups.all %}
                                     <span class="badge bg-light border text-dark px-3 py-2 rounded-pill">
                                         {{ group }}
                                     </span>
                                 {% endfor %}
                             </div>
                         </div>
-                    {% elif user.role == 'parent' and user.parent.children.all %}
+                    {% elif viewed_user.role == 'parent' and viewed_user.parent.children.all %}
                         <div class="mb-5">
                             <h5 class="text-uppercase text-secondary fw-semibold mb-3">
                                 <i class="bi bi-people-fill me-2"></i> Діти
                             </h5>
                             <div class="row g-3">
-                                {% for child in user.parent.children.all %}
+                                {% for child in viewed_user.parent.children.all %}
                                     <div class="col-sm-6">
                                         <div class="card border-0 shadow-sm rounded-3 h-100">
                                             <div class="card-body">
@@ -84,17 +84,19 @@
                     {% endif %}
 
                     <!-- Кнопки -->
-                    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
-                        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary rounded-pill px-4">
-                            ✏️ Редагувати
-                        </a>
-                        <a href="{% url 'delete_account' %}" class="btn btn-outline-danger rounded-pill px-4">
-                            ❌ Видалити
-                        </a>
-                        <a href="{% url 'logout' %}" class="btn btn-outline-secondary rounded-pill px-4">
-                            🚪 Вийти
-                        </a>
-                    </div>
+                    {% if request.user == viewed_user %}
+                        <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+                            <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary rounded-pill px-4">
+                                ✏️ Редагувати
+                            </a>
+                            <a href="{% url 'delete_account' %}" class="btn btn-outline-danger rounded-pill px-4">
+                                ❌ Видалити
+                            </a>
+                            <a href="{% url 'logout' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                                🚪 Вийти
+                            </a>
+                        </div>
+                    {% endif %}
 
                 </div>
             </div>

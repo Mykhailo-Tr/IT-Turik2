@@ -12,5 +12,6 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     path("accounts/delete/", DeleteAccountView.as_view(), name="delete_account"),
     path("profile/", ProfileView.as_view(), name="profile"),
+    path("profile/<int:user_id>/", ProfileView.as_view(), name="user_profile"),
     path("accounts/edit/", EditProfileView.as_view(), name="edit_profile"),
 ]

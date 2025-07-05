@@ -20,12 +20,19 @@ class PetitionListView(ListView):
     context_object_name = "petitions"
 
     def get_queryset(self):
-        queryset = Petition.objects.annotate(support_count=Count("supporters", distinct=True))
+        queryset = Petition.objects.all()
+
+        if self.request.user.role == "director":
+            queryset = queryset.exclude(status=Petition.Status.NEW)
+
+        queryset = queryset.annotate(support_count=Count("supporters", distinct=True))
         for petition in queryset:
             total = petition.get_eligible_voters_count()
             support = petition.support_count
             petition.support_percent = round((support / total * 100), 0) if total > 0 else 0
+
         return queryset
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

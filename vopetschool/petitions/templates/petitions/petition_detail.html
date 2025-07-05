@@ -16,16 +16,15 @@
                     {% include "petitions/partials/_support_button.html" %}
 
                     {% if request.user == petition.creator or request.user.role in "director admin" %}
-                        <form method="post" action="{% url 'petition_delete' petition.pk %}"
-                              onsubmit="return confirm('❗ Ви впевнені, що хочете видалити цю петицію?');"
-                              class="mt-4">
-                            {% csrf_token %}
-                            {% if request.user == petition.creator %}
-                                <button type="submit" class="btn btn-danger rounded-pill">
-                                    🗑️ Видалити петицію
-                                </button>
-                            {% endif %}
-                        </form>
+                        <!-- Кнопка запуску модального вікна -->
+                        {% if request.user == petition.creator %}
+                            <button type="button"
+                                    class="btn btn-danger rounded-pill mt-4"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deletePetitionModal">
+                                🗑️ Видалити петицію
+                            </button>
+                        {% endif %}
                     {% endif %}
 
                     <hr class="my-4">
@@ -33,6 +32,30 @@
 
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Підтвердження видалення петиції -->
+<div class="modal fade" id="deletePetitionModal" tabindex="-1"
+     aria-labelledby="deletePetitionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow">
+            <form method="post" action="{% url 'petition_delete' petition.pk %}">
+                {% csrf_token %}
+                <div class="modal-header bg-danger text-white rounded-top-4">
+                    <h5 class="modal-title" id="deletePetitionModalLabel">❗ Видалення петиції</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Ви справді хочете <strong>видалити цю петицію</strong>?</p>
+                    <p class="text-muted small mt-2">Цю дію неможливо скасувати.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-danger rounded-pill">🗑️ Видалити</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

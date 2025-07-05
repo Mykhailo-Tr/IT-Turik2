@@ -20,7 +20,7 @@
                             <a href="{% url 'vote_list' %}" class="btn btn-outline-secondary {% if not current_filter %}active{% endif %}">Усі</a>
                             <a href="?filter=active" class="btn btn-outline-success {% if current_filter == 'active' %}active{% endif %}">Активні</a>
                             <a href="?filter=voted" class="btn btn-outline-primary {% if current_filter == 'voted' %}active{% endif %}">Проголосовані</a>
-                            <a href="?filter=finished" class="btn btn-outline-dark {% if current_filter == 'finished' %}active{% endif %}">Завершені</a>
+                            <a href="?filter=finished" class="btn btn-outline-danger {% if current_filter == 'finished' %}active{% endif %}">Завершені</a>
                         </div>
                     </div>
 

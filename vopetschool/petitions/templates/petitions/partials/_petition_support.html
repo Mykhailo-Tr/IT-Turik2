@@ -18,8 +18,8 @@
     </div>
 </div>
 {% if petition.status == 'new' %}
-<p>
-    <strong>📈 Потрібно для розгляду:</strong> {{ required_supporters }} голосів<br>
-    <strong>🔁 Залишилось зібрати:</strong> {{ remaining_supporters }}
+<p id="support-info">
+    <strong>📈 Потрібно для розгляду:</strong> <span id="required-supporters">{{ required_supporters }}</span> голосів<br>
+    <strong>🔁 Залишилось зібрати:</strong> <span id="remaining-supporters">{{ remaining_supporters }}</span>
 </p>
 {% endif %}

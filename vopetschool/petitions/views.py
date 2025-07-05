@@ -139,6 +139,8 @@ def calculate_petition_support(petition):
         "supporters_count": supporters_count,
         "support_percent": support_percent,
         "eligible_voters": eligible_voters,
+        "required_supporters": petition.total_needed_supporters(),
+        "remaining_supporters": petition.remaining_supporters_needed(),
     }
 
 
@@ -171,7 +173,6 @@ def support_petition_view(request, pk):
         petition.supporters.add(user)
         supported = True
 
-    # 🔁 Перевірити статус після зміни підтримки
     if petition.is_ready_for_review():
         petition.status = Petition.Status.PENDING
         petition.save()

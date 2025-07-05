@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const formWrapper = document.getElementById("support-button-wrapper");
     const countElem = document.getElementById("support-count");
     const progressElem = document.getElementById("support-progress");
+    const requiredElem = document.getElementById("required-supporters");
+    const remainingElem = document.getElementById("remaining-supporters");
 
     // 🔁 Оновлення кількості підтримки
     function refreshSupportData() {
@@ -11,10 +13,17 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(supportUrl + "?refresh=1")
             .then(r => r.json())
             .then(data => {
+                // 🔢 Лічильник підтримки
                 countElem.textContent = data.supporters_count;
+
+                // 📊 Прогресбар
                 progressElem.style.width = data.support_percent + "%";
                 progressElem.setAttribute("aria-valuenow", data.support_percent);
                 progressElem.textContent = data.support_percent + "%";
+
+                // 📈 Додаткові лічильники
+                if (requiredElem) requiredElem.textContent = data.required_supporters;
+                if (remainingElem) remainingElem.textContent = data.remaining_supporters;
             });
     }
 
@@ -45,7 +54,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     progressElem.setAttribute("aria-valuenow", data.support_percent);
                     progressElem.textContent = data.support_percent + "%";
 
-                    // 🔁 Динамічне оновлення форми
+                    // 🔄 Оновлення додаткових лічильників
+                    if (requiredElem) requiredElem.textContent = data.required_supporters;
+                    if (remainingElem) remainingElem.textContent = data.remaining_supporters;
+
+                    // 🔁 Динамічне оновлення кнопки
                     const newForm = document.createElement("form");
                     newForm.method = "post";
                     newForm.action = form.action;

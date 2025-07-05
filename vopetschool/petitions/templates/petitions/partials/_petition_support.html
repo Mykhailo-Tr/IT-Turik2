@@ -17,8 +17,9 @@
         {{ support_percent }}%
     </div>
 </div>
-
+{% if petition.status == Petition.Status.NEW and petition.status == Petition.Status.PENDING %}
 <p>
     <strong>📈 Потрібно для розгляду:</strong> {{ required_supporters }} голосів<br>
     <strong>🔁 Залишилось зібрати:</strong> {{ remaining_supporters }}
 </p>
+{% endif %}

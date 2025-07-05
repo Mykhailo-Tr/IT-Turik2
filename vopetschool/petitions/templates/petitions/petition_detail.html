@@ -31,6 +31,18 @@
                                     <span class="badge bg-info text-dark">🎓 Клас: {{ petition.class_group }}</span>
                                 {% endif %}
                             </p>
+                            <p class="mt-3">
+                                <strong>📌 Статус петиції:</strong>
+                                {% if petition.status == 'new' %}
+                                    <span class="badge bg-warning text-dark">Нова</span>
+                                {% elif petition.status == 'pending' %}
+                                    <span class="badge bg-info text-dark">Очікується</span>
+                                {% elif petition.status == 'accepted' %}
+                                    <span class="badge bg-success">✅ Прийнята</span>
+                                {% elif petition.status == 'rejected' %}
+                                    <span class="badge bg-danger">❌ Відхилена</span>
+                                {% endif %}
+                        </p>
                         </div>
                         <a href="{% url 'petition_list' %}" class="btn btn-outline-secondary rounded-pill">⬅️ Назад до петицій</a>
                     </div>
@@ -57,6 +69,29 @@
                             {{ support_percent }}%
                         </div>
                     </div>
+                    <p>
+                        <strong>📈 Потрібно для розгляду:</strong> {{ required_supporters }} голосів<br>
+                        <strong>🔁 Залишилось зібрати:</strong> {{ remaining_supporters }}
+                    </p>
+                    <!-- Після блоку "Потрібно для розгляду" -->
+
+
+                    {% if request.user.role == 'director' and support_percent >= 50 and petition.status == 'pending' %}
+                        <div class="mt-4">
+                            <h5>⚙️ Дії з петицією:</h5>
+                            <form method="post" action="{% url 'petition_set_status' petition.pk %}" class="d-flex gap-2 flex-wrap mt-2">
+                                {% csrf_token %}
+                                <button name="status" value="accepted" class="btn btn-success rounded-pill" onclick="return confirm('✅ Прийняти петицію?')">
+                                    ✅ Прийняти
+                                </button>
+                                <button name="status" value="rejected" class="btn btn-danger rounded-pill" onclick="return confirm('❌ Відхилити петицію?')">
+                                    ❌ Відхилити
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+
+
 
 
                     {% if can_support or supported %}

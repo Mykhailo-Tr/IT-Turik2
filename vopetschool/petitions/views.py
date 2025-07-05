@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.db.models import Count
 
-from .models import Petition, Comment
+from .models import Petition, Comment, PetitionReview
 from .forms import PetitionForm, CommentForm
 from accounts.models import User, ClassGroup
 
@@ -52,9 +52,11 @@ def petition_detail_view(request, pk):
     return render(request, "petitions/petition_detail.html", {
         "petition": petition,
         "supported": supported,
-        "can_support": user.role == "student" and not supported and timezone.now() <= petition.deadline,
+        "can_support": user.role == "student" and not supported and timezone.now() <= petition.deadline and petition.status == Petition.Status.NEW,
         "supporters_count": supporters_count,
         "eligible_voters": eligible_voters,
+        "remaining_supporters": petition.remaining_supporters_needed(),
+        "required_supporters": petition.total_needed_supporters(),
         "support_percent": support_percent,
         "comment_form": CommentForm(),
         "comments": petition.comments.all(),
@@ -147,6 +149,9 @@ def support_petition_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
     user = request.user
 
+    if petition.status != Petition.Status.NEW:
+        return HttpResponseForbidden("Петиція вже закрита або розглядається.")
+
     if request.method == "GET" and request.GET.get("refresh") == "1":
         return JsonResponse(calculate_petition_support(petition))
 
@@ -165,6 +170,11 @@ def support_petition_view(request, pk):
     else:
         petition.supporters.add(user)
         supported = True
+
+    # 🔁 Перевірити статус після зміни підтримки
+    if petition.is_ready_for_review():
+        petition.status = Petition.Status.PENDING
+        petition.save()
 
     data = calculate_petition_support(petition)
     data["success"] = True
@@ -216,3 +226,46 @@ def delete_petition_view(request, pk):
     petition.delete()
     messages.success(request, "Петиція успішно видалена.")
     return redirect("petition_list")
+
+
+@login_required
+@require_POST
+def confirm_review_view(request, pk):
+    petition = get_object_or_404(Petition, pk=pk)
+
+    if request.user.role not in ["director", "teacher"]:
+        messages.error(request, "❌ Ви не маєте прав для підтвердження.")
+        return redirect("petition_detail", pk=pk)
+
+    if not petition.is_ready_for_review():
+        messages.error(request, "⛔ Петиція ще не досягла порогу.")
+        return redirect("petition_detail", pk=pk)
+
+    PetitionReview.objects.update_or_create(
+        petition=petition,
+        defaults={"reviewed_by": request.user, "reviewed_at": timezone.now()}
+    )
+    petition.status = Petition.Status.PENDING
+    petition.save()
+
+    messages.success(request, "✅ Петиція позначена як розглянута.")
+    return redirect("petition_detail", pk=pk)
+
+
+@login_required
+def set_petition_status(request, pk):
+    petition = get_object_or_404(Petition, pk=pk)
+
+    if request.user.role != 'director' or petition.status != Petition.Status.PENDING:
+        messages.error(request, "⛔ Недостатньо прав або петиція вже оброблена.")
+        return redirect('petition_detail', pk=pk)
+
+    if request.method == "POST":
+        status = request.POST.get("status")
+        if status in [Petition.Status.APPROVED, Petition.Status.REJECTED]:
+            petition.status = status
+            petition.save()
+            messages.success(request, f"✅ Статус петиції оновлено: {status}")
+        else:
+            messages.error(request, "⛔ Невідомий статус.")
+    return redirect('petition_detail', pk=pk)

@@ -8,6 +8,12 @@ class Petition(models.Model):
     class Level(models.TextChoices):
         SCHOOL = "school", "Вся школа"
         CLASS = "class", "Конкретний клас"
+        
+    class Status(models.TextChoices):
+        NEW = "new", "Нова"
+        PENDING = "pending", "Очікує на розгляд"
+        APPROVED = "approved", "Затверджено"
+        REJECTED = "rejected", "Відхилено"
 
     title = models.CharField(max_length=255)
     text = models.TextField()
@@ -18,6 +24,7 @@ class Petition(models.Model):
 
     supporters = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="supported_petitions", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.NEW)
 
     def is_active(self):
         return timezone.now() < self.deadline
@@ -28,6 +35,9 @@ class Petition(models.Model):
         elif self.level == self.Level.CLASS and self.class_group:
             return (self.class_group.students.count() // 2) + 1
         return 0
+    
+    def remaining_supporters_needed(self):
+        return max(self.total_needed_supporters() - self.supporters.count(), 0)
 
     def get_eligible_voters_count(self):
         if self.level == self.Level.SCHOOL:
@@ -61,3 +71,13 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.author.get_full_name()} on {self.petition.title}"
+    
+    
+class PetitionReview(models.Model):
+    petition = models.OneToOneField(Petition, on_delete=models.CASCADE, related_name="review_status")
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.petition.title} reviewed by {self.reviewed_by}"
+

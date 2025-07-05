@@ -3,8 +3,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const countElem = document.getElementById("support-count");
     const progressElem = document.getElementById("support-progress");
 
+    // 🔁 Оновлення кількості підтримки
     function refreshSupportData() {
         const supportUrl = formWrapper?.dataset.supportUrl;
+        if (!supportUrl) return;
+
         fetch(supportUrl + "?refresh=1")
             .then(r => r.json())
             .then(data => {
@@ -15,11 +18,14 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    // 🕓 Автоматичне оновлення кожні 2 секунди
     setInterval(refreshSupportData, 2000);
 
+    // ⚡ Обробка натискання кнопки підтримки
     if (formWrapper) {
         formWrapper.addEventListener("submit", function (e) {
             e.preventDefault();
+
             const form = e.target;
             const formData = new FormData(form);
             const isCancel = formData.get("cancel");
@@ -33,11 +39,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }).then(response => response.json())
               .then(data => {
                 if (data.success) {
+                    // 🔄 Оновлення лічильника і прогресу
                     countElem.textContent = data.supporters_count;
                     progressElem.style.width = data.support_percent + "%";
                     progressElem.setAttribute("aria-valuenow", data.support_percent);
                     progressElem.textContent = data.support_percent + "%";
 
+                    // 🔁 Динамічне оновлення форми
                     const newForm = document.createElement("form");
                     newForm.method = "post";
                     newForm.action = form.action;
@@ -49,11 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     csrf.value = form.querySelector('[name=csrfmiddlewaretoken]').value;
                     newForm.appendChild(csrf);
 
-                    const btn = document.createElement("button");
-                    btn.type = "submit";
-                    btn.className = "btn rounded-pill " + (isCancel ? "btn-outline-primary" : "btn-outline-danger");
-                    btn.innerHTML = isCancel ? "🙋 Підтримати петицію" : "❌ Скасувати підтримку";
-
                     if (!isCancel) {
                         const hidden = document.createElement("input");
                         hidden.type = "hidden";
@@ -62,11 +65,17 @@ document.addEventListener("DOMContentLoaded", function () {
                         newForm.appendChild(hidden);
                     }
 
+                    const btn = document.createElement("button");
+                    btn.type = "submit";
+                    btn.className = "btn rounded-pill " + (isCancel ? "btn-outline-primary" : "btn-outline-danger");
+                    btn.innerHTML = isCancel ? "🙋 Підтримати петицію" : "❌ Скасувати підтримку";
+
                     newForm.appendChild(btn);
+
                     formWrapper.innerHTML = "";
                     formWrapper.appendChild(newForm);
                 }
-              });
+            });
         });
     }
 });

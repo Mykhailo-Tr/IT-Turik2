@@ -109,6 +109,8 @@ class CustomLoginForm(AuthenticationForm):
 
 
 class EditProfileForm(forms.ModelForm):
+    subject = forms.CharField(label="Предмет", required=False)
+
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name']
@@ -117,3 +119,21 @@ class EditProfileForm(forms.ModelForm):
             'first_name': "Ім'я",
             'last_name': "Прізвище"
         }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.get('instance')
+        super().__init__(*args, **kwargs)
+
+        if self.user.role != 'teacher':
+            self.fields.pop('subject')
+        else:
+            self.fields['subject'].initial = self.user.teacher.subject
+
+    def save(self, commit=True):
+        user = super().save(commit)
+        if self.user.role == 'teacher':
+            subject = self.cleaned_data.get("subject")
+            self.user.teacher.subject = subject
+            if commit:
+                self.user.teacher.save()
+        return user

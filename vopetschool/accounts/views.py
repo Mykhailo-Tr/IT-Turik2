@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth import logout
+from django.shortcuts import get_object_or_404
 
 from .forms import (
     RoleChoiceForm, StudentRegisterForm,
@@ -98,15 +99,21 @@ class DeleteAccountView(View):
 
 @method_decorator(login_required, name='dispatch')
 class ProfileView(View):
-    def get(self, request):
-        context = {}
-        if request.user.role == "student":
-            class_group = request.user.student.get_class_group()
-            context = {
-                "class_group": class_group,
-            }
-            
+    def get(self, request, user_id=None):
+        if user_id is None:
+            user = request.user
+        else:
+
+            user = get_object_or_404(User, pk=user_id)
+
+        context = {"viewed_user": user}
+
+        if user.role == "student":
+            class_group = user.student.get_class_group()
+            context["class_group"] = class_group
+
         return render(request, "accounts/profile.html", context)
+
 
 
 class EditProfileView(View):

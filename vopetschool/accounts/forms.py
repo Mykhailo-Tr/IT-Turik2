@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.forms import UserCreationForm
 from .models import User, Student, Teacher, Parent, ClassGroup, TeacherGroup
 
 
@@ -9,14 +8,8 @@ class RoleChoiceForm(forms.Form):
 
 
 class BaseRegisterForm(forms.ModelForm):
-    password = forms.CharField(
-        widget=forms.PasswordInput,
-        label="Пароль"
-    )
-    password2 = forms.CharField(
-        widget=forms.PasswordInput,
-        label="Підтвердження пароля"
-    )
+    password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
+    password2 = forms.CharField(widget=forms.PasswordInput, label="Підтвердження пароля")
 
     class Meta:
         model = User
@@ -24,9 +17,7 @@ class BaseRegisterForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        password2 = cleaned_data.get("password2")
-        if password and password2 and password != password2:
+        if cleaned_data.get("password") != cleaned_data.get("password2"):
             self.add_error('password2', "Паролі не співпадають")
         return cleaned_data
 
@@ -99,7 +90,6 @@ class ParentRegisterForm(BaseRegisterForm):
 
 
 class DirectorRegisterForm(BaseRegisterForm):
-    # Директор не має додаткових полів
     def save(self, commit=True):
         return self.save_user(User.Role.DIRECTOR, commit=commit)
 
@@ -132,8 +122,7 @@ class EditProfileForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit)
         if self.user.role == 'teacher':
-            subject = self.cleaned_data.get("subject")
-            self.user.teacher.subject = subject
+            self.user.teacher.subject = self.cleaned_data.get("subject")
             if commit:
                 self.user.teacher.save()
         return user

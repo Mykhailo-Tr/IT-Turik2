@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.views import LoginView
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 
 from .forms import (
     RoleChoiceForm, StudentRegisterForm,
@@ -17,7 +16,6 @@ from .models import User
 
 
 class RoleSelectView(View):
-    """Перший крок реєстрації — вибір ролі"""
     def get(self, request):
         form = RoleChoiceForm()
         return render(request, "accounts/register.html", {"form": form, "step": "choose"})
@@ -31,7 +29,6 @@ class RoleSelectView(View):
 
 
 class RegisterView(View):
-    """Другий крок — форма реєстрації для обраної ролі"""
     form_classes = {
         User.Role.STUDENT: StudentRegisterForm,
         User.Role.TEACHER: TeacherRegisterForm,
@@ -61,6 +58,7 @@ class RegisterView(View):
             return redirect("profile")
         messages.error(request, "❌ Помилка при реєстрації. Перевірте введені дані.")
         return render(request, "accounts/register.html", {"form": form, "step": "form", "role": role})
+
 
 class CustomLoginView(LoginView):
     template_name = "accounts/login.html"
@@ -102,10 +100,7 @@ class ProfileView(View):
         context = {}
         if request.user.role == "student":
             class_group = request.user.student.get_class_group()
-            context = {
-                "class_group": class_group,
-            }
-            
+            context = {"class_group": class_group}
         return render(request, "accounts/profile.html", context)
 
 

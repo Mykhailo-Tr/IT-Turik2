@@ -57,10 +57,19 @@ class VoteOption(models.Model):
 
 
 class VoteAnswer(models.Model):
-    voter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    option = models.ForeignKey(VoteOption, on_delete=models.CASCADE)
+    voter = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name="vote_answers"
+    )
+    option = models.ForeignKey(
+        VoteOption, 
+        on_delete=models.CASCADE,
+        related_name="answers"
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("voter", "option")
+
 

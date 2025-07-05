@@ -19,33 +19,48 @@ class VoteListView(ListView):
     model = Vote
     template_name = "voting/vote_list.html"
     context_object_name = "votes"
-    
+
     def get_queryset(self):
         user = self.request.user
-
-        if user.role in ["director", "admin"]:
-            return Vote.objects.all().order_by("-start_date", "-id")
+        filter_option = self.request.GET.get("filter")
 
         class_group_ids = []
         if hasattr(user, 'student'):
             class_group_ids = user.student.class_groups.values_list("id", flat=True)
 
-        base_qs = Vote.objects.filter(
-            Q(level=Vote.Level.SCHOOL) |
-            Q(level=Vote.Level.CLASS, class_groups__in=class_group_ids) |
-            Q(level=Vote.Level.TEACHERS, creator__role="teacher") |
-            Q(level=Vote.Level.SELECTED, participants=user)
-        ).distinct()
+        if user.role in ["director", "admin"]:
+            base_qs = Vote.objects.all()
+        else:
+            base_qs = Vote.objects.filter(
+                Q(level=Vote.Level.SCHOOL) |
+                Q(level=Vote.Level.CLASS, class_groups__in=class_group_ids) |
+                Q(level=Vote.Level.TEACHERS, creator__role="teacher") |
+                Q(level=Vote.Level.SELECTED, participants=user)
+            ).distinct()
+
+        now = timezone.now()
+
+        if filter_option == "active":
+            base_qs = base_qs.filter(
+                Q(start_date__isnull=True, end_date__isnull=True) |
+                Q(start_date__lte=now, end_date__isnull=True) |
+                Q(start_date__isnull=True, end_date__gte=now) |
+                Q(start_date__lte=now, end_date__gte=now)
+            )
+        elif filter_option == "voted":
+            base_qs = base_qs.filter(options__answers__voter=user).distinct()
+        elif filter_option == "finished":
+            base_qs = base_qs.filter(end_date__lt=now)
 
         return base_qs.order_by("-start_date", "-id")
-
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         voted_ids = VoteAnswer.objects.filter(voter=self.request.user).values_list("option__vote_id", flat=True)
         context["voted_ids"] = set(voted_ids)
+        context["current_filter"] = self.request.GET.get("filter", "")
         return context
+
 
 
 @login_required
@@ -98,7 +113,7 @@ def vote_detail_view(request, pk):
     )
 
     options = []
-    raw_options = vote.options.annotate(vote_count=Count("voteanswer"))
+    raw_options = vote.options.annotate(vote_count=Count("voteanswer")).select_related("vote")
     for option in raw_options:
         option.voted_users = User.objects.filter(voteanswer__option=option) if user_can_see_votes else []
         options.append(option)

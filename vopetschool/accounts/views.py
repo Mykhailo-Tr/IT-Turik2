@@ -1,34 +1,30 @@
-from django.shortcuts import render, redirect
+# accounts/views.py
 from django.views import View
-from django.contrib.auth.views import LoginView
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
+from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.utils.decorators import method_decorator
-from django.contrib.auth import logout
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from .forms import (
     RoleChoiceForm, StudentRegisterForm,
     TeacherRegisterForm, ParentRegisterForm,
     DirectorRegisterForm, CustomLoginForm,
-    EditProfileForm
+    EditProfileForm, ClassGroupCreateForm,
+    TeacherGroupCreateForm
 )
 from .models import User
 
-
 class RoleSelectView(View):
     def get(self, request):
-        form = RoleChoiceForm()
-        return render(request, "accounts/register.html", {"form": form, "step": "choose"})
+        return render(request, "accounts/register.html", {"form": RoleChoiceForm(), "step": "choose"})
 
     def post(self, request):
         form = RoleChoiceForm(request.POST)
         if form.is_valid():
-            role = form.cleaned_data["role"]
-            return redirect("register_role", role=role)
+            return redirect("register_role", role=form.cleaned_data["role"])
         return render(request, "accounts/register.html", {"form": form, "step": "choose"})
-
 
 class RegisterView(View):
     form_classes = {
@@ -41,45 +37,75 @@ class RegisterView(View):
     def get(self, request, role):
         form_class = self.form_classes.get(role)
         if not form_class:
-            messages.error(request, "Невідома роль.")
             return redirect("register")
-        form = form_class()
-        return render(request, "accounts/register.html", {"form": form, "step": "form", "role": role})
+        return render(request, "accounts/register.html", {"form": form_class(), "step": "form", "role": role})
 
     def post(self, request, role):
         form_class = self.form_classes.get(role)
         if not form_class:
-            messages.error(request, "Невідома роль.")
             return redirect("register")
-
         form = form_class(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, "✅ Реєстрація успішна! Вітаємо в системі.")
             return redirect("profile")
-        messages.error(request, "❌ Помилка при реєстрації. Перевірте введені дані.")
         return render(request, "accounts/register.html", {"form": form, "step": "form", "role": role})
-
 
 class CustomLoginView(LoginView):
     template_name = "accounts/login.html"
     authentication_form = CustomLoginForm
 
-    def form_valid(self, form):
-        messages.success(self.request, "Вхід виконано успішно.")
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        messages.error(self.request, "Невірні дані для входу. Спробуйте ще раз.")
-        return super().form_invalid(form)
-
-
+@login_required
 def logout_view(request):
     logout(request)
-    messages.info(request, "Ви вийшли з системи.")
     return redirect("login")
 
+@method_decorator(login_required, name='dispatch')
+class ProfileView(View):
+    def get(self, request, user_id=None):
+        user = get_object_or_404(User, pk=user_id) if user_id else request.user
+        context = {"viewed_user": user}
+
+        if user.role == "student":
+            context["class_group"] = user.student.get_class_group()
+
+        if user == request.user and user.role == 'director':
+            context["class_form"] = ClassGroupCreateForm(prefix="class")
+            context["group_form"] = TeacherGroupCreateForm(prefix="group")
+
+        return render(request, "accounts/profile.html", context)
+
+    def post(self, request, user_id=None):
+        if request.user.role != 'director':
+            return redirect("profile")
+
+        class_form = ClassGroupCreateForm(request.POST, prefix="class")
+        group_form = TeacherGroupCreateForm(request.POST, prefix="group")
+
+        if class_form.is_valid():
+            class_form.save()
+            messages.success(request, "Клас створено")
+
+        if group_form.is_valid():
+            group_form.save()
+            messages.success(request, "Групу створено")
+
+        return redirect("profile")
+
+@method_decorator(login_required, name='dispatch')
+class EditProfileView(View):
+    def get(self, request):
+        form = EditProfileForm(instance=request.user)
+        return render(request, "accounts/forms/edit.html", {"form": form})
+
+    def post(self, request):
+        form = EditProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Профіль оновлено успішно.")
+            return redirect("profile")
+        messages.error(request, "Не вдалося оновити профіль. Перевірте форму.")
+        return render(request, "accounts/forms/edit.html", {"form": form})
 
 class DeleteAccountView(View):
     def get(self, request):
@@ -94,39 +120,3 @@ class DeleteAccountView(View):
             messages.success(request, "Ваш акаунт було видалено.")
             return redirect("login")
         return redirect("profile")
-
-
-@method_decorator(login_required, name='dispatch')
-class ProfileView(View):
-    def get(self, request, user_id=None):
-        if user_id is None:
-            user = request.user
-        else:
-
-            user = get_object_or_404(User, pk=user_id)
-
-        context = {"viewed_user": user}
-
-        if user.role == "student":
-            class_group = user.student.get_class_group()
-            context["class_group"] = class_group
-
-        return render(request, "accounts/profile.html", context)
-
-
-
-class EditProfileView(View):
-    @method_decorator(login_required)
-    def get(self, request):
-        form = EditProfileForm(instance=request.user)
-        return render(request, "accounts/forms/edit.html", {"form": form})
-
-    @method_decorator(login_required)
-    def post(self, request):
-        form = EditProfileForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Профіль оновлено успішно.")
-            return redirect("profile")
-        messages.error(request, "Не вдалося оновити профіль. Перевірте форму.")
-        return render(request, "accounts/forms/edit.html", {"form": form})

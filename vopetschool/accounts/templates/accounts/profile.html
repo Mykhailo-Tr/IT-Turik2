@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Профіль{% endblock %}
 
@@ -81,9 +82,7 @@
                                                     <p class="mb-2 fs-6">{{ child.get_full_name|default:child }}</p>
 
                                                     <h6 class="fw-bold text-muted small mb-1">Клас:</h6>
-                                                    <p class="mb-0 fs-6">
-                                                        {{ child.get_class_group.name|default:"—" }}
-                                                    </p>
+                                                    <p class="mb-0 fs-6">{{ child.get_class_group.name|default:"—" }}</p>
                                                 </div>
                                             </div>
                                         </a>
@@ -127,6 +126,46 @@
                             <a href="{% url 'logout' %}" class="btn btn-outline-secondary rounded-pill px-4">
                                 🚪 Вийти
                             </a>
+                        </div>
+                    {% endif %}
+
+                    <!-- Створення класів і груп (тільки директор) -->
+                    {% if viewed_user.role == 'director' and request.user == viewed_user %}
+                        <hr class="my-5">
+                        <div class="mb-5">
+                            <h5 class="text-uppercase text-secondary fw-semibold mb-3">
+                                ➕ Створити новий клас
+                            </h5>
+                            <form method="post" class="mb-4">
+                                {% csrf_token %}
+                                {{ class_form.management_form }}
+                                <div class="mb-2">
+                                    {{ class_form.name.label_tag }}
+                                    {{ class_form.name|add_class:"form-control w-50" }}
+                                </div>
+                                <button type="submit" name="submit_class" class="btn btn-success rounded-pill px-4">
+                                    ➕ Додати клас
+                                </button>
+                            </form>
+
+                            <h5 class="text-uppercase text-secondary fw-semibold mb-3">
+                                ➕ Створити групу вчителів
+                            </h5>
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ group_form.management_form }}
+                                <div class="mb-2">
+                                    {{ group_form.name.label_tag }}
+                                    {{ group_form.name|add_class:"form-control w-50" }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ group_form.teachers.label_tag }}
+                                    {{ group_form.teachers }}
+                                </div>
+                                <button type="submit" name="submit_group" class="btn btn-info text-white rounded-pill px-4">
+                                    ➕ Додати групу
+                                </button>
+                            </form>
                         </div>
                     {% endif %}
 

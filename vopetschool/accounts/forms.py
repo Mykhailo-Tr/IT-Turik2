@@ -126,3 +126,22 @@ class EditProfileForm(forms.ModelForm):
             if commit:
                 self.user.teacher.save()
         return user
+
+
+# ➕ Додані форми створення класу та групи:
+class ClassGroupCreateForm(forms.ModelForm):
+    class Meta:
+        model = ClassGroup
+        fields = ['name']
+        labels = {'name': 'Назва класу'}
+
+
+class TeacherGroupCreateForm(forms.ModelForm):
+    class Meta:
+        model = TeacherGroup
+        fields = ['name', 'teachers']
+        widgets = {'teachers': forms.CheckboxSelectMultiple}
+        labels = {
+            'name': 'Назва групи',
+            'teachers': 'Виберіть вчителів'
+        }

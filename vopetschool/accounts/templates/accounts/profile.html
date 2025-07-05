@@ -1,61 +1,97 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Профіль{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
-            <div class="card shadow-lg border-0 rounded-4">
+        <div class="col-lg-9 col-xl-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
                 <div class="card-body p-5">
-                    <!-- Заголовок -->
-                    <h2 class="fw-bold mb-3 text-center">👋 Привіт, {{ user.get_full_name }}!</h2>
-                    <p class="text-center text-muted mb-4">Ось ваша персональна інформація</p>
 
-                    <!-- Інформація -->
-                    <div class="mb-4">
-                        <h5 class="fw-semibold mb-3 text-uppercase text-secondary">🔎 Основна інформація</h5>
-                        <ul class="list-unstyled fs-5">
-                            <li class="mb-2"><strong>📧 Електронна пошта:</strong> {{ user.email }}</li>
-                            <li class="mb-2"><strong>🧩 Роль:</strong> {{ user.get_role_display }}</li>
+                    <!-- Заголовок -->
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold">{{ user.get_full_name }}</h2>
+                        <p class="text-muted">Персональний профіль користувача</p>
+                        <span class="badge 
+                            {% if user.role == 'student' %}bg-primary
+                            {% elif user.role == 'teacher' %}bg-info
+                            {% elif user.role == 'parent' %}bg-warning text-dark
+                            {% elif user.role == 'director' %}bg-success
+                            {% else %}bg-secondary{% endif %}
+                            px-3 py-2 rounded-pill">
+                            🧩 {{ user.get_role_display }}
+                        </span>
+                    </div>
+
+                    <!-- Основна інформація -->
+                    <div class="mb-5">
+                        <h5 class="text-uppercase text-secondary fw-semibold mb-3">
+                            <i class="bi bi-person-lines-fill me-2"></i>Основна інформація
+                        </h5>
+                        <ul class="list-group list-group-flush shadow-sm rounded-3">
+                            <li class="list-group-item py-3">
+                                <strong>📧 Email:</strong> {{ user.email }}
+                            </li>
                             {% if user.role == 'student' %}
-                                <li class="mb-2"><strong>🏫 Клас:</strong> {{ class_group }}</li>
+                                <li class="list-group-item py-3">
+                                    <strong>🏫 Клас:</strong> {{ class_group }}
+                                </li>
                             {% elif user.role == 'teacher' %}
-                                <li class="mb-2"><strong>📘 Предмет:</strong> {{ user.teacher.subject }}</li>
-                                <li class="mb-2"><strong>👥 Групи:</strong></li>
-                                {% if user.teacher.groups.all %}
-                                    <ul class="list-group list-group-flush ps-3">
-                                        {% for group in user.teacher.groups.all %}
-                                            <li class="list-group-item">{{ group }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <p class="text-muted ps-3">Немає доданих груп.</p>
-                                {% endif %}
+                                <li class="list-group-item py-3">
+                                    <strong>📘 Предмет:</strong> {{ user.teacher.subject }}
+                                </li>
                             {% elif user.role == 'parent' %}
-                                <li class="mb-2"><strong>👨‍👩‍👧‍👦 Діти:</strong></li>
-                                {% if user.parent.children.all %}
-                                    <ul class="list-group list-group-flush ps-3">
-                                        {% for child in user.parent.children.all %}
-                                            <li class="list-group-item">{{ child }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <p class="text-muted ps-3">Немає доданих дітей.</p>
-                                {% endif %}
+                                <li class="list-group-item py-3">
+                                    <strong>👨‍👩‍👧‍👦 Кількість дітей:</strong> {{ user.parent.children.count }}
+                                </li>
                             {% endif %}
                         </ul>
                     </div>
 
-                    <!-- Кнопки справа знизу -->
-                    <div class="d-flex justify-content-end mt-5 gap-2">
-                        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary btn-lg rounded-pill">
+                    {% if user.role == 'teacher' and user.teacher.groups.all %}
+                        <div class="mb-5">
+                            <h5 class="text-uppercase text-secondary fw-semibold mb-3">
+                                <i class="bi bi-people-fill me-2"></i> Групи викладання
+                            </h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for group in user.teacher.groups.all %}
+                                    <span class="badge bg-light border text-dark px-3 py-2 rounded-pill">
+                                        {{ group }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% elif user.role == 'parent' and user.parent.children.all %}
+                        <div class="mb-5">
+                            <h5 class="text-uppercase text-secondary fw-semibold mb-3">
+                                <i class="bi bi-people-fill me-2"></i> Діти
+                            </h5>
+                            <div class="row g-3">
+                                {% for child in user.parent.children.all %}
+                                    <div class="col-sm-6">
+                                        <div class="card border-0 shadow-sm rounded-3 h-100">
+                                            <div class="card-body">
+                                                <h6 class="fw-bold mb-0">Імʼя:</h6>
+                                                <p class="mb-0">{{ child.get_full_name|default:child }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Кнопки -->
+                    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+                        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary rounded-pill px-4">
                             ✏️ Редагувати
                         </a>
-                        <a href="{% url 'delete_account' %}" class="btn btn-outline-danger btn-lg rounded-pill">
+                        <a href="{% url 'delete_account' %}" class="btn btn-outline-danger rounded-pill px-4">
                             ❌ Видалити
                         </a>
-                        <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-lg rounded-pill">
+                        <a href="{% url 'logout' %}" class="btn btn-outline-secondary rounded-pill px-4">
                             🚪 Вийти
                         </a>
                     </div>
@@ -65,4 +101,7 @@
         </div>
     </div>
 </div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 {% endblock %}

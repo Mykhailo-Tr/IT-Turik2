@@ -1,27 +1,27 @@
-{% if can_support or supported %}
-    <div id="support-button-wrapper"
-         data-support-url="{% url 'support_petition' petition.pk %}">
-        <form method="post" action="{% url 'support_petition' petition.pk %}" id="support-form">
-            {% csrf_token %}
-            {% if supported %}
-                <input type="hidden" name="cancel" value="1">
-                <button type="submit" class="btn btn-outline-danger rounded-pill">
-                    ❌ Скасувати підтримку
-                </button>
-            {% else %}
-                <button type="submit" class="btn btn-outline-primary rounded-pill">
-                    🙋 Підтримати петицію
-                </button>
-            {% endif %}
-        </form>
-    </div>
-{% else %}
-<div id="support-button-wrapper"
-            data-support-url="{% url 'support_petition' petition.pk %}"></div>
-    {% if request.user.role != "director"%}
-        
-        <div class="alert alert-warning rounded-3 mt-3">
-            ⚠️ Ви не можете підтримати цю петицію.
+{% if petition.status == Petition.Status.NEW %}
+    {% if can_support or supported %}
+        <div id="support-button-wrapper"
+            data-support-url="{% url 'support_petition' petition.pk %}">
+            <form method="post" action="{% url 'support_petition' petition.pk %}" id="support-form">
+                {% csrf_token %}
+                {% if supported %}
+                    <input type="hidden" name="cancel" value="1">
+                    <button type="submit" class="btn btn-outline-danger rounded-pill">
+                        ❌ Скасувати підтримку
+                    </button>
+                {% else %}
+                    <button type="submit" class="btn btn-outline-primary rounded-pill">
+                        🙋 Підтримати петицію
+                    </button>
+                {% endif %}
+            </form>
         </div>
+    {% else %}
+        <div id="support-button-wrapper" data-support-url="{% url 'support_petition' petition.pk %}"></div>
+        {% if request.user.role != "director"%}
+            <div class="alert alert-warning rounded-3 mt-3">
+                ⚠️ Ви не можете підтримати цю петицію.
+            </div>
+        {% endif %}
     {% endif %}
 {% endif %}

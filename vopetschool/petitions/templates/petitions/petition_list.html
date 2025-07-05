@@ -24,6 +24,48 @@
                         {% endif %}
                     </div>
 
+                    <!-- 🔍 Фільтрація -->
+                    <form method="get" class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label">Статус</label>
+                            <select name="status" class="form-select rounded-pill">
+                                <option value="">Усі</option>
+                                <option value="new" {% if request.GET.status == "new" %}selected{% endif %}>Нова</option>
+                                <option value="pending" {% if request.GET.status == "pending" %}selected{% endif %}>Очікує розгляду</option>
+                                <option value="approved" {% if request.GET.status == "approved" %}selected{% endif %}>Затверджено</option>
+                                <option value="rejected" {% if request.GET.status == "rejected" %}selected{% endif %}>Відхилено</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Рівень</label>
+                            <select name="level" class="form-select rounded-pill">
+                                <option value="">Усі</option>
+                                <option value="school" {% if request.GET.level == "school" %}selected{% endif %}>Школа</option>
+                                <option value="class" {% if request.GET.level == "class" %}selected{% endif %}>Клас</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Автор</label>
+                           <select name="creator" class="form-select rounded-pill">
+                                <option value="">Усі учні</option>
+                                {% for student in students %}
+                                    <option value="{{ student.id }}" {% if request.GET.creator == student.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ student.get_full_name }} ({{ student.role }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                        </div>
+
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-outline-primary rounded-pill w-100">
+                                🔍 Застосувати фільтри
+                            </button>
+                        </div>
+                    </form>
+
                     {% if petitions %}
                         <div class="row g-4">
                             {% for petition in petitions %}
@@ -53,8 +95,7 @@
                                                 {% endif %}
 
                                                 <span id="support-count-{{ petition.id }}" class="badge bg-primary rounded-pill mt-2">
-                                                    🙋 {{ petition.support_count }}
-                                                    ({{ petition.support_percent|floatformat:0 }}%)
+                                                    🙋 {{ petition.support_count }} ({{ petition.support_percent|floatformat:0 }}%)
                                                 </span>
                                             </div>
 
@@ -80,7 +121,7 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted text-center mt-4">Наразі немає активних петицій.</p>
+                        <p class="text-muted text-center mt-4">Наразі немає петицій, що відповідають фільтру.</p>
                     {% endif %}
 
                 </div>
@@ -108,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    setInterval(refreshSupport, 3000); // кожні 3    сек
+    setInterval(refreshSupport, 3000); // кожні 3 секунди
 });
 </script>
 {% endblock %}

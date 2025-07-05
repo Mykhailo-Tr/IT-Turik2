@@ -233,7 +233,7 @@ def delete_petition_view(request, pk):
 def confirm_review_view(request, pk):
     petition = get_object_or_404(Petition, pk=pk)
 
-    if request.user.role not in ["director", "teacher"]:
+    if request.user.role != ["director", "teacher"]:
         messages.error(request, "❌ Ви не маєте прав для підтвердження.")
         return redirect("petition_detail", pk=pk)
 

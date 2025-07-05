@@ -1,0 +1,17 @@
+<h5 class="mb-3">💬 Коментарі:</h5>
+
+<button class="btn btn-outline-success rounded-pill mb-4" data-bs-toggle="modal" data-bs-target="#commentModal">
+    ➕ Додати коментар
+</button>
+
+{% include "petitions/partials/_comment_modal.html" %}
+
+{% if comments %}
+    <div class="list-group">
+        {% for comment in comments %}
+            {% include "petitions/partials/_comment_item.html" %}
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">Немає коментарів. Станьте першим!</p>
+{% endif %}

@@ -37,15 +37,25 @@ def notify_about_petition_creation_or_status_change(sender, instance, created, *
             ]
             Notification.objects.bulk_create(notifications)
     else:
-        # Оновлення — потрібно подивитись, чи змінився статус
-        # Для цього краще використати pre_save, щоб порівняти старий і новий статус.
-        pass  # Це зробимо далі
+        # Повідомлення про зміну статусу
+        if instance.status in {Petition.Status.PENDING, Petition.Status.APPROVED, Petition.Status.REJECTED}:
+            users = get_users_with_access(instance).exclude(role="director")
+            status_display = dict(Petition.Status.choices).get(instance.status, instance.status)
+            notifications = [
+                Notification(
+                    user=user,
+                    message=f"Петиція '{instance.title}' тепер має статус: {status_display}",
+                    link=f"/petitions/{instance.pk}/"
+                )
+                for user in users
+            ]
+            Notification.objects.bulk_create(notifications)
 
 
 @receiver(pre_save, sender=Petition)
 def petition_status_change(sender, instance, **kwargs):
     if not instance.pk:
-        return  # новий об'єкт, обробляємо у post_save
+        return 
 
     try:
         old_instance = Petition.objects.get(pk=instance.pk)

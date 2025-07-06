@@ -34,6 +34,32 @@
                                     {{ vote.get_status_display }}
                                 </span>
                             </p>
+                            <p class="">
+                                <strong>Рівень:</strong>
+                                {% if vote.level == 'school' %}
+                                    <span class="badge bg-info text-dark">🏫 Школа</span>
+
+                                {% elif vote.level == 'class' %}
+                                    <span class="badge bg-info text-dark">🏫 Класи</span>
+                                    {% for group in vote.class_groups.all %}
+                                        <span class="badge bg-secondary">{{ group.name }}</span>
+                                    {% empty %}
+                                        <span class="text-muted">(Без класів)</span>
+                                    {% endfor %}
+
+                                {% elif vote.level == 'teachers' %}
+                                    <span class="badge bg-info text-dark">👩‍🏫 Вчителі</span>
+                                    {% for group in vote.teacher_groups.all %}
+                                        <span class="badge bg-secondary">{{ group.name }}</span>
+                                    {% empty %}
+                                        <span class="text-muted">(Без груп вчителів)</span>
+                                    {% endfor %}
+
+                                {% elif vote.level == 'selected' %}
+                                    <span class="badge bg-warning text-dark">🎯 Вибрані учасники</span>
+                                {% endif %}
+                            </p>
+
                         </div>
                         <a href="{% url 'vote_list' %}" class="btn btn-outline-secondary rounded-pill">← Назад до списку</a>
                     </div>

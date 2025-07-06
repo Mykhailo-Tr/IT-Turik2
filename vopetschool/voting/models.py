@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from accounts.models import TeacherGroup, ClassGroup
+from schoolgroups.models import TeacherGroup, ClassGroup
 
 
 

@@ -112,15 +112,15 @@
 
           <!-- Кнопки переходу до менеджменту -->
             {% if viewed_user.role == 'director' and request.user == viewed_user %}
-            <hr class="my-5">
-            <div class="text-center d-flex flex-column flex-sm-row justify-content-center gap-3">
-            <a href="{% url 'manage_classes' %}" class="btn btn-primary rounded-pill px-5 py-3">
-                🏫 Керування класами
-            </a>
-            <a href="{% url 'manage_teacher_groups' %}" class="btn btn-success rounded-pill px-5 py-3">
-                👥 Керування групами вчителів
-            </a>
-            </div>
+                <hr class="my-5">
+                <div class="text-center d-flex flex-column flex-sm-row justify-content-center gap-3">
+                    <a href="{% url 'manage_classes' %}" class="btn btn-primary rounded-pill px-5 py-3">
+                        🏫 Керування класами
+                    </a>
+                    <a href="{% url 'manage_teacher_groups' %}" class="btn btn-success rounded-pill px-5 py-3">
+                        👥 Керування групами вчителів
+                    </a>
+                </div>
             {% endif %}
 
         </div>

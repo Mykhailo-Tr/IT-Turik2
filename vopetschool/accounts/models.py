@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from .managers import CustomUserManager
+from schoolgroups.models import ClassGroup
 
 
 class User(AbstractUser):
@@ -61,18 +62,3 @@ class Parent(models.Model):
     def __str__(self):
         return self.user.get_full_name()
 
-
-class TeacherGroup(models.Model):
-    name = models.CharField(max_length=100)
-    teachers = models.ManyToManyField(Teacher, related_name="groups", blank=True)
-
-    def __str__(self):
-        return self.name
-
-
-class ClassGroup(models.Model):
-    name = models.CharField(max_length=100)
-    students = models.ManyToManyField(Student, related_name="class_groups", blank=True)
-
-    def __str__(self):
-        return self.name

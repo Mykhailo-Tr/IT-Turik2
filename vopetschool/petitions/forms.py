@@ -1,7 +1,7 @@
 from django import forms
 from django.utils import timezone
 from .models import Petition, Comment
-from accounts.models import ClassGroup
+from schoolgroups.models import ClassGroup
 
 
 class PetitionForm(forms.ModelForm):

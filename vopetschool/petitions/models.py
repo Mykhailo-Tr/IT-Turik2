@@ -1,7 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from accounts.models import ClassGroup, User
+from accounts.models import User
+from schoolgroups.models import ClassGroup
 
 
 class Petition(models.Model):

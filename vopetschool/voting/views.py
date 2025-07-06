@@ -12,7 +12,7 @@ from django.contrib import messages
 
 from .models import Vote, VoteOption, VoteAnswer
 from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
-from accounts.models import User, TeacherGroup, ClassGroup, Student
+from accounts.models import User, Student
 from notifications.utils import notify_users_about_vote
 
 

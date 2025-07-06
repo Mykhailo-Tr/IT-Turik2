@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
-from .models import User, Student, Teacher, Parent, TeacherGroup, ClassGroup
+from .models import User, Student, Teacher, Parent
 
 
 @admin.register(User)
@@ -66,7 +66,4 @@ class ParentAdmin(admin.ModelAdmin):
     @admin.display(description="Діти")
     def get_children(self, obj):
         return ", ".join(child.user.get_full_name() for child in obj.children.all())
-
-
-admin.site.register(TeacherGroup)
-admin.site.register(ClassGroup) 
+ 

@@ -1,11 +1,9 @@
-# forms.py
 
 from django import forms
 from django.forms import formset_factory, BaseFormSet
 
-from .models import Vote, VoteOption
-from accounts.models import TeacherGroup, ClassGroup
-
+from .models import Vote
+from schoolgroups.models import TeacherGroup, ClassGroup
 from accounts.models import User
 
 class VoteForm(forms.Form):

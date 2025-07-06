@@ -5,15 +5,12 @@ from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-<<<<<<< HEAD
+from .models import User, ClassGroup, TeacherGroup
 from django.forms import modelformset_factory
-=======
-from .models import User
 from petitions.models import Petition
 from voting.models import Vote, VoteAnswer
 from django.db.models import Q
 from django.utils import timezone
->>>>>>> a71a2b0008aa719777121e52e81ab9c0fd822137
 
 from .forms import (
     RoleChoiceForm, StudentRegisterForm, TeacherRegisterForm,
@@ -21,12 +18,6 @@ from .forms import (
     EditProfileForm, ClassGroupCreateForm, TeacherGroupCreateForm,
     TeacherGroupEditForm
 )
-<<<<<<< HEAD
-from .models import User, ClassGroup, TeacherGroup
-
-
-# ---------- Реєстрація, логін, профіль ----------
-=======
 
 @login_required
 def home_view(request):
@@ -65,7 +56,6 @@ def home_view(request):
         "voted_vote_ids": set(voted_vote_ids),
         "petitions": active_petitions[:5],
     })
->>>>>>> a71a2b0008aa719777121e52e81ab9c0fd822137
 
 class RoleSelectView(View):
     def get(self, request):

@@ -2,10 +2,8 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from .models import User, Student, Teacher, Parent, ClassGroup, TeacherGroup
 
-
 class RoleChoiceForm(forms.Form):
     role = forms.ChoiceField(choices=User.Role.choices, label="Оберіть роль")
-
 
 class BaseRegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
@@ -29,13 +27,8 @@ class BaseRegisterForm(forms.ModelForm):
             user.save()
         return user
 
-
 class StudentRegisterForm(BaseRegisterForm):
-    class_group = forms.ModelChoiceField(
-        queryset=ClassGroup.objects.all(),
-        required=False,
-        label="Клас (необов'язково)"
-    )
+    class_group = forms.ModelChoiceField(queryset=ClassGroup.objects.all(), required=False, label="Клас (необов'язково)")
 
     class Meta(BaseRegisterForm.Meta):
         fields = BaseRegisterForm.Meta.fields + ['class_group']
@@ -44,20 +37,13 @@ class StudentRegisterForm(BaseRegisterForm):
         user = self.save_user(User.Role.STUDENT, commit=commit)
         if commit:
             student = Student.objects.create(user=user)
-            class_group = self.cleaned_data.get("class_group")
-            if class_group:
-                class_group.students.add(student)
+            if self.cleaned_data.get("class_group"):
+                self.cleaned_data["class_group"].students.add(student)
         return user
-
 
 class TeacherRegisterForm(BaseRegisterForm):
     subject = forms.CharField(label="Предмет")
-    groups = forms.ModelMultipleChoiceField(
-        queryset=TeacherGroup.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        label="Групи вчителів",
-        required=False
-    )
+    groups = forms.ModelMultipleChoiceField(queryset=TeacherGroup.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
 
     class Meta(BaseRegisterForm.Meta):
         fields = BaseRegisterForm.Meta.fields + ['subject', 'groups']
@@ -69,14 +55,8 @@ class TeacherRegisterForm(BaseRegisterForm):
             teacher.groups.set(self.cleaned_data["groups"])
         return user
 
-
 class ParentRegisterForm(BaseRegisterForm):
-    children = forms.ModelMultipleChoiceField(
-        queryset=Student.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        label="Оберіть своїх дітей",
-        required=False
-    )
+    children = forms.ModelMultipleChoiceField(queryset=Student.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
 
     class Meta(BaseRegisterForm.Meta):
         fields = BaseRegisterForm.Meta.fields + ['children']
@@ -88,15 +68,12 @@ class ParentRegisterForm(BaseRegisterForm):
             parent.children.set(self.cleaned_data["children"])
         return user
 
-
 class DirectorRegisterForm(BaseRegisterForm):
     def save(self, commit=True):
         return self.save_user(User.Role.DIRECTOR, commit=commit)
 
-
 class CustomLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email")
-
 
 class EditProfileForm(forms.ModelForm):
     subject = forms.CharField(label="Предмет", required=False)
@@ -104,11 +81,6 @@ class EditProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name']
-        labels = {
-            'email': 'Email',
-            'first_name': "Ім'я",
-            'last_name': "Прізвище"
-        }
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.get('instance')
@@ -127,21 +99,28 @@ class EditProfileForm(forms.ModelForm):
                 self.user.teacher.save()
         return user
 
-
-# ➕ Додані форми створення класу та групи:
 class ClassGroupCreateForm(forms.ModelForm):
     class Meta:
         model = ClassGroup
         fields = ['name']
         labels = {'name': 'Назва класу'}
 
-
 class TeacherGroupCreateForm(forms.ModelForm):
     class Meta:
         model = TeacherGroup
         fields = ['name', 'teachers']
         widgets = {'teachers': forms.CheckboxSelectMultiple}
-        labels = {
-            'name': 'Назва групи',
-            'teachers': 'Виберіть вчителів'
+        labels = {'name': 'Назва групи', 'teachers': 'Виберіть вчителів'}
+
+class TeacherGroupEditForm(forms.ModelForm):
+    class Meta:
+        model = TeacherGroup
+        fields = ['name', 'teachers']
+        widgets = {
+            'teachers': forms.CheckboxSelectMultiple()
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['teachers'].queryset = Teacher.objects.select_related('user').all()
+        self.fields['teachers'].label_from_instance = lambda obj: obj.user.get_full_name()

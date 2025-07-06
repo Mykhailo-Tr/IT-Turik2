@@ -1,12 +1,13 @@
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg bg-light shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="/">🏫 Vo & Pet School</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Перемкнути навігацію">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav ms-auto align-items-center">
+
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'profile' %}">Головна</a>
                 </li>
@@ -15,15 +16,35 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'petition_list' %}">Петиції</a>
                     </li>
-                    
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'vote_list' %}">Голосування</a>
                     </li>
+
+                    <!-- 🔔 Сповіщення -->
+                    <li class="nav-item dropdown position-relative">
+                        <button class="btn nav-link position-relative" type="button" id="notificationBell" aria-expanded="false">
+                            <i class="bi bi-bell fs-5"></i>
+                            <span id="notification-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                                0
+                            </span>
+                        </button>
+
+                        <ul id="notificationDropdownMenu"
+                            class="dropdown-menu dropdown-menu-end"
+                            aria-labelledby="notificationBell"
+                            style="max-height: 300px; overflow-y: auto; min-width: 300px; display: none;">
+                            <li><span class="dropdown-item text-muted">Завантаження...</span></li>
+                        </ul>
+                    </li>
+
+
+
+                    <!-- 👤 Меню користувача -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                             {{ user.email }}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{% url 'profile' %}">Профіль</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'logout' %}">Вийти</a></li>

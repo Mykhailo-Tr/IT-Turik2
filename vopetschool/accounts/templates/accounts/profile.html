@@ -123,13 +123,14 @@
           </div>
           {% endif %}
 
-          <!-- ======= ІСТОРІЯ АКТИВНОСТІ ======= -->
+          <!-- Історія активності -->
           <hr class="my-5">
           <div class="mb-4">
             <h4 class="fw-bold text-center mb-4">🕘 Історія активності</h4>
 
             {% if created_petitions or created_votes %}
             <h5 class="text-secondary fw-semibold mb-2">📌 Створене вами</h5>
+
             {% if created_petitions %}
             <p class="fw-semibold mb-1">📝 Петиції</p>
             <ul class="list-group mb-3 shadow-sm rounded-3">
@@ -150,7 +151,15 @@
               <li class="list-group-item py-3">
                 <strong>{{ vote.title }}</strong><br>
                 Статус: {{ vote.get_status_display }}<br>
-                З: {{ vote.start_date|date:"d.m.Y" }} до {{ vote.end_date|date:"d.m.Y" }}
+                {% if vote.start_date and vote.end_date %}
+                  З: {{ vote.start_date|date:"d.m.Y" }} до {{ vote.end_date|date:"d.m.Y" }}
+                {% elif vote.start_date %}
+                  З: {{ vote.start_date|date:"d.m.Y" }}
+                {% elif vote.end_date %}
+                  До: {{ vote.end_date|date:"d.m.Y" }}
+                {% else %}
+                  <em>Без часових рамок</em>
+                {% endif %}
               </li>
               {% endfor %}
             </ul>

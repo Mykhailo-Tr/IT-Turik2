@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}📅 Календар{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+            <h2 class="fw-bold mb-4">📅 Мій календар подій</h2>
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<!-- Localization -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales-all.global.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'uk',
+        height: 'auto',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        events: '/calendar/events/',  // API для завантаження подій
+
+        eventClick: function(info) {
+            info.jsEvent.preventDefault();
+            const event = info.event;
+
+            const start = new Date(event.start).toLocaleString("uk-UA");
+            const end = new Date(event.end).toLocaleString("uk-UA");
+
+            alert(`📌 ${event.title}\n\n🕒 ${start}${event.start != event.end ? ' – ' + end : ''}`);
+        }
+    });
+
+    calendar.render();
+});
+</script>
+{% endblock %}

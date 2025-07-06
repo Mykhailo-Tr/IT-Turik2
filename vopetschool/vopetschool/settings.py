@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'petitions',
     'notifications',
     'schoolgroups',
+    'calendarapp',
 ]
 
 MIDDLEWARE = [

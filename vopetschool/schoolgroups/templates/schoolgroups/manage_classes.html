@@ -5,20 +5,32 @@
 
 {% block content %}
 <div class="container py-5">
-  <div class="text-center mb-5">
-    <h2 class="fw-bold">🏫 Класи</h2>
-    <p class="text-muted">Перегляд, створення та редагування класів</p>
+  <!-- Заголовок з кнопкою повернення -->
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+      <h2 class="fw-bold mb-0">🏫 Класи</h2>
+      <p class="text-muted mb-0">Перегляд, створення та редагування класів</p>
+    </div>
+    <a href="{% url 'profile' %}" class="btn btn-outline-secondary rounded-pill">
+      ⬅️ Повернутися до профілю
+    </a>
   </div>
 
   <div class="card shadow-sm rounded-4">
     <div class="card-body">
-      <!-- Список класів -->
       {% if classes %}
         <ul class="list-group list-group-flush mb-4">
           {% for class_group in classes %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              {{ class_group.name }}
-              <span class="badge bg-secondary rounded-pill">{{ class_group.students.count }} учнів</span>
+              <div>
+                <strong>{{ class_group.name }}</strong><br>
+                <small class="text-muted">{{ class_group.students.count }} учнів</small>
+              </div>
+              <button class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editClassModal{{ class_group.id }}">
+                ✏️ Редагувати
+              </button>
             </li>
           {% endfor %}
         </ul>
@@ -26,13 +38,12 @@
         <p class="text-muted">Класи ще не створено.</p>
       {% endif %}
 
-      <!-- Кнопки -->
-      <div class="d-flex justify-content-between mt-4">
-        <button class="btn btn-success rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#createClassModal">
+      <!-- Кнопка створення -->
+      <div class="text-end mt-4">
+        <button class="btn btn-success rounded-pill px-4"
+                data-bs-toggle="modal"
+                data-bs-target="#createClassModal">
           ➕ Додати клас
-        </button>
-        <button class="btn btn-warning rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#editClassModal">
-          ✏️ Редагувати класи
         </button>
       </div>
     </div>
@@ -55,6 +66,16 @@
             {{ class_form.name.label_tag }}
             {{ class_form.name|add_class:"form-control" }}
           </div>
+          <div class="mb-3">
+            {{ class_form.students.label_tag }}
+            <div class="d-flex flex-wrap gap-2">
+              {% for checkbox in class_form.students %}
+                <label class="btn btn-outline-secondary btn-sm rounded-pill">
+                  {{ checkbox.tag }} {{ checkbox.choice_label }}
+                </label>
+              {% endfor %}
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="submit" name="submit_class" class="btn btn-success rounded-pill">Додати</button>
@@ -64,35 +85,45 @@
   </div>
 </div>
 
-<!-- МОДАЛЬНЕ: Редагування класів -->
-<div class="modal fade" id="editClassModal" tabindex="-1" aria-labelledby="editClassModalLabel" aria-hidden="true">
+<!-- МОДАЛЬНІ: Редагування кожного класу -->
+{% for class_group in classes %}
+<div class="modal fade" id="editClassModal{{ class_group.id }}" tabindex="-1"
+     aria-labelledby="editClassModalLabel{{ class_group.id }}" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
-      <form method="post">
+      <form method="post" action="{% url 'edit_class' class_group.id %}">
         {% csrf_token %}
         <div class="modal-header">
-          <h5 class="modal-title">✏️ Редагувати класи</h5>
+          <h5 class="modal-title">✏️ Редагувати клас: {{ class_group.name }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          {{ edit_class_formset.management_form }}
-          {% for form in edit_class_formset %}
-            <div class="border p-3 rounded-3 bg-light shadow-sm mb-3">
-              {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-              <div class="mb-2">
-                {{ form.name.label_tag }}
-                {{ form.name|add_class:"form-control" }}
-              </div>
+          <div class="mb-3">
+            <label for="name{{ class_group.id }}" class="form-label">Назва класу</label>
+            <input type="text" name="name" id="name{{ class_group.id }}"
+                   value="{{ class_group.name }}" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Учні</label>
+            <div class="d-flex flex-wrap gap-2">
+              {% for student in all_students %}
+                <label class="btn btn-outline-secondary btn-sm rounded-pill {% if student in class_group.students.all %}active{% endif %}">
+                  <input type="checkbox" name="students" value="{{ student.id }}" autocomplete="off"
+                         {% if student in class_group.students.all %}checked{% endif %}>
+                  {{ student.user.first_name }} {{ student.user.last_name }}
+                </label>
+              {% endfor %}
             </div>
-          {% endfor %}
+          </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" name="edit_classes" class="btn btn-primary rounded-pill">Зберегти</button>
+          <button type="submit" class="btn btn-primary rounded-pill">Зберегти</button>
         </div>
       </form>
     </div>
   </div>
 </div>
+{% endfor %}
 
 <!-- Bootstrap scripts -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">

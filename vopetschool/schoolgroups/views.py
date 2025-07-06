@@ -1,13 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import ClassGroup, TeacherGroup
 from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.forms import modelformset_factory
-from .forms import ClassGroupCreateForm, TeacherGroupCreateForm, TeacherGroupEditForm
 
-# ---------- Класи ----------
+from accounts.models import Student
+from .models import ClassGroup, TeacherGroup
+from .forms import (
+    ClassGroupCreateForm,
+    TeacherGroupCreateForm,
+    TeacherGroupEditForm,
+)
+
+
+# ---------- КЛАСИ ----------
 
 @method_decorator(login_required, name='dispatch')
 class ClassGroupListCreateUpdateView(View):
@@ -15,11 +22,10 @@ class ClassGroupListCreateUpdateView(View):
         if request.user.role != 'director':
             return redirect("profile")
 
-        formset = modelformset_factory(ClassGroup, fields=("name",), extra=0)
         context = {
             "classes": ClassGroup.objects.all(),
             "class_form": ClassGroupCreateForm(prefix="class"),
-            "edit_class_formset": formset(queryset=ClassGroup.objects.all(), prefix="edit_class")
+            "all_students": Student.objects.select_related("user").all(),
         }
         return render(request, "schoolgroups/manage_classes.html", context)
 
@@ -27,29 +33,47 @@ class ClassGroupListCreateUpdateView(View):
         if request.user.role != 'director':
             return redirect("profile")
 
-        ClassGroupFormSet = modelformset_factory(ClassGroup, fields=("name",), extra=0)
-
-        if "submit_class" in request.POST:
-            class_form = ClassGroupCreateForm(request.POST, prefix="class")
-            if class_form.is_valid():
-                class_form.save()
-                messages.success(request, "Клас створено.")
-        elif "edit_classes" in request.POST:
-            formset = ClassGroupFormSet(request.POST, prefix="edit_class")
-            if formset.is_valid():
-                formset.save()
-                messages.success(request, "Класи оновлено.")
+        class_form = ClassGroupCreateForm(request.POST, prefix="class")
+        if class_form.is_valid():
+            class_form.save()
+            messages.success(request, "Клас успішно створено.")
+        else:
+            messages.error(request, "Помилка при створенні класу.")
         return redirect("manage_classes")
 
 
-# ---------- Групи вчителів ----------
+@login_required
+def edit_class(request, pk):
+    class_group = get_object_or_404(ClassGroup, pk=pk)
+
+    if request.user.role != 'director':
+        return redirect("profile")
+
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        student_ids_raw = request.POST.getlist("students")
+        student_ids = [int(sid) for sid in student_ids_raw if sid.strip().isdigit()]
+
+        if name:
+            class_group.name = name
+        class_group.students.set(student_ids)
+        class_group.save()
+        messages.success(request, f"Клас «{name}» оновлено.")
+
+    return redirect("manage_classes")
+
+
+# ---------- ГРУПИ ВЧИТЕЛІВ ----------
 
 @method_decorator(login_required, name='dispatch')
 class TeacherGroupListCreateUpdateView(View):
     def get(self, request):
+        if request.user.role != 'director':
+            return redirect("profile")
+
         TeacherGroupFormSet = modelformset_factory(
             TeacherGroup,
-            form=TeacherGroupEditForm,  # ✅ Важливо
+            form=TeacherGroupEditForm,
             extra=0
         )
         context = {
@@ -63,9 +87,12 @@ class TeacherGroupListCreateUpdateView(View):
         return render(request, "schoolgroups/manage_teacher_groups.html", context)
 
     def post(self, request):
+        if request.user.role != 'director':
+            return redirect("profile")
+
         TeacherGroupFormSet = modelformset_factory(
             TeacherGroup,
-            form=TeacherGroupEditForm,  # ✅ Важливо
+            form=TeacherGroupEditForm,
             extra=0
         )
 

@@ -6,7 +6,7 @@
 {% block title %}{{ vote.title }}{% endblock %}
 
 {% block content %}
-<div class="container py-5" data-aos="fade-up">
+<div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10">
             <div class="card shadow-lg border-0 rounded-4">
@@ -15,30 +15,30 @@
                     <!-- Заголовок -->
                     <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
                         <div>
-                            <h2 class="fw-bold" data-aos="fade-right">{{ vote.title }}</h2>
-                            <p class="text-muted mb-2" data-aos="fade-right" data-aos-delay="100">{{ vote.description }}</p>
-                            <p class="mb-1" data-aos="fade-right" data-aos-delay="200">
-                                <strong>Автор:</strong> {{ vote.creator.get_full_name }}
+                            <h2 class="fw-bold">{{ vote.title }}</h2>
+                            <p class="text-muted mb-2">{{ vote.description }}</p>
+                            <p class="mb-1"><strong>Автор:</strong> {{ vote.creator.get_full_name }}
                                 <span class="text-muted">({{ vote.creator.role }})</span>
                                 {% if request.user == vote.creator %}
                                     <span class="badge bg-secondary">Ви</span>
                                 {% endif %}
                             </p>
                             {% if vote.end_date %}
-                                <p class="mb-1" data-aos="fade-right" data-aos-delay="300">
-                                    <strong>Доступне до:</strong> {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}
-                                </p>
+                                <p class="mb-1"><strong>Доступне до:</strong> {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}</p>
                             {% endif %}
-                            <p data-aos="fade-right" data-aos-delay="400">
-                                <strong>Статус:</strong>
-                                <span class="badge {% if vote.get_status_display == 'Активне' %}bg-success{% elif vote.get_status_display == 'Очікується початок' %}bg-secondary{% else %}bg-danger{% endif %}">
+                            <p><strong>Статус:</strong>
+                                <span class="badge 
+                                    {% if vote.get_status_display == 'Активне' %}bg-success
+                                    {% elif vote.get_status_display == 'Очікується початок' %}bg-secondary
+                                    {% else %}bg-danger{% endif %}">
                                     {{ vote.get_status_display }}
                                 </span>
                             </p>
-                            <p data-aos="fade-right" data-aos-delay="500">
+                            <p class="">
                                 <strong>Рівень:</strong>
                                 {% if vote.level == 'school' %}
                                     <span class="badge bg-info text-dark">🏫 Школа</span>
+
                                 {% elif vote.level == 'class' %}
                                     <span class="badge bg-info text-dark">🏫 Класи</span>
                                     {% for group in vote.class_groups.all %}
@@ -46,6 +46,7 @@
                                     {% empty %}
                                         <span class="text-muted">(Без класів)</span>
                                     {% endfor %}
+
                                 {% elif vote.level == 'teachers' %}
                                     <span class="badge bg-info text-dark">👩‍🏫 Вчителі</span>
                                     {% for group in vote.teacher_groups.all %}
@@ -53,12 +54,14 @@
                                     {% empty %}
                                         <span class="text-muted">(Без груп вчителів)</span>
                                     {% endfor %}
+
                                 {% elif vote.level == 'selected' %}
-                                    <span class="badge bg-warning text-dark">🌟 Вибрані учасники</span>
+                                    <span class="badge bg-warning text-dark">🎯 Вибрані учасники</span>
                                 {% endif %}
                             </p>
+
                         </div>
-                        <a href="{% url 'vote_list' %}" class="btn btn-outline-secondary rounded-pill">&larr; Назад до списку</a>
+                        <a href="{% url 'vote_list' %}" class="btn btn-outline-secondary rounded-pill">← Назад до списку</a>
                     </div>
 
                     <hr class="my-4">
@@ -68,7 +71,7 @@
                     <ul class="list-group mb-4">
                         {% for option in options %}
                             <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#optionModal{{ option.id }}">
-                                <li class="list-group-item rounded-4 shadow-sm mb-3 p-0 overflow-hidden" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
+                                <li class="list-group-item rounded-4 shadow-sm mb-3 p-0 overflow-hidden">
                                     <div class="d-flex justify-content-between align-items-center p-3 bg-light">
                                         <span class="fw-semibold">
                                             {{ option.text }}
@@ -78,33 +81,77 @@
                                         </span>
                                         <span class="badge bg-primary rounded-pill vote-count" data-count="{{ option.vote_count }}" data-id="{{ option.id }}">{{ option.vote_count }}</span>
                                     </div>
-                                    <div class="progress rounded-0">
-                                        <div class="progress-bar bg-gradient" id="progress-option-{{ option.id }}" data-bar-for="{{ option.id }}" style="width: 0%; transition: width 0.6s ease;"></div>
+                                    <div class="progress rounded-0" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar bg-info" 
+                                            id="progress-option-{{ option.id }}"
+                                            data-bar-for="{{ option.id }}"
+                                            style="width: 0%; background: linear-gradient(90deg, #00c6ff, #0072ff); transition: width 0.6s ease;"
+                                            <span id="percent-option-{{ option.id }}"></span>
+                                        </div>
                                     </div>
                                 </li>
                             </a>
-                            <!-- Модалка: пропущена тут для стислості -->
+
+                            <!-- Модальне вікно -->
+                            <div class="modal fade" id="optionModal{{ option.id }}" tabindex="-1" aria-labelledby="optionModalLabel{{ option.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable">
+                                    <div class="modal-content rounded-3">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="optionModalLabel{{ option.id }}">Голосували за: "{{ option.text }}"</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {% if user_can_see_votes %}
+                                                {% with option_voters=option_voted_users_dict|get_item:option.id %}
+                                                    {% if option_voters %}
+                                                        <ul class="list-group">
+                                                            {% for user in option_voters %}
+                                                                <a href="{% url 'user_profile' user.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                                                    <span>{{ user.get_full_name }} ({{ user.role }})</span>
+                                                                    {% if request.user == user %}
+                                                                        <span class="badge bg-secondary">Ви</span>
+                                                                    {% endif %}
+                                                                </a>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    {% else %}
+                                                        <p>Ніхто ще не проголосував за цей варіант.</p>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% else %}
+                                                <p>Ви не маєте доступу до цієї інформації.</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         {% endfor %}
                     </ul>
 
+                    <!-- Голосування -->
                     {% if can_vote %}
-                        <form method="post" data-aos="fade-up">
+                        <form method="post">
                             {% csrf_token %}
-                            <div class="mb-3">{{ form|crispy }}</div>
+                            <div class="mb-3">
+                                {{ form|crispy }}
+                            </div>
                             <button type="submit" class="btn btn-success rounded-pill">✅ Проголосувати</button>
                         </form>
                     {% elif already_voted %}
-                        <div class="alert alert-info" data-aos="fade-up">Ви вже проголосували у цьому опитуванні.</div>
+                        <div class="alert alert-info">Ви вже проголосували у цьому опитуванні.</div>
                     {% else %}
-                        <div class="alert alert-warning" data-aos="fade-up">Голосування ще не почалося або вже завершилось.</div>
+                        <div class="alert alert-warning">Голосування ще не почалося або вже завершилось.</div>
                     {% endif %}
 
                     <hr class="my-4">
 
                     <!-- Учасники -->
                     <div class="row">
-                        <div class="col-md-6" data-aos="fade-right">
-                            <h5>🧑‍🧑 Хто може голосувати:</h5>
+                        <div class="col-md-6">
+                            <h5>🧑‍🤝‍🧑 Хто може голосувати:</h5>
                             <ul>
                                 {% for user in eligible_users %}
                                     <li>{{ user.get_full_name }} ({{ user.role }})</li>
@@ -113,7 +160,7 @@
                                 {% endfor %}
                             </ul>
                         </div>
-                        <div class="col-md-6" data-aos="fade-left">
+                        <div class="col-md-6">
                             <h5>✅ Хто вже проголосував:</h5>
                             <ul>
                                 {% for user in voted_users %}
@@ -126,7 +173,7 @@
                     </div>
 
                     {% if request.user == vote.creator or request.user.role in "director admin" %}
-                        <form method="post" action="{% url 'vote_delete' vote.pk %}" onsubmit="return confirm('Ви впевнені, що хочете видалити це голосування?');" class="mt-4" data-aos="zoom-in">
+                        <form method="post" action="{% url 'vote_delete' vote.pk %}" onsubmit="return confirm('Ви впевнені, що хочете видалити це голосування?');" class="mt-4">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-danger rounded-pill">🗑️ Видалити голосування</button>
                         </form>
@@ -140,35 +187,57 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    AOS.init();
     const voteCounts = document.querySelectorAll(".vote-count");
     let total = 0;
-    voteCounts.forEach(el => total += parseInt(el.dataset.count));
+
+    // Рахуємо загальну кількість голосів
+    voteCounts.forEach(el => {
+        total += parseInt(el.dataset.count);
+    });
+
+    // Оновлюємо кожен прогрес-бар
     voteCounts.forEach(el => {
         const count = parseInt(el.dataset.count);
-        const optionId = el.dataset.id;
+        const optionId = el.closest("a").querySelector("[id^='progress-option-']").dataset.barFor;
         const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+
         const bar = document.getElementById("progress-option-" + optionId);
-        if (bar) bar.style.width = percent + "%";
+        const percentLabel = document.getElementById("percent-option-" + optionId);
+
+        if (bar) {
+            bar.style.width = percent + "%";
+        }
+        if (percentLabel) {
+            percentLabel.textContent = percent + "%";
+        }
     });
 });
 {% if user_can_see_votes %}
-setInterval(() => {
+setInterval(function () {
     fetch("{% url 'vote_stats_api' vote.pk %}")
-        .then(res => res.json())
+        .then(response => response.json())
         .then(data => {
             const totalVotes = data.total_votes;
+
             data.options.forEach(option => {
-                const countElem = document.querySelector(`.vote-count[data-id='${option.id}']`);
+                const countElem = document.querySelector(`.vote-count[data-count][data-id='${option.id}']`);
                 const bar = document.getElementById(`progress-option-${option.id}`);
+                const percentLabel = document.getElementById(`percent-option-${option.id}`);
+
                 if (countElem) {
                     countElem.textContent = option.count;
                     countElem.dataset.count = option.count;
                 }
-                if (bar) bar.style.width = option.percent + "%";
+                if (bar) {
+                    bar.style.width = option.percent + "%";
+                }
+                if (percentLabel) {
+                    percentLabel.textContent = option.percent + "%";
+                }
             });
         });
-}, 3000);
+}, 3000); // оновлення кожні X сек
 {% endif %}
+
 </script>
 {% endblock %}

@@ -4,11 +4,13 @@ from .views import (
     ProfileView, DeleteAccountView, logout_view,
     EditProfileView,
     ClassGroupListCreateUpdateView,
-    TeacherGroupListCreateUpdateView
+    TeacherGroupListCreateUpdateView,
+    CustomLoginView, ProfileView, 
+    DeleteAccountView, logout_view, EditProfileView, home_view
 )
 
 urlpatterns = [
-    path("", ProfileView.as_view(), name="home"),
+    path("", home_view, name="home"),
     path("register/", RoleSelectView.as_view(), name="register"),
     path("accounts/register/<str:role>/", RegisterView.as_view(), name="register_role"),
     path("login/", CustomLoginView.as_view(), name="login"),

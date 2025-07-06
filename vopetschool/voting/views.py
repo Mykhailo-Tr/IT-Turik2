@@ -13,6 +13,8 @@ from django.contrib import messages
 from .models import Vote, VoteOption, VoteAnswer
 from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
 from accounts.models import User, TeacherGroup, ClassGroup, Student
+from notifications.utils import notify_users_about_vote
+
 
 
 class VoteListView(ListView):
@@ -138,6 +140,7 @@ def vote_detail_view(request, pk):
 
 @method_decorator(login_required, name="dispatch")
 class VoteCreateView(View):
+    
     def get(self, request):
         vote_form = VoteCreateForm(user=request.user)
         formset = VoteOptionFormSet(initial=[
@@ -160,6 +163,7 @@ class VoteCreateView(View):
             vote.creator = request.user
             vote.save()
             vote_form.save_m2m()
+            notify_users_about_vote(self.request.user, vote_form.instance)
 
             # Додай автора в учасники, якщо рівень SELECTED
             if vote.level == Vote.Level.SELECTED:

@@ -55,13 +55,24 @@
                                                     {% else %}bg-danger{% endif %}">
                                                     {{ vote.get_status_display }}
                                                 </span>
+                                                    {% if vote.level %}
+        <span class="badge bg-info text-dark">Рівень: {{ vote.get_level_display }}</span>
+    {% endif %}
+
+    {% if vote.class_group %}
+        <span class="badge bg-secondary">{{ vote.class_group }}</span>
+    {% endif %}
+
+    {% if vote.level == 'students' and vote.recipients.exists %}
+        <span class="badge bg-warning text-dark">🎯 Вибрані учні</span>
+    {% endif %}
 
                                                 {% if vote.id in voted_ids %}
                                                     <span class="badge bg-primary">Проголосовано</span>
                                                 {% else %}
                                                     <span class="badge bg-warning text-dark">Не проголосовано</span>
                                                 {% endif %}
-                                            </div>
+                                            </div>  
                                         </div>
 
                                         <div class="text-end mt-3">

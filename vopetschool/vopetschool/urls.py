@@ -9,4 +9,6 @@ urlpatterns = [
     path("petitions/", include("petitions.urls")),
     path("notifications/", include("notifications.urls")),
     path("groups/", include("schoolgroups.urls")),
+    path('calendar/', include('calendarapp.urls')),
+
 ]

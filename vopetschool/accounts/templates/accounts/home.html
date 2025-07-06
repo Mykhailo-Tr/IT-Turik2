@@ -21,36 +21,40 @@
     </p>
   </div>
 
-  <!-- Актуальні голосування -->
-  <div class="card border-0 shadow-lg rounded-4 mb-5">
+    <!-- Актуальні голосування -->
+    <div class="card border-0 shadow-lg rounded-4 mb-5">
     <div class="card-header bg-gradient bg-primary text-white py-3 rounded-top-4">
-      <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Актуальні голосування</h5>
+        <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Актуальні голосування</h5>
     </div>
     <div class="card-body">
-      {% if votes %}
+        {% if votes %}
         <div class="list-group">
-          {% for vote in votes %}
+            {% for vote in votes %}
             <a href="{% url 'vote_detail' vote.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-              <div>
+                <div>
                 <strong>{{ vote.title }}</strong><br>
-                <small class="text-muted">До {{ vote.end_date|date:"d.m.Y H:i" }}</small>
-              </div>
-              {% if vote.id in voted_vote_ids %}
+                {% if vote.end_date %}
+                    <small class="text-muted">До {{ vote.end_date|date:"d.m.Y H:i" }}</small>
+                {% else %}
+                    <small class="text-muted">🕒 Без дедлайну</small>
+                {% endif %}
+                </div>
+                {% if vote.id in voted_vote_ids %}
                 <span class="badge bg-success">Проголосовано</span>
-              {% else %}
+                {% else %}
                 <span class="badge bg-warning text-dark">Не проголосовано</span>
-              {% endif %}
+                {% endif %}
             </a>
-          {% endfor %}
+            {% endfor %}
         </div>
         <div class="text-end mt-3">
-          <a href="{% url 'vote_list' %}" class="btn btn-outline-primary rounded-pill px-4">Переглянути всі</a>
+            <a href="{% url 'vote_list' %}" class="btn btn-outline-primary rounded-pill px-4">Переглянути всі</a>
         </div>
-      {% else %}
+        {% else %}
         <p class="text-muted mb-0">Немає активних голосувань для вас.</p>
-      {% endif %}
+        {% endif %}
     </div>
-  </div>
+    </div>
 
   <!-- Актуальні петиції -->
   <div class="card border-0 shadow-lg rounded-4 mb-5">

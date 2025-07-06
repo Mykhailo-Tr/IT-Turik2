@@ -24,7 +24,6 @@ def get_users_with_access(petition):
 @receiver(post_save, sender=Petition)
 def notify_about_petition_creation_or_status_change(sender, instance, created, **kwargs):
     if created:
-        # Повідомлення про створення, якщо статус НЕ pending (передано на розгляд)
         if instance.status != Petition.Status.PENDING:
             users = get_users_with_access(instance)
             notifications = [
@@ -37,7 +36,6 @@ def notify_about_petition_creation_or_status_change(sender, instance, created, *
             ]
             Notification.objects.bulk_create(notifications)
     else:
-        # Повідомлення про зміну статусу
         if instance.status in {Petition.Status.PENDING, Petition.Status.APPROVED, Petition.Status.REJECTED}:
             users = get_users_with_access(instance).exclude(role="director")
             status_display = dict(Petition.Status.choices).get(instance.status, instance.status)
@@ -63,8 +61,6 @@ def petition_status_change(sender, instance, **kwargs):
         return
 
     if old_instance.status != instance.status:
-        # Статус змінився
-        # Якщо новий статус — pending, approved або rejected — повідомляємо користувачів, крім директора
         if instance.status in {Petition.Status.PENDING, Petition.Status.APPROVED, Petition.Status.REJECTED}:
             users = get_users_with_access(instance).exclude(role="director")
             status_display = dict(Petition.Status.choices).get(instance.status, instance.status)

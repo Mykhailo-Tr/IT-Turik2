@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.forms import modelformset_factory
+from django.views.decorators.http import require_POST
 
 from accounts.models import Student
 from .models import ClassGroup, TeacherGroup
@@ -12,6 +13,23 @@ from .forms import (
     TeacherGroupCreateForm,
     TeacherGroupEditForm,
 )
+
+
+# ---------------- КЛАСИ ----------------
+
+@login_required
+def manage_classes(request):
+    if request.user.role != 'director':
+        return redirect("profile")
+
+    classes = ClassGroup.objects.all()
+    form = ClassGroupCreateForm()
+    context = {
+        "classes": classes,
+        "form": form,
+    }
+    return render(request, "schoolgroups/manage_classes.html", context)
+
 
 @login_required
 def create_class(request):
@@ -47,33 +65,20 @@ def edit_class(request, pk):
     return redirect("manage_classes")
 
 
+@require_POST
 @login_required
 def delete_class(request, pk):
     if request.user.role != 'director':
         return redirect("profile")
 
-    if request.method == "POST":
-        class_group = get_object_or_404(ClassGroup, pk=pk)
-        name = class_group.name
-        class_group.delete()
-        messages.success(request, f"Клас «{name}» видалено.")
-
+    class_group = get_object_or_404(ClassGroup, pk=pk)
+    name = class_group.name
+    class_group.delete()
+    messages.success(request, f"Клас «{name}» видалено.")
     return redirect("manage_classes")
 
 
-@login_required
-def manage_classes(request):
-    if request.user.role != 'director':
-        return redirect("profile")
-
-    classes = ClassGroup.objects.all()
-    form = ClassGroupCreateForm()
-    context = {
-        "classes": classes,
-        "form": form,
-    }
-    return render(request, "schoolgroups/manage_classes.html", context)
-
+# ---------------- ГРУПИ ВЧИТЕЛІВ ----------------
 
 @method_decorator(login_required, name='dispatch')
 class TeacherGroupListCreateUpdateView(View):
@@ -123,3 +128,16 @@ class TeacherGroupListCreateUpdateView(View):
                 print(formset.errors)
 
         return redirect("manage_teacher_groups")
+
+
+@require_POST
+@login_required
+def delete_group(request, pk):
+    if request.user.role != 'director':
+        return redirect("profile")
+
+    group = get_object_or_404(TeacherGroup, pk=pk)
+    name = group.name
+    group.delete()
+    messages.success(request, f"Групу «{name}» успішно видалено.")
+    return redirect("manage_teacher_groups")

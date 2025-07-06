@@ -8,4 +8,5 @@ urlpatterns = [
     path("create-class/", views.create_class, name="create_class"),
     path("edit-class/<int:pk>/", views.edit_class, name="edit_class"),
     path("delete-class/<int:pk>/", views.delete_class, name="delete_class"),
+    path("delete-group/<int:pk>/", views.delete_group, name="delete_group"),
 ]

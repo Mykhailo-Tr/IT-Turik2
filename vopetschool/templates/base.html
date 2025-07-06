@@ -107,20 +107,16 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Світло за курсором -->
     <div class="cursor-light" id="cursorLight"></div>
 
-    <!-- Навігація -->
     <header class="navbar-glass fixed-top py-2">
         {% include "navbar.html" %}
     </header>
 
-    <!-- Контент -->
     <main class="container my-5" style="padding-top: 120px;">
             {% block content %}{% endblock %}
     </main>
 
-    <!-- Повідомлення -->
     <div id="messages-container" style="position: fixed; top: 90px; right: 20px; z-index: 1055; max-width: 400px;">
         {% if messages %}
             {% for message in messages %}

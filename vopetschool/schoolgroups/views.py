@@ -13,57 +13,67 @@ from .forms import (
     TeacherGroupEditForm,
 )
 
-
-# ---------- КЛАСИ ----------
-
-@method_decorator(login_required, name='dispatch')
-class ClassGroupListCreateUpdateView(View):
-    def get(self, request):
-        if request.user.role != 'director':
-            return redirect("profile")
-
-        context = {
-            "classes": ClassGroup.objects.all(),
-            "class_form": ClassGroupCreateForm(prefix="class"),
-            "all_students": Student.objects.select_related("user").all(),
-        }
-        return render(request, "schoolgroups/manage_classes.html", context)
-
-    def post(self, request):
-        if request.user.role != 'director':
-            return redirect("profile")
-
-        class_form = ClassGroupCreateForm(request.POST, prefix="class")
-        if class_form.is_valid():
-            class_form.save()
-            messages.success(request, "Клас успішно створено.")
-        else:
-            messages.error(request, "Помилка при створенні класу.")
-        return redirect("manage_classes")
-
-
 @login_required
-def edit_class(request, pk):
-    class_group = get_object_or_404(ClassGroup, pk=pk)
-
+def create_class(request):
     if request.user.role != 'director':
         return redirect("profile")
 
     if request.method == "POST":
-        name = request.POST.get("name", "").strip()
-        student_ids_raw = request.POST.getlist("students")
-        student_ids = [int(sid) for sid in student_ids_raw if sid.strip().isdigit()]
+        form = ClassGroupCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Клас успішно створено.")
+        else:
+            messages.error(request, f"Помилка при створенні класу: {form.errors}")
+    return redirect("manage_classes")
 
-        if name:
-            class_group.name = name
-        class_group.students.set(student_ids)
-        class_group.save()
-        messages.success(request, f"Клас «{name}» оновлено.")
+
+@login_required
+def edit_class(request, pk):
+    if request.user.role != 'director':
+        return redirect("profile")
+
+    class_group = get_object_or_404(ClassGroup, pk=pk)
+
+    if request.method == "POST":
+        new_name = request.POST.get("name", "").strip()
+        if not new_name:
+            messages.error(request, "Назва класу не може бути порожньою.")
+        else:
+            class_group.name = new_name
+            class_group.save()
+            messages.success(request, f"Назву класу оновлено на «{new_name}».")
 
     return redirect("manage_classes")
 
 
-# ---------- ГРУПИ ВЧИТЕЛІВ ----------
+@login_required
+def delete_class(request, pk):
+    if request.user.role != 'director':
+        return redirect("profile")
+
+    if request.method == "POST":
+        class_group = get_object_or_404(ClassGroup, pk=pk)
+        name = class_group.name
+        class_group.delete()
+        messages.success(request, f"Клас «{name}» видалено.")
+
+    return redirect("manage_classes")
+
+
+@login_required
+def manage_classes(request):
+    if request.user.role != 'director':
+        return redirect("profile")
+
+    classes = ClassGroup.objects.all()
+    form = ClassGroupCreateForm()
+    context = {
+        "classes": classes,
+        "form": form,
+    }
+    return render(request, "schoolgroups/manage_classes.html", context)
+
 
 @method_decorator(login_required, name='dispatch')
 class TeacherGroupListCreateUpdateView(View):

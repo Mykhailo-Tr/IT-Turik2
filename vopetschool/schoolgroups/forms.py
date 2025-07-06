@@ -4,22 +4,12 @@ from .models import ClassGroup, TeacherGroup
 
 
 class ClassGroupCreateForm(forms.ModelForm):
-    students = forms.ModelMultipleChoiceField(
-        queryset=Student.objects.select_related('user').all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-        label="Учні"
-    )
-
     class Meta:
         model = ClassGroup
-        fields = ['name', 'students']
-        labels = {'name': 'Назва класу', 'students': 'Учні'}
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['students'].label_from_instance = lambda obj: obj.user.get_full_name()
-
+        fields = ['name']
+        labels = {
+            'name': 'Назва класу',
+        }
 
 class TeacherGroupCreateForm(forms.ModelForm):
     class Meta:

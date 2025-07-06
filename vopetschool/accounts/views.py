@@ -6,6 +6,11 @@ from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from .models import User
+from petitions.models import Petition
+from voting.models import Vote, VoteAnswer
+from django.db.models import Q
+from django.utils import timezone
 
 from .forms import (
     RoleChoiceForm, StudentRegisterForm,
@@ -14,7 +19,44 @@ from .forms import (
     EditProfileForm, ClassGroupCreateForm,
     TeacherGroupCreateForm
 )
-from .models import User
+
+@login_required
+def home_view(request):
+    user = request.user
+    now = timezone.now()
+
+    # Актуальні голосування
+    votes = Vote.objects.filter(
+                Q(start_date__isnull=True, end_date__isnull=True) |
+                Q(start_date__lte=now, end_date__isnull=True) |
+                Q(start_date__isnull=True, end_date__gte=now) |
+                Q(start_date__lte=now, end_date__gte=now)
+            )
+
+    if user.role != "director":
+        votes = votes.filter(
+            Q(level=Vote.Level.SCHOOL) |
+            Q(level=Vote.Level.SELECTED, participants=user)
+        )
+
+    voted_vote_ids = VoteAnswer.objects.filter(voter=user).values_list("option__vote_id", flat=True)
+
+    # Петиції які ще не набрали 50%
+    petitions = Petition.objects.filter(deadline__gte=now)
+    active_petitions = []
+    for petition in petitions:
+        if petition.status != Petition.Status.NEW:
+            continue
+        if petition.is_active() and petition.remaining_supporters_needed() > 0:
+
+            active_petitions.append([petition, petition.get_voted_percentage()])
+
+    return render(request, "accounts/home.html", {
+        "user": user,
+        "votes": votes[:5],
+        "voted_vote_ids": set(voted_vote_ids),
+        "petitions": active_petitions[:5],
+    })
 
 class RoleSelectView(View):
     def get(self, request):

@@ -48,6 +48,12 @@ class Petition(models.Model):
         elif self.level == self.Level.CLASS and self.class_group:
             return self.class_group.students.count()
         return 0
+    
+    def get_voted_percentage(self):
+        eligible_voters = self.get_eligible_voters_count()
+        if eligible_voters == 0:
+            return 0
+        return (self.supporters.count() / eligible_voters) * 100
 
     def is_ready_for_review(self):
         print(f"Supporters count: {self.supporters.count()}, Total needed: {self.total_needed_supporters()}")

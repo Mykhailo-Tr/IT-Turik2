@@ -113,11 +113,9 @@ class ProfileView(View):
         if user.role == "student":
             context["class_group"] = user.student.get_class_group()
 
-        # Створене
         context["created_petitions"] = Petition.objects.filter(creator=user)
         context["created_votes"] = Vote.objects.filter(creator=user)
 
-        # Участь
         context["supported_petitions"] = Petition.objects.filter(supporters=user).exclude(creator=user)
         context["answered_votes"] = VoteAnswer.objects.filter(voter=user).select_related("option__vote")
 

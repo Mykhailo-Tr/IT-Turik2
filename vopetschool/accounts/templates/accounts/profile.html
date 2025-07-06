@@ -111,17 +111,81 @@
           {% endif %}
 
           <!-- Кнопки переходу до менеджменту -->
-            {% if viewed_user.role == 'director' and request.user == viewed_user %}
-                <hr class="my-5">
-                <div class="text-center d-flex flex-column flex-sm-row justify-content-center gap-3">
-                    <a href="{% url 'manage_classes' %}" class="btn btn-primary rounded-pill px-5 py-3">
-                        🏫 Керування класами
-                    </a>
-                    <a href="{% url 'manage_teacher_groups' %}" class="btn btn-success rounded-pill px-5 py-3">
-                        👥 Керування групами вчителів
-                    </a>
-                </div>
+          {% if viewed_user.role == 'director' and request.user == viewed_user %}
+          <hr class="my-5">
+          <div class="text-center d-flex flex-column flex-sm-row justify-content-center gap-3">
+            <a href="{% url 'manage_classes' %}" class="btn btn-primary rounded-pill px-5 py-3">
+              🏫 Керування класами
+            </a>
+            <a href="{% url 'manage_teacher_groups' %}" class="btn btn-success rounded-pill px-5 py-3">
+              👥 Керування групами вчителів
+            </a>
+          </div>
+          {% endif %}
+
+          <!-- ======= ІСТОРІЯ АКТИВНОСТІ ======= -->
+          <hr class="my-5">
+          <div class="mb-4">
+            <h4 class="fw-bold text-center mb-4">🕘 Історія активності</h4>
+
+            {% if created_petitions or created_votes %}
+            <h5 class="text-secondary fw-semibold mb-2">📌 Створене вами</h5>
+            {% if created_petitions %}
+            <p class="fw-semibold mb-1">📝 Петиції</p>
+            <ul class="list-group mb-3 shadow-sm rounded-3">
+              {% for petition in created_petitions %}
+              <li class="list-group-item py-3">
+                <strong>{{ petition.title }}</strong><br>
+                Статус: {{ petition.get_status_display }}<br>
+                До: {{ petition.deadline|date:"d.m.Y H:i" }}
+              </li>
+              {% endfor %}
+            </ul>
             {% endif %}
+
+            {% if created_votes %}
+            <p class="fw-semibold mb-1">🗳️ Голосування</p>
+            <ul class="list-group shadow-sm rounded-3">
+              {% for vote in created_votes %}
+              <li class="list-group-item py-3">
+                <strong>{{ vote.title }}</strong><br>
+                Статус: {{ vote.get_status_display }}<br>
+                З: {{ vote.start_date|date:"d.m.Y" }} до {{ vote.end_date|date:"d.m.Y" }}
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+            {% endif %}
+
+            {% if supported_petitions or answered_votes %}
+            <h5 class="text-secondary fw-semibold mt-5 mb-2">✅ Ваша участь</h5>
+
+            {% if supported_petitions %}
+            <p class="fw-semibold mb-1">🤝 Підтримані петиції</p>
+            <ul class="list-group mb-3 shadow-sm rounded-3">
+              {% for petition in supported_petitions %}
+              <li class="list-group-item py-3">
+                <strong>{{ petition.title }}</strong><br>
+                Дата створення: {{ petition.created_at|date:"d.m.Y H:i" }}
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if answered_votes %}
+            <p class="fw-semibold mb-1">🗳️ Взято участь у голосуваннях</p>
+            <ul class="list-group shadow-sm rounded-3">
+              {% for answer in answered_votes %}
+              <li class="list-group-item py-3">
+                <strong>{{ answer.option.vote.title }}</strong><br>
+                Ваш вибір: <span class="text-success">{{ answer.option.text }}</span><br>
+                Дата голосування: {{ answer.timestamp|date:"d.m.Y H:i" }}
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+            {% endif %}
+          </div>
 
         </div>
       </div>

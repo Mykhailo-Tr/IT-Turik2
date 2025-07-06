@@ -8,8 +8,8 @@ User = get_user_model()
 class CalendarEvent(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    start = models.DateTimeField()
-    end = models.DateTimeField()
+    start = models.DateTimeField(blank=True, null=True)
+    end = models.DateTimeField(blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='calendar_events')
     is_deadline = models.BooleanField(default=False)
 

@@ -123,6 +123,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -246,6 +247,11 @@
     initParticles();
     animateParticles();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init({ once: true, duration: 800, offset: 100 });
+</script>
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
 
     <script src="{% static 'js/notifications.js' %}"></script>

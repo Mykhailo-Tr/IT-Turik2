@@ -2,22 +2,22 @@
 {% block title %}Голосування{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-5" data-aos="fade-up">
     <div class="row justify-content-center">
         <div class="col-12">
-            <div class="card shadow-lg border-0 rounded-4">
+            <div class="card shadow-lg border-0 rounded-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="card-body p-5">
 
-                    <!-- Заголовок та кнопка -->
+                    <!-- Заголовок -->
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                        <h2 class="fw-bold mb-0">🗳️ Доступні голосування</h2>
-                        <a href="{% url 'vote_create' %}" class="btn btn-outline-success rounded-pill">
+                        <h2 class="fw-bold mb-0" data-aos="fade-right" data-aos-delay="200">🗳️ Доступні голосування</h2>
+                        <a href="{% url 'vote_create' %}" class="btn btn-outline-success rounded-pill" data-aos="zoom-in" data-aos-delay="300">
                             ➕ Створити голосування
                         </a>
                     </div>
 
                     <!-- Фільтрація -->
-                    <div class="mb-4">
+                    <div class="mb-4" data-aos="fade-up" data-aos-delay="300">
                         <div class="d-flex flex-wrap gap-2">
                             <a href="{% url 'vote_list' %}" class="btn btn-outline-secondary {% if not current_filter %}active{% endif %}">Усі</a>
                             <a href="?filter=active" class="btn btn-outline-success {% if current_filter == 'active' %}active{% endif %}">Активні</a>
@@ -26,15 +26,14 @@
                         </div>
                     </div>
 
-                    <!-- Список голосувань -->
                     {% if votes %}
-                        <div class="row g-4">
+                        <div class="row g-4" data-aos="fade-up" data-aos-delay="400">
                             {% for vote in votes %}
-                                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                                    <div class="border rounded-4 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-3" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
+                                    <div class="vote-card border rounded-4 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
 
                                         <div>
-                                            <h5 class="mb-2">{{ vote.title }}</h5>
+                                            <h5 class="mb-2 fw-semibold">{{ vote.title }}</h5>
 
                                             <small class="text-muted">
                                                 📅 {{ vote.start_date|date:"SHORT_DATETIME_FORMAT" }}
@@ -42,37 +41,38 @@
                                             </small><br>
 
                                             <small class="text-muted d-block mt-1">
-                                                👤 Автор: {{ vote.creator.get_full_name }}
+                                                👤 {{ vote.creator.get_full_name }}
                                                 {% if request.user == vote.creator %}
                                                     <span class="badge bg-secondary">ви</span>
                                                 {% endif %}
                                             </small>
 
-                                            <div class="mt-2">
+                                            <div class="mt-2 d-flex flex-wrap gap-1">
                                                 <span class="badge 
                                                     {% if vote.get_status_display == 'Активне' %}bg-success
                                                     {% elif vote.get_status_display == 'Очікується початок' %}bg-secondary
                                                     {% else %}bg-danger{% endif %}">
                                                     {{ vote.get_status_display }}
                                                 </span>
-                                                    {% if vote.level %}
-        <span class="badge bg-info text-dark">Рівень: {{ vote.get_level_display }}</span>
-    {% endif %}
 
-    {% if vote.class_group %}
-        <span class="badge bg-secondary">{{ vote.class_group }}</span>
-    {% endif %}
+                                                {% if vote.level %}
+                                                    <span class="badge bg-info text-dark">Рівень: {{ vote.get_level_display }}</span>
+                                                {% endif %}
 
-    {% if vote.level == 'students' and vote.recipients.exists %}
-        <span class="badge bg-warning text-dark">🎯 Вибрані учні</span>
-    {% endif %}
+                                                {% if vote.class_group %}
+                                                    <span class="badge bg-secondary">{{ vote.class_group }}</span>
+                                                {% endif %}
+
+                                                {% if vote.level == 'students' and vote.recipients.exists %}
+                                                    <span class="badge bg-warning text-dark">🎯 Вибрані учні</span>
+                                                {% endif %}
 
                                                 {% if vote.id in voted_ids %}
                                                     <span class="badge bg-primary">Проголосовано</span>
                                                 {% else %}
                                                     <span class="badge bg-warning text-dark">Не проголосовано</span>
                                                 {% endif %}
-                                            </div>  
+                                            </div>
                                         </div>
 
                                         <div class="text-end mt-3">
@@ -88,10 +88,20 @@
                     {% else %}
                         <p class="text-muted text-center mt-4">Наразі немає доступних голосувань.</p>
                     {% endif %}
-
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.vote-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(255, 255, 255, 0.95);
+}
+.vote-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+</style>
 {% endblock %}

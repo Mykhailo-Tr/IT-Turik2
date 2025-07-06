@@ -109,10 +109,17 @@ class ProfileView(View):
     def get(self, request, user_id=None):
         user = get_object_or_404(User, pk=user_id) if user_id else request.user
         context = {"viewed_user": user}
+
         if user.role == "student":
             context["class_group"] = user.student.get_class_group()
-        return render(request, "accounts/profile.html", context)
 
+        context["created_petitions"] = Petition.objects.filter(creator=user)
+        context["created_votes"] = Vote.objects.filter(creator=user)
+
+        context["supported_petitions"] = Petition.objects.filter(supporters=user).exclude(creator=user)
+        context["answered_votes"] = VoteAnswer.objects.filter(voter=user).select_related("option__vote")
+
+        return render(request, "accounts/profile.html", context)
 
 @method_decorator(login_required, name='dispatch')
 class EditProfileView(View):

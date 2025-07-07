@@ -22,16 +22,19 @@ def calendar_events_json(request):
 
     data = []
     for e in events:
-        # Колір події залежно від типу
+        # Пропустити події без дат
+        if not e.start or not e.end:
+            continue
+
         if e.is_deadline and e.related_object:
-            if e.content_type.model == 'petition':
-                color = '#dc3545'  # червоний для петицій
-            elif e.content_type.model == 'vote':
-                color = '#0d6efd'  # синій для голосувань
+            if e.content_type and e.content_type.model == 'petition':
+                color = '#dc3545'  # червоний
+            elif e.content_type and e.content_type.model == 'vote':
+                color = '#0d6efd'  # синій
             else:
-                color = '#6c757d'  # сірий — інше
+                color = '#6c757d'  # сірий
         else:
-            color = '#198754'  # зелений для користувацьких подій
+            color = '#198754'  # зелений
 
         data.append({
             'id': e.id,

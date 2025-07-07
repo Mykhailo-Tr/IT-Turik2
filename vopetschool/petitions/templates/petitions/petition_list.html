@@ -141,10 +141,10 @@
 </div>
 
 <!-- Автооновлення -->
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const petitionBlocks = document.querySelectorAll("[data-petition-id]");
-
     function refreshSupport() {
         petitionBlocks.forEach(block => {
             const id = block.getAttribute("data-petition-id");
@@ -161,8 +161,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 .catch(err => console.warn("Помилка оновлення:", id, err));
         });
     }
+    // Ініціалізація WebSocket
+    const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const socket = new WebSocket(`${ws_scheme}://${window.location.host}/ws/petitions/`);
 
-    setInterval(refreshSupport, 3000);
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        const el = document.getElementById(`support-count-${data.petition_id}`);
+        if (el) {
+            el.textContent = `🙋 ${data.supporters_count} (${data.support_percent}%)`;
+            el.classList.add("support-flash");
+            setTimeout(() => el.classList.remove("support-flash"), 600);
+        }
+    };
+
+    socket.onopen = function () {
+        console.log("[✅ WebSocket] Підключено до списку петицій");
+    };
+
+    socket.onerror = function (error) {
+        console.error("[❌ WebSocket] Помилка:", error);
+    };
+
+    socket.onclose = function (event) {
+        console.warn("[⚠️ WebSocket] З'єднання закрито", event);
+    };
+
     refreshSupport();
 });
 </script>

@@ -16,3 +16,24 @@ class PetitionSupportConsumer(AsyncWebsocketConsumer):
 
     async def petition_support_update(self, event):
         await self.send(text_data=json.dumps(event["data"]))
+
+
+
+class PetitionListConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.channel_layer.group_add("petitions", self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard("petitions", self.channel_name)
+
+    async def receive(self, text_data):
+        # Опціонально: не обов'язково обробляти вхідні дані
+        pass
+
+    async def petition_support_updated(self, event):
+        await self.send(text_data=json.dumps({
+            "petition_id": event["petition_id"],
+            "supporters_count": event["supporters_count"],
+            "support_percent": event["support_percent"],
+        }))

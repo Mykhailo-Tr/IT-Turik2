@@ -203,6 +203,16 @@ def support_petition_view(request, pk):
     data = calculate_petition_support(petition)
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
+        "petitions",
+        {
+            "type": "petition_support_updated",
+            "petition_id": petition.id,
+            "supporters_count": data["supporters_count"],
+            "support_percent": data["support_percent"],
+        }
+    )
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
         f"petition_{petition.pk}",
         {
             "type": "petition_support_update",

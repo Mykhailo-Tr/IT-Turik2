@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %}Групи вчителів{% endblock %}
+
+
+
+{% block content %} 
+<div class="container py-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold">👥 Групи вчителів</h2>
+      <p class="text-muted mb-0">Перегляд, створення, редагування та видалення</p>
+    </div>
+    <a href="{% url 'profile' %}" class="btn btn-outline-secondary rounded-pill">
+      ⬅️ Назад до профілю
+    </a>
+  </div>
+
+  <div class="card shadow-sm rounded-4">
+    <div class="card-body">
+
+      {% if groups %}
+      <ul class="list-group list-group-flush mb-3">
+        {% for group in groups %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+
+          <div>
+            <strong>{{ group.name }}</strong><br>
+            <small class="text-muted">{{ group.teachers.count }} вчителів</small>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 d-flex align-items-center gap-1"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editGroupModal"
+                    data-index="{{ forloop.counter0 }}">
+              ✏️ <span class="d-none d-md-inline">Редагувати</span>
+            </button>
+
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 d-flex align-items-center gap-1 shadow-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmDeleteModal"
+                    data-id="{{ group.id }}"
+                    data-name="{{ group.name }}">
+              <i class="bi bi-trash-fill"></i>
+              <span class="d-none d-md-inline">Видалити</span>
+            </button>
+          </div>
+
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-muted">Групи ще не створено.</p>
+      {% endif %}
+
+      <hr>
+
+      <div class="text-center">
+        <button class="btn btn-success rounded-pill px-4 py-2" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+          ➕ Створити нову групу
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'schoolgroups/modals/group_create.html' %}
+{% include 'schoolgroups/modals/group_edit.html' %}
+{% include 'schoolgroups/modals/group_delete.html' %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<link rel="stylesheet" href="{% static 'schoolgroups/css/classes.css' %}">
+<script src="{% static 'schoolgroups/js/teacher_groups.js' %}"></script>
+{% endblock %}

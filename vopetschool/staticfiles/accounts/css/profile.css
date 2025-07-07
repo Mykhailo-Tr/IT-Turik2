@@ -1,0 +1,54 @@
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+.bg-theme {
+    background-color: var(--bg-color, #ffffff);
+}
+
+.text-theme {
+    color: var(--text-color, #000000);
+}
+
+.dark-mode .bg-theme {
+    --bg-color: #1e1e1e;
+}
+
+.dark-mode .text-theme {
+    --text-color: #e0e0e0;
+}
+
+.dark-mode .list-group-item {
+    background-color: #252525;
+    color: #e0e0e0;
+    border-color: #3a3a3a;
+}
+
+.dark-mode .card {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+.dark-mode .badge.bg-warning.text-dark {
+    background-color: #f1c40f !important;
+    color: #000 !important;
+}
+
+.dark-mode .btn-outline-primary,
+.dark-mode .btn-outline-danger,
+.dark-mode .btn-outline-secondary {
+    border-color: #888;
+    color: #ccc;
+}
+
+.dark-mode .btn-outline-primary:hover,
+.dark-mode .btn-outline-danger:hover,
+.dark-mode .btn-outline-secondary:hover {
+    background-color: #333;
+    color: white;
+}
+
+.dark-mode .text-muted {
+    color: #aaa !important;
+}

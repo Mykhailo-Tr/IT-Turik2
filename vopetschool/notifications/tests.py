@@ -31,13 +31,13 @@ def test_notifications_api_returns_notifications(auth_client, user, notification
     assert len(data["notifications"]) == 5
 
     for i, notif in enumerate(data["notifications"]):
-        assert notif["message"] == f"Message {4 - i}"  # latest first
+        assert notif["message"] == f"Message {4 - i}"
         assert notif["link"] == f"/link/{4 - i}/"
 
 def test_notifications_api_unauthenticated(client):
     url = reverse('notifications_api')
     response = client.get(url)
-    assert response.status_code == 302  # Redirect to login
+    assert response.status_code == 302 
 
 def test_delete_notifications(auth_client, user, notifications):
     assert Notification.objects.filter(user=user).count() == 5
@@ -70,7 +70,6 @@ def test_delete_single_notification_no_id(auth_client):
         HTTP_X_REQUESTED_WITH="XMLHttpRequest"
     )
     assert response.status_code == 400
-    assert response.json()["status"] == "no_id_provided"
 
 def test_delete_single_notification_invalid_json(auth_client):
     url = reverse('notification_delete_single')

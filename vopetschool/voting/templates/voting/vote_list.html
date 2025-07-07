@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Голосування{% endblock %}
 
@@ -12,7 +13,7 @@
 
                     <!-- Заголовок -->
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                        <h2 class="fw-bold mb-0 text-theme" data-aos="fade-right" data-aos-delay="200">🗳️ Доступні голосування</h2>
+                        <h2 class="fw-bold mb-0 text-theme" data-aos="fade-right" data-aos-delay="200">🗳️ {%trans "Available Votes" %}</h2>
                         <a href="{% url 'vote_create' %}" class="btn btn-outline-success rounded-pill" data-aos="zoom-in" data-aos-delay="300">
                             ➕ Створити голосування
                         </a>

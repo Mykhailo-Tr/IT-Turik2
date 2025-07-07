@@ -339,3 +339,9 @@ msgstr "Дата розгляду"
 
 msgid "Back to petitions"
 msgstr "Назад до петицій"
+
+msgid "Total Users"
+msgstr "Кількість користувачів"
+
+msgid "Total Votes Cast"
+msgstr "Кількість створених голосувань"

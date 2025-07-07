@@ -1,0 +1,22 @@
+{% load static %}
+
+<div class="modal fade" id="deleteVoteModal" tabindex="-1" aria-labelledby="deleteVoteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <form method="post" action="{% url 'vote_delete' vote.pk %}">
+        {% csrf_token %}
+        <div class="modal-header bg-danger text-white rounded-top-4">
+          <h5 class="modal-title" id="deleteVoteLabel">Підтвердження видалення</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Ви дійсно хочете видалити голосування <strong>"{{ vote.title }}"</strong>? Цю дію неможливо скасувати.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Скасувати</button>
+          <button type="submit" class="btn btn-danger rounded-pill">Видалити</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

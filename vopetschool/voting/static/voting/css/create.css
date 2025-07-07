@@ -1,0 +1,27 @@
+body.dark-mode .card {
+    background-color: rgba(33, 33, 33, 0.95);
+    color: #f8f9fa;
+}
+
+body.dark-mode label,
+body.dark-mode .form-label,
+body.dark-mode .form-text {
+    color: #ccc !important;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background-color: #2b2b2b;
+    color: #f8f9fa;
+    border: 1px solid #444;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #aaa;
+}
+
+body.dark-mode .invalid-feedback {
+    color: #ff6b6b;
+}

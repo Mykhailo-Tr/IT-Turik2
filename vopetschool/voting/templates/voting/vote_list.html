@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block title %}Голосування{% endblock %}
 
 {% block content %}
@@ -94,26 +96,5 @@
     </div>
 </div>
 
-<style>
-.vote-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.vote-card:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-}
-
-body.dark-mode .vote-card {
-    background-color: rgba(33, 37, 41, 0.9);
-    color: #f8f9fa;
-}
-
-body.dark-mode .text-theme {
-    color: #f8f9fa !important;
-}
-
-body.dark-mode .bg-theme {
-    background-color: rgba(33, 37, 41, 0.9);
-}
-</style>
+<link rel="stylesheet" href="{% static 'voting/css/list.css' %}">
 {% endblock %}

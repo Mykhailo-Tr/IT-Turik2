@@ -295,3 +295,6 @@ msgstr "Створити нову петицію"
 #: templates/petitions/comment_edit.html
 msgid "Edit Comment"
 msgstr "Редагувати коментар"
+
+msgid "Add Comment"
+msgstr "Додати коментар"

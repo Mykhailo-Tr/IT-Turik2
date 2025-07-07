@@ -1,7 +1,8 @@
+{% load i18n %}
 <h5 class="mb-3">💬 Коментарі:</h5>
 
 <button class="btn btn-outline-success rounded-pill mb-4" data-bs-toggle="modal" data-bs-target="#commentModal">
-    ➕ Додати коментар
+    ➕ {% trans "Add Comment" %}
 </button>
 
 {% include "petitions/partials/_comment_modal.html" %}
@@ -64,7 +65,7 @@
                         <form method="post" action="{% url 'edit_comment' petition.pk comment.pk %}">
                             {% csrf_token %}
                             <div class="modal-header">
-                                <h5 class="modal-title" id="editCommentModalLabel-{{ comment.pk }}">✏️ Редагувати коментар</h5>
+                                <h5 class="modal-title" id="editCommentModalLabel-{{ comment.pk }}">✏️ {% trans "Edit Comment" %}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
                             </div>
                             <div class="modal-body">

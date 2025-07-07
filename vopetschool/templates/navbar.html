@@ -1,6 +1,8 @@
+{% load i18n %}
+
 <nav class="navbar navbar-expand-lg navbar-glass fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="/">🏫 Vo & Pet School</a>
+        <a class="navbar-brand" href="/">{% trans "Vo & Pet School" %}</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -9,22 +11,20 @@
             <ul class="navbar-nav ms-auto align-items-center">
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'profile' %}">Головна</a>
+                    <a class="nav-link" href="{% url 'profile' %}">{% trans "Profile" %}</a>
                 </li>
 
                 {% if user.is_authenticated %}
-                    <!-- 📅 Календар -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'calendar' %}">Календар</a>
+                        <a class="nav-link" href="{% url 'calendar' %}">{% trans "Calendar" %}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'petition_list' %}">Петиції</a>
+                        <a class="nav-link" href="{% url 'petition_list' %}">{% trans "Petitions" %}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'vote_list' %}">Голосування</a>
+                        <a class="nav-link" href="{% url 'vote_list' %}">{% trans "Votes" %}</a>
                     </li>
 
-                    <!-- 🔔 Сповіщення -->
                     <li class="nav-item dropdown position-relative">
                         <button class="btn nav-link position-relative" type="button" id="notificationBell" aria-expanded="false">
                             <i class="bi bi-bell fs-5"></i>
@@ -37,29 +37,39 @@
                             class="dropdown-menu dropdown-menu-end"
                             aria-labelledby="notificationBell"
                             style="max-height: 300px; overflow-y: auto; min-width: 300px; display: none;">
-                            <li><span class="dropdown-item text-muted">Завантаження...</span></li>
+                            <li><span class="dropdown-item text-muted">{% trans "Loading..." %}</span></li>
                         </ul>
                     </li>
 
+                    <form action="{% url 'set_language' %}" method="post" class="d-inline ms-2">
+                        {% csrf_token %}
+                        <select name="language" onchange="this.form.submit()" class="form-select form-select-sm">
+                            {% get_current_language as LANGUAGE_CODE %}
+                            {% get_available_languages as LANGUAGES %}
+                            {% for lang in LANGUAGES %}
+                                <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %}selected{% endif %}>
+                                    {{ lang.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
 
-
-                    <!-- 👤 Меню користувача -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                             {{ user.email }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'profile' %}">Профіль</a></li>
+                            <li><a class="dropdown-item" href="{% url 'profile' %}">{% trans "Profile" %}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Вийти</a></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
                         </ul>
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Увійти</a>
+                        <a class="nav-link" href="{% url 'login' %}">{% trans "Login" %}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Реєстрація</a>
+                        <a class="nav-link" href="{% url 'register' %}">{% trans "Register" %}</a>
                     </li>
                 {% endif %}
             </ul>

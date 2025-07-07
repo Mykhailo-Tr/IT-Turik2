@@ -13,7 +13,6 @@ class CalendarEvent(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='calendar_events')
     is_deadline = models.BooleanField(default=False)
 
-    # 👇 Поля для зв'язку з Petition або Vote
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     related_object = GenericForeignKey('content_type', 'object_id')

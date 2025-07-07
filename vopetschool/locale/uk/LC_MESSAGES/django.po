@@ -278,6 +278,8 @@ msgstr "Видалити петицію"
 msgid "Are you sure you want to delete this petition?"
 msgstr "Ви справді хочете видалити цю петицію?"
 
+msgid "Are you sure you want to"
+msgstr "Ви справді хочете"
 
 msgid "Cancel"
 msgstr "Скасувати"
@@ -285,7 +287,55 @@ msgstr "Скасувати"
 msgid "Delete"
 msgstr "Видалити"
 
+msgid "delete"
+msgstr "видалити"
+
 msgid "Close"
 msgstr "Закрити"
 
 
+msgid "Create a New Petition"
+msgstr "Створити нову петицію"
+
+#: templates/petitions/comment_edit.html
+msgid "Edit Comment"
+msgstr "Редагувати коментар"
+
+msgid "Add Comment"
+msgstr "Додати коментар"
+
+msgid "Comments"
+msgstr "Коментарі"
+
+msgid "Comments count"
+msgstr "Загалом коментарів"
+
+msgid "Edited"
+msgstr "Редагувано"
+
+msgid "this comment?"
+msgstr "цей коментар?"
+
+msgid "No comments yet."
+msgstr "Немає коментарів."
+
+msgid "Author"
+msgstr "Автор"
+
+msgid "Created"
+msgstr "Створено"
+
+msgid "Deadline"
+msgstr "Дедлайн"
+
+msgid "Petition status"
+msgstr "Статус петиції"
+
+msgid "Considered"
+msgstr "Розглянув"
+
+msgid "Date of consider"
+msgstr "Дата розгляду"
+
+msgid "Back to petitions"
+msgstr "Назад до петицій"

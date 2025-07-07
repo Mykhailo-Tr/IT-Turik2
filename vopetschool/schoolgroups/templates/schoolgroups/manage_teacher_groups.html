@@ -73,119 +73,13 @@
   </div>
 </div>
 
-<!-- ✅ МОДАЛЬНЕ СТВОРЕННЯ -->
-<div class="modal fade" id="createGroupModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content rounded-4">
-      <form method="post">
-        {% csrf_token %}
-        <div class="modal-header bg-success text-white">
-          <h5 class="modal-title">➕ Нова група вчителів</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          {{ group_form.management_form }}
-          <div class="mb-3">
-            {{ group_form.name.label_tag }}
-            {{ group_form.name|add_class:"form-control" }}
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Виберіть вчителів:</label>
-            <div class="row g-2">
-              {% for checkbox in group_form.teachers %}
-              <div class="col-6 col-md-4">
-                <div class="form-check">
-                  {{ checkbox.tag }}
-                  <label class="form-check-label" for="{{ checkbox.id_for_label }}">
-                    {{ checkbox.choice_label }}
-                  </label>
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" name="submit_group" class="btn btn-success rounded-pill px-4">Зберегти</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+{% include 'schoolgroups/modals/group_create.html' %}
+{% include 'schoolgroups/modals/group_edit.html' %}
+{% include 'schoolgroups/modals/group_delete.html' %}
 
-<!-- ✅ МОДАЛЬНЕ РЕДАГУВАННЯ -->
-<div class="modal fade" id="editGroupModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content rounded-4">
-      <form method="post">
-        {% csrf_token %}
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">✏️ Редагувати групу</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          {{ edit_group_formset.management_form }}
-          {% for form in edit_group_formset %}
-          <div class="edit-group-form d-none" id="group-form-{{ forloop.counter0 }}">
-            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-            <div class="mb-3">
-              {{ form.name.label_tag }}
-              {{ form.name|add_class:"form-control" }}
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Вчителі:</label>
-              <div class="row g-2">
-                {% for checkbox in form.teachers %}
-                <div class="col-6 col-md-4">
-                  <div class="form-check">
-                    {{ checkbox.tag }}
-                    <label for="{{ checkbox.id_for_label }}" class="form-check-label">
-                      {{ checkbox.choice_label }}
-                    </label>
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        <div class="modal-footer">
-          <button type="submit" name="edit_groups" class="btn btn-primary rounded-pill px-4">Зберегти зміни</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- ✅ МОДАЛЬНЕ ВИДАЛЕННЯ -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4">
-      <form method="post" id="deleteGroupForm">
-        {% csrf_token %}
-        <div class="modal-header bg-danger text-white rounded-top-4">
-          <h5 class="modal-title">🗑 Підтвердження видалення</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <p>Ви дійсно хочете видалити групу <strong id="deleteGroupName">...</strong>?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Скасувати</button>
-          <button type="submit" class="btn btn-danger rounded-pill px-4">Видалити</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- 🔁 JS -->
-<script src="{% static 'schoolgroups/js/teacher_groups.js' %}"></script>
-
-<!-- Іконки Bootstrap -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<link rel="stylesheet" href="{% static 'schoolgroups/css/classes.css' %}">
 
+<link rel="stylesheet" href="{% static 'schoolgroups/css/classes.css' %}">
+<script src="{% static 'schoolgroups/js/teacher_groups.js' %}"></script>
 {% endblock %}

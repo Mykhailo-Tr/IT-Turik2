@@ -157,58 +157,64 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const voteCounts = document.querySelectorAll(".vote-count");
-    let total = 0;
+    function updateProgressBars() {
+        const voteCounts = document.querySelectorAll(".vote-count");
+        let total = 0;
 
-    // Рахуємо загальну кількість голосів
-    voteCounts.forEach(el => {
-        total += parseInt(el.dataset.count);
-    });
-
-    // Оновлюємо кожен прогрес-бар
-    voteCounts.forEach(el => {
-        const count = parseInt(el.dataset.count);
-        const optionId = el.closest("a").querySelector("[id^='progress-option-']").dataset.barFor;
-        const percent = total > 0 ? Math.round((count / total) * 100) : 0;
-
-        const bar = document.getElementById("progress-option-" + optionId);
-        const percentLabel = document.getElementById("percent-option-" + optionId);
-
-        if (bar) {
-            bar.style.width = percent + "%";
-        }
-        if (percentLabel) {
-            percentLabel.textContent = percent + "%";
-        }
-    });
-});
-{% if user_can_see_votes %}
-setInterval(function () {
-    fetch("{% url 'vote_stats_api' vote.pk %}")
-        .then(response => response.json())
-        .then(data => {
-            const totalVotes = data.total_votes;
-
-            data.options.forEach(option => {
-                const countElem = document.querySelector(`.vote-count[data-count][data-id='${option.id}']`);
-                const bar = document.getElementById(`progress-option-${option.id}`);
-                const percentLabel = document.getElementById(`percent-option-${option.id}`);
-
-                if (countElem) {
-                    countElem.textContent = option.count;
-                    countElem.dataset.count = option.count;
-                }
-                if (bar) {
-                    bar.style.width = option.percent + "%";
-                }
-                if (percentLabel) {
-                    percentLabel.textContent = option.percent + "%";
-                }
-            });
+        // 1. Порахувати загальну кількість голосів
+        voteCounts.forEach(el => {
+            total += parseInt(el.dataset.count || "0");
         });
-}, 3000); // оновлення кожні X сек
-{% endif %}
 
+        // 2. Для кожного варіанту оновити прогрес
+        voteCounts.forEach(el => {
+            const count = parseInt(el.dataset.count || "0");
+            const optionId = el.dataset.id;
+            const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+
+            const bar = document.getElementById(`progress-option-${optionId}`);
+            const percentLabel = document.getElementById(`percent-option-${optionId}`);
+
+            if (bar) {
+                bar.style.width = percent + "%";
+            }
+            if (percentLabel) {
+                percentLabel.textContent = percent + "%";
+            }
+        });
+    }
+
+    // 🔁 Виклик при першому завантаженні
+    updateProgressBars();
+
+    // 🔌 WebSocket
+    const voteId = "{{ vote.pk }}";
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const socket = new WebSocket(`${wsScheme}://${window.location.host}/ws/votes/${voteId}/`);
+
+    socket.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+
+        // Оновити значення з WS
+        data.options.forEach(option => {
+            const countElem = document.querySelector(`.vote-count[data-id='${option.id}']`);
+            if (countElem) {
+                countElem.textContent = option.count;
+                countElem.dataset.count = option.count;
+            }
+        });
+
+        updateProgressBars();
+    };
+
+    socket.onerror = function (error) {
+        console.error("WebSocket Error: ", error);
+    };
+
+    socket.onclose = function (e) {
+        console.warn("WebSocket closed unexpectedly");
+    };
+});
 </script>
 
 {% include "voting/modals/vote_delete.html" %}

@@ -9,6 +9,8 @@ from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
 from .models import Vote, VoteOption, VoteAnswer
@@ -16,6 +18,15 @@ from accounts.models import User, Student
 from notifications.models import Notification
 from notifications.utils import trigger_user_notification, notify_vote_creation
 
+
+def send_vote_update(vote_id: int):
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"vote_{vote_id}",
+        {
+            "type": "vote_update"
+        }
+    )
 
 class VoteListView(ListView):
     model = Vote
@@ -79,7 +90,8 @@ def vote_detail_view(request, pk):
             for option_id in selected_ids:
                 option = get_object_or_404(VoteOption, id=option_id, vote=vote)
                 VoteAnswer.objects.create(voter=user, option=option)
-
+            send_vote_update(vote.pk)
+            
             messages.success(request, "Ваш голос успішно враховано.")
             return redirect("vote_detail", pk=vote.pk)
         else:

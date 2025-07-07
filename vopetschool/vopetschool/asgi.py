@@ -7,11 +7,14 @@ from django.core.asgi import get_asgi_application
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vopetschool.settings")
 django.setup()  
 
-from notifications.routing import websocket_urlpatterns  # ✅ Тепер безпечно
+from notifications.routing import websocket_urlpatterns
+from voting.routing import websocket_urlpatterns as voting_websocket_urlpatterns
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AuthMiddlewareStack(
-        URLRouter(websocket_urlpatterns)
+        URLRouter(
+            websocket_urlpatterns + voting_websocket_urlpatterns
+            )
     ),
 })

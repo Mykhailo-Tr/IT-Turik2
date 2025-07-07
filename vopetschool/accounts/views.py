@@ -49,7 +49,7 @@ def home_view(request):
 
             active_petitions.append([petition, petition.get_voted_percentage()])
 
-    return render(request, "accounts/home.html", {
+    return render(request, "home.html", {
         "user": user,
         "votes": votes[:5],
         "voted_vote_ids": set(voted_vote_ids),

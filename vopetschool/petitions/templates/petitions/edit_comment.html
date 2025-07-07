@@ -1,14 +1,20 @@
 {% extends "base.html" %}
-{% block title %}✏️ Редагувати коментар{% endblock %}
+{% load i18n %}
+
+{% block title %}✏️ {% trans "Edit Comment" %}{% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <h2 class="mb-4">✏️ Редагувати коментар</h2>
+    <h2 class="mb-4">✏️ {% trans "Edit Comment" %}</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn btn-primary rounded-pill">💾 Зберегти</button>
-        <a href="{% url 'petition_detail' petition.pk %}" class="btn btn-secondary rounded-pill">↩️ Назад</a>
+        <button type="submit" class="btn btn-primary rounded-pill">
+            💾 {% trans "Save" %}
+        </button>
+        <a href="{% url 'petition_detail' petition.pk %}" class="btn btn-secondary rounded-pill">
+            ↩️ {% trans "Back" %}
+        </a>
     </form>
 </div>
 {% endblock %}

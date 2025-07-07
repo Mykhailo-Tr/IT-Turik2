@@ -289,3 +289,9 @@ msgid "Close"
 msgstr "Закрити"
 
 
+msgid "Create a New Petition"
+msgstr "Створити нову петицію"
+
+#: templates/petitions/comment_edit.html
+msgid "Edit Comment"
+msgstr "Редагувати коментар"

@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: daphne -b 0.0.0.0 -p 8000 vopetschool.asgi:application
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=vopetschool.settings
+    stdin_open: true
+    tty: true
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"

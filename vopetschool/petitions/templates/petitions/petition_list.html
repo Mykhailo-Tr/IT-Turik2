@@ -30,7 +30,49 @@
 
                     <!-- 🔍 Фільтрація -->
                     <form method="get" class="row g-3 mb-4" data-aos="fade-up" data-aos-delay="300">
-                        <!-- фільтри залишаються без змін -->
+                        <div class="col-md-3">
+                            <label class="form-label">{% trans "Status" %}</label>
+                            <select class="form-select" name="status">
+                                <option value="">{% trans "All" %}</option>
+                                {% for key, val in statuses %}
+                                    <option value="{{ key }}" {% if selected_status == key %}selected{% endif %}>{{ val }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{% trans "Level" %}</label>
+                            <select class="form-select" name="level">
+                                <option value="">{% trans "All" %}</option>
+                                {% for key, val in levels %}
+                                    <option value="{{ key }}" {% if selected_level == key %}selected{% endif %}>{{ val }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{% trans "Creator" %}</label>
+                            <select class="form-select" name="creator">
+                                <option value="">{% trans "All" %}</option>
+                                {% for student in students %}
+                                    <option value="{{ student.id }}" {% if selected_creator == student.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ student.get_full_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" value="1" name="needs_support" id="needsSupport"
+                                       {% if selected_needs_support == "1" %}checked{% endif %}>
+                                <label class="form-check-label" for="needsSupport">
+                                    🔄 {% trans "Needs Support" %}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 text-end">
+                            <button type="submit" class="btn btn-outline-primary rounded-pill px-4">
+                                🔍 {% trans "Apply Filters" %}
+                            </button>
+                        </div>
                     </form>
 
                     {% if petitions %}
@@ -43,12 +85,10 @@
                                         <div>
                                             <h5 class="mb-2 fw-semibold">{{ petition.title }}</h5>
 
-                                            <!-- Дата -->
                                             <small class="petition-meta d-block mt-1">
                                                 ⏳ {{ petition.deadline|date:"SHORT_DATETIME_FORMAT" }}
                                             </small>
 
-                                            <!-- Автор -->
                                             <small class="petition-meta d-block mt-1">
                                                 👤 {{ petition.creator.get_full_name }}
                                                 {% if request.user == petition.creator %}
@@ -56,7 +96,6 @@
                                                 {% endif %}
                                             </small>
 
-                                            <!-- Рівень / Клас / Відсоток -->
                                             <div class="mt-2 d-flex flex-wrap gap-1">
                                                 <span class="badge level-badge bg-info text-dark">
                                                     {% trans "Level" %}: {{ petition.get_level_display }}
@@ -70,7 +109,6 @@
                                                 </span>
                                             </div>
 
-                                            <!-- Статус -->
                                             {% if petition.status == 'approved' %}
                                                 <span class="badge status-badge bg-success mt-2">✅ {% trans "Approved" %}</span>
                                             {% elif petition.status == 'rejected' %}
@@ -102,7 +140,7 @@
     </div>
 </div>
 
-<!-- 🔁 Автооновлення підтримки -->
+<!-- Автооновлення -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const petitionBlocks = document.querySelectorAll("[data-petition-id]");
@@ -129,7 +167,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-<!-- 🌗 Стилі -->
 <style>
 .petition-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -139,14 +176,9 @@ document.addEventListener("DOMContentLoaded", function () {
     transform: translateY(-4px) scale(1.01);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
-.support-badge {
-    transition: background-color 0.3s ease;
-}
 .support-flash {
     background-color: #0d6efd !important;
 }
-
-/* 🌙 Темна тема */
 body.dark-mode .petition-card {
     background: rgba(33, 33, 33, 0.95);
     color: #f8f9fa;
@@ -154,14 +186,9 @@ body.dark-mode .petition-card {
 body.dark-mode .petition-meta {
     color: #ccc !important;
 }
-body.dark-mode .level-badge,
-body.dark-mode .class-badge,
-body.dark-mode .status-badge {
+body.dark-mode .badge {
     filter: brightness(1.2);
     color: #f8f9fa !important;
-}
-body.dark-mode .badge.bg-warning.text-dark {
-    color: #000 !important;
 }
 </style>
 {% endblock %}

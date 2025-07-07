@@ -318,3 +318,24 @@ msgstr "цей коментар?"
 
 msgid "No comments yet."
 msgstr "Немає коментарів."
+
+msgid "Author"
+msgstr "Автор"
+
+msgid "Created"
+msgstr "Створено"
+
+msgid "Deadline"
+msgstr "Дедлайн"
+
+msgid "Petition status"
+msgstr "Статус петиції"
+
+msgid "Considered"
+msgstr "Розглянув"
+
+msgid "Date of consider"
+msgstr "Дата розгляду"
+
+msgid "Back to petitions"
+msgstr "Назад до петицій"

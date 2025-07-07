@@ -7,7 +7,6 @@
 {% block content %}
 <div class="container py-5">
 
-  <!-- Заголовок -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h2 class="fw-bold">📚 Класи</h2>
@@ -18,7 +17,6 @@
     </a>
   </div>
 
-  <!-- Картка зі списком класів -->
   <div class="card shadow-sm rounded-4 border-0">
     <div class="card-body px-4 py-4">
 
@@ -33,14 +31,12 @@
                      class="form-control form-control-sm border-0 bg rounded-pill px-3"
                      placeholder="Назва класу" required>
 
-              <!-- Зберегти -->
               <button type="submit" class="btn btn-outline-success btn-sm rounded-pill px-3 d-flex align-items-center gap-1 shadow-sm">
                 <i class="bi bi-check-lg"></i>
                 <span class="d-none d-md-inline">Зберегти</span>
               </button>
             </form>
 
-            <!-- Видалити -->
             <button type="button"
                     class="btn btn-outline-danger btn-sm rounded-pill px-3 d-flex align-items-center gap-1 shadow-sm ms-2"
                     data-bs-toggle="modal"
@@ -59,7 +55,6 @@
 
       <hr class="my-4">
 
-      <!-- Кнопка для модального створення -->
       <div class="text-center">
         <button class="btn btn-success rounded-pill px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#createClassModal">
           ➕ Додати новий клас

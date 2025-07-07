@@ -5,176 +5,23 @@
     <meta charset="UTF-8">
     <title>{% block title %}Шкільна система{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
-    <!-- Теми -->
-    <style>
-        body.dark-mode {
-            background-color: #121212 !important;
-            color: #f8f9fa;
-        }
-
-        .dark-mode .navbar-glass,
-        .dark-mode .card,
-        .dark-mode .dropdown-menu {
-            background-color: rgba(30, 30, 30, 0.9) !important;
-            color: #f8f9fa;
-        }
-
-        .dark-mode .nav-link {
-            color: #f8f9fa !important;
-        }
-
-        .dark-mode .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: #0d6efd !important;
-        }
-
-        .dark-mode .dropdown-item {
-            color: #f8f9fa !important;
-        }
-
-        .dark-mode .dropdown-item:hover {
-            background-color: #2c2c2c !important;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-size: 400% 400%;
-            animation: gradientFlow 25s ease infinite;
-            z-index: -3;
-        }
-
-        body.light-gradient::before {
-            background: linear-gradient(-45deg, #f0f4f8, #e0e7ff, #c7d2fe, #fef9c3);
-        }
-
-        body.dark-gradient::before {
-            background: linear-gradient(-45deg, #1e1e1e, #2c2c2c, #121212, #0d0d0d);
-        }
-
-        @keyframes gradientFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        #particles-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -2;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .navbar-glass {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-            z-index: 1000;
-        }
-
-        .navbar-brand {
-            font-weight: 800;
-            font-size: 1.5rem;
-            color: #0d6efd !important;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            color: #333;
-            transition: 0.3s;
-        }
-
-        .nav-link:hover {
-            color: #0d6efd;
-            background: rgba(13, 110, 253, 0.1);
-            border-radius: 0.5rem;
-        }
-
-        .card-glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(8px);
-            border-radius: 24px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cursor-light {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(0,123,255,0.15) 0%, transparent 80%);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: -1;
-            transition: background 0.3s ease;
-        }
-
-        #messages-container .alert {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .wave-circle {
-            position: fixed;
-            z-index: 9999;
-            pointer-events: none;
-            border-radius: 50%;
-            transform: scale(0);
-            opacity: 0.4;
-            background-color: var(--wave-color, #000);
-            transition: transform 0.7s ease-out, opacity 0.5s ease-out;
-            will-change: transform, opacity;
-        }
-
-    </style>
-
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}" rel="stylesheet">
+    <link href="{% static 'css/layout.css' %}" rel="stylesheet">
+    <link href="{% static 'css/effects.css' %}" rel="stylesheet">
     {% block extra_head %}{% endblock %}
 </head>
 <body class="light-gradient">
-
 <header class="fixed-top">
     {% include "navbar.html" %}
 </header>
-
 <main class="container my-5" style="padding-top: 120px;">
     {% block content %}{% endblock %}
 </main>
-
-<div id="messages-container" style="position: fixed; top: 90px; right: 20px; z-index: 1055; max-width: 400px;">
+<div id="messages-container" class="position-fixed top-0 end-0 mt-5 me-3" style="z-index: 1055; max-width: 400px;">
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow" role="alert">
@@ -184,177 +31,16 @@
         {% endfor %}
     {% endif %}
 </div>
-
 <canvas id="particles-canvas"></canvas>
 <div class="cursor-light" id="cursorLight"></div>
 <div id="theme-wave" class="wave-circle"></div>
-
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    const cursorLight = document.getElementById('cursorLight');
-    document.addEventListener('mousemove', e => {
-        cursorLight.style.top = e.clientY + 'px';
-        cursorLight.style.left = e.clientX + 'px';
-    });
-</script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const alerts = document.querySelectorAll('#messages-container .alert');
-        alerts.forEach((alert) => {
-            setTimeout(() => {
-                bootstrap.Alert.getOrCreateInstance(alert).close();
-            }, 2500);
-        });
-    });
-</script>
-
-<script>
-    const canvas = document.getElementById('particles-canvas');
-    const ctx = canvas.getContext('2d');
-    let particlesArray = [];
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    });
-
-    const mouse = { x: null, y: null };
-    window.addEventListener('mousemove', e => {
-        mouse.x = e.x;
-        mouse.y = e.y;
-    });
-
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 2 + 1;
-            this.speedX = Math.random() * 0.6 - 0.3;
-            this.speedY = Math.random() * 0.6 - 0.3;
-        }
-
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-
-            const dx = mouse.x - this.x;
-            const dy = mouse.y - this.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < 100) {
-                this.x -= dx * 0.01;
-                this.y -= dy * 0.01;
-            }
-
-            if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-            if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-        }
-
-        draw() {
-            ctx.fillStyle = 'rgba(0, 123, 255, 0.4)';
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
-
-    function initParticles() {
-        particlesArray = [];
-        for (let i = 0; i < 100; i++) {
-            particlesArray.push(new Particle());
-        }
-    }
-
-    function animateParticles() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particlesArray.forEach(p => {
-            p.update();
-            p.draw();
-        });
-        requestAnimationFrame(animateParticles);
-    }
-
-    initParticles();
-    animateParticles();
-</script>
-
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script>AOS.init({ once: true, duration: 800, offset: 100 });</script>
-
-<!-- 🌙 Тема -->
-<script>
-const themeToggle = document.getElementById("themeToggle");
-const themeIcon = document.getElementById("themeIcon");
-const wave = document.getElementById("theme-wave");
-
-function applyTheme(theme) {
-    if (theme === "dark") {
-        document.body.classList.add("dark-mode", "dark-gradient");
-        document.body.classList.remove("light-gradient");
-        themeIcon?.classList.replace("bi-moon-fill", "bi-sun-fill");
-    } else {
-        document.body.classList.remove("dark-mode", "dark-gradient");
-        document.body.classList.add("light-gradient");
-        themeIcon?.classList.replace("bi-sun-fill", "bi-moon-fill");
-    }
-}
-
-const storedTheme = localStorage.getItem("theme");
-if (storedTheme) {
-    applyTheme(storedTheme);
-} else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    applyTheme("dark");
-}
-
-themeToggle?.addEventListener("click", (e) => {
-    const isDark = document.body.classList.contains("dark-mode");
-    const newTheme = isDark ? "light" : "dark";
-    localStorage.setItem("theme", newTheme);
-
-    // Get click position
-    const rect = e.target.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    // Set up wave
-    const waveColor = newTheme === "dark" ? "#000" : "#fff";
-    wave.style.setProperty("--wave-color", waveColor);
-    wave.style.left = `${centerX}px`;
-    wave.style.top = `${centerY}px`;
-    wave.style.width = `0px`;
-    wave.style.height = `0px`;
-    wave.style.opacity = 0.4;
-    wave.style.transform = "scale(0)";
-    wave.style.transition = "none";
-
-    requestAnimationFrame(() => {
-        wave.style.transition = "transform 0.7s ease-out, opacity 0.5s ease-out";
-        wave.style.width = `2000px`;
-        wave.style.height = `2000px`;
-        wave.style.marginLeft = `-1000px`;
-        wave.style.marginTop = `-1000px`;
-        wave.style.transform = "scale(2)";
-    });
-
-    // Wait for animation then apply theme
-    setTimeout(() => {
-        applyTheme(newTheme);
-    }, 200);
-
-    // Fade out and remove
-    setTimeout(() => {
-        wave.style.opacity = 0;
-    }, 700);
-});
-</script>
-
-
+<script src="{% static 'js/theme-toggle.js' %}"></script>
+<script src="{% static 'js/particles.js' %}"></script>
 <script src="{% static 'js/notifications.js' %}"></script>
+<script src="{% static 'js/cursor.js' %}"></script>
 {% block scripts %}{% endblock %}
 {% block extra_scripts %}{% endblock %}
 </body>

@@ -154,5 +154,3 @@ LOGIN_REDIRECT_URL = 'profile'
 CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"]
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-GOOGLE_CREDENTIALS_FILE = BASE_DIR / 'credentials.json'
-os.makedirs(BASE_DIR / 'tokens', exist_ok=True)

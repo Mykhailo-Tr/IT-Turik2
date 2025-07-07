@@ -11,7 +11,8 @@ media
 .idea/
 .idea/workspace.xml
 
-
+tokens/
+credentials.json
 
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/

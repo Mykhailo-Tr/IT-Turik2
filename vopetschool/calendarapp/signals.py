@@ -2,7 +2,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from calendarapp.models import CalendarEvent
-from calendarapp.google_calendar import create_google_event
 from petitions.models import Petition
 from voting.models import Vote
 
@@ -20,8 +19,6 @@ def create_petition_event(sender, instance, **kwargs):
             'is_deadline': True,
         }
     )
-    if created and event.start and event.end:
-        create_google_event(instance.creator.id, event.title, event.description, event.start, event.end)
 
 @receiver(post_save, sender=Vote)
 def create_vote_event(sender, instance, **kwargs):
@@ -37,5 +34,3 @@ def create_vote_event(sender, instance, **kwargs):
             'is_deadline': True,
         }
     )
-    if created and event.start and event.end:
-        create_google_event(instance.creator.id, event.title, event.description, event.start, event.end)

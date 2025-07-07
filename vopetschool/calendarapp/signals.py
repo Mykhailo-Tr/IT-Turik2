@@ -7,7 +7,7 @@ from voting.models import Vote
 
 @receiver(post_save, sender=Petition)
 def create_petition_event(sender, instance, **kwargs):
-    event, created = CalendarEvent.objects.get_or_create(
+    CalendarEvent.objects.get_or_create(
         user=instance.creator,
         content_type=ContentType.objects.get_for_model(Petition),
         object_id=instance.id,
@@ -22,7 +22,7 @@ def create_petition_event(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Vote)
 def create_vote_event(sender, instance, **kwargs):
-    event, created = CalendarEvent.objects.get_or_create(
+    CalendarEvent.objects.get_or_create(
         user=instance.creator,
         content_type=ContentType.objects.get_for_model(Vote),
         object_id=instance.id,

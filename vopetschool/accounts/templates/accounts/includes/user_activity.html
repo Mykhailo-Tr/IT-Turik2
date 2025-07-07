@@ -1,0 +1,74 @@
+{% load i18n %}
+{% load static %}
+
+<hr class="my-5" data-aos="fade-up" data-aos-delay="800">
+<div class="mb-4" data-aos="fade-up" data-aos-delay="900">
+<h4 class="fw-bold text-center mb-4">🕘 {% trans "Activity History" %}</h4>
+
+{% if created_petitions or created_votes %}
+<h5 class="text-secondary fw-semibold mb-2">📌 {% trans "Created by you" %}</h5>
+
+{% if created_petitions %}
+<p class="fw-semibold mb-1">📝 {% trans "Petitions" %}</p>
+<ul class="list-group mb-3 shadow-sm rounded-3 border border-secondary-subtle">
+    {% for petition in created_petitions %}
+    <li class="list-group-item bg-theme text-theme py-3 border-secondary">
+    <strong>{{ petition.title }}</strong><br>
+    {% trans "Status" %}: {{ petition.get_status_display }}<br>
+    {% trans "Until" %}: {{ petition.deadline|date:"d.m.Y H:i" }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if created_votes %}
+<p class="fw-semibold mb-1">🗳️ {% trans "Votes" %}</p>
+<ul class="list-group shadow-sm rounded-3 border border-secondary-subtle">
+    {% for vote in created_votes %}
+    <li class="list-group-item bg-theme text-theme py-3 border-secondary">
+    <strong>{{ vote.title }}</strong><br>
+    {% trans "Status" %}: {{ vote.get_status_display }}<br>
+    {% if vote.start_date and vote.end_date %}
+        {% blocktrans %}From {{ vote.start_date|date:"d.m.Y" }} to {{ vote.end_date|date:"d.m.Y" }}{% endblocktrans %}
+    {% elif vote.start_date %}
+        {% blocktrans %}From {{ vote.start_date|date:"d.m.Y" }}{% endblocktrans %}
+    {% elif vote.end_date %}
+        {% blocktrans %}Until {{ vote.end_date|date:"d.m.Y" }}{% endblocktrans %}
+    {% else %}
+        <em>{% trans "No time limits" %}</em>
+    {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if supported_petitions or answered_votes %}
+<h5 class="text-secondary fw-semibold mt-5 mb-2">✅ {% trans "Your participation" %}</h5>
+
+{% if supported_petitions %}
+<p class="fw-semibold mb-1">🤝 {% trans "Supported petitions" %}</p>
+<ul class="list-group mb-3 shadow-sm rounded-3 border border-secondary-subtle">
+    {% for petition in supported_petitions %}
+    <li class="list-group-item bg-theme text-theme py-3 border-secondary">
+    <strong>{{ petition.title }}</strong><br>
+    {% trans "Created at" %}: {{ petition.created_at|date:"d.m.Y H:i" }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if answered_votes %}
+<p class="fw-semibold mb-1">🗳️ {% trans "Votes you participated in" %}</p>
+<ul class="list-group shadow-sm rounded-3 border border-secondary-subtle">
+    {% for answer in answered_votes %}
+    <li class="list-group-item bg-theme text-theme py-3 border-secondary">
+    <strong>{{ answer.option.vote.title }}</strong><br>
+    {% trans "Your choice" %}: <span class="text-success">{{ answer.option.text }}</span><br>
+    {% trans "Voted on" %}: {{ answer.timestamp|date:"d.m.Y H:i" }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+</div>

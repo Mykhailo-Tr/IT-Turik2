@@ -5,12 +5,12 @@
 <div class="container py-5" data-aos="fade-up">
     <div class="row justify-content-center">
         <div class="col-12">
-            <div class="card shadow-lg border-0 rounded-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card shadow-lg border-0 rounded-4 vote-wrapper" data-aos="fade-up" data-aos-delay="100">
                 <div class="card-body p-5">
 
                     <!-- Заголовок -->
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                        <h2 class="fw-bold mb-0" data-aos="fade-right" data-aos-delay="200">🗳️ Доступні голосування</h2>
+                        <h2 class="fw-bold mb-0 text-theme" data-aos="fade-right" data-aos-delay="200">🗳️ Доступні голосування</h2>
                         <a href="{% url 'vote_create' %}" class="btn btn-outline-success rounded-pill" data-aos="zoom-in" data-aos-delay="300">
                             ➕ Створити голосування
                         </a>
@@ -30,17 +30,16 @@
                         <div class="row g-4" data-aos="fade-up" data-aos-delay="400">
                             {% for vote in votes %}
                                 <div class="col-12 col-sm-6 col-md-4 col-lg-3" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
-                                    <div class="vote-card border rounded-4 shadow-sm h-100 p-3 d-flex flex-column justify-content-between">
+                                    <div class="vote-card border rounded-4 shadow-sm h-100 p-3 d-flex flex-column justify-content-between bg-theme">
 
                                         <div>
-                                            <h5 class="mb-2 fw-semibold">{{ vote.title }}</h5>
+                                            <h5 class="mb-2 fw-semibold text-theme">{{ vote.title }}</h5>
 
-                                            <small class="text-muted">
-                                                📅 {{ vote.start_date|date:"SHORT_DATETIME_FORMAT" }}
-                                                — {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}
+                                            <small class="vote-meta-date">
+                                                📅 {{ vote.start_date|date:"SHORT_DATETIME_FORMAT" }} — {{ vote.end_date|date:"SHORT_DATETIME_FORMAT" }}
                                             </small><br>
 
-                                            <small class="text-muted d-block mt-1">
+                                            <small class="vote-meta-author d-block mt-1">
                                                 👤 {{ vote.creator.get_full_name }}
                                                 {% if request.user == vote.creator %}
                                                     <span class="badge bg-secondary">ви</span>
@@ -48,7 +47,7 @@
                                             </small>
 
                                             <div class="mt-2 d-flex flex-wrap gap-1">
-                                                <span class="badge 
+                                                <span class="badge vote-status 
                                                     {% if vote.get_status_display == 'Активне' %}bg-success
                                                     {% elif vote.get_status_display == 'Очікується початок' %}bg-secondary
                                                     {% else %}bg-danger{% endif %}">
@@ -56,8 +55,9 @@
                                                 </span>
 
                                                 {% if vote.level %}
-                                                    <span class="badge bg-info text-dark">Рівень: {{ vote.get_level_display }}</span>
+                                                    <span class="badge vote-level bg-info text-dark">Рівень: {{ vote.get_level_display }}</span>
                                                 {% endif %}
+
 
                                                 {% if vote.class_group %}
                                                     <span class="badge bg-secondary">{{ vote.class_group }}</span>
@@ -86,7 +86,7 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted text-center mt-4">Наразі немає доступних голосувань.</p>
+                        <p class="text-muted text-center mt-4 text-theme">Наразі немає доступних голосувань.</p>
                     {% endif %}
                 </div>
             </div>
@@ -97,11 +97,23 @@
 <style>
 .vote-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background: rgba(255, 255, 255, 0.95);
 }
 .vote-card:hover {
     transform: translateY(-4px) scale(1.01);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+body.dark-mode .vote-card {
+    background-color: rgba(33, 37, 41, 0.9);
+    color: #f8f9fa;
+}
+
+body.dark-mode .text-theme {
+    color: #f8f9fa !important;
+}
+
+body.dark-mode .bg-theme {
+    background-color: rgba(33, 37, 41, 0.9);
 }
 </style>
 {% endblock %}

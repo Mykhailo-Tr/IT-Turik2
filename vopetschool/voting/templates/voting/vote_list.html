@@ -15,17 +15,17 @@
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                         <h2 class="fw-bold mb-0 text-theme" data-aos="fade-right" data-aos-delay="200">🗳️ {%trans "Available Votes" %}</h2>
                         <a href="{% url 'vote_create' %}" class="btn btn-outline-success rounded-pill" data-aos="zoom-in" data-aos-delay="300">
-                            ➕ Створити голосування
+                            ➕ {%trans "Create Vote" %}
                         </a>
                     </div>
 
                     <!-- Фільтрація -->
                     <div class="mb-4" data-aos="fade-up" data-aos-delay="300">
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="{% url 'vote_list' %}" class="btn btn-outline-secondary {% if not current_filter %}active{% endif %}">Усі</a>
-                            <a href="?filter=active" class="btn btn-outline-success {% if current_filter == 'active' %}active{% endif %}">Активні</a>
-                            <a href="?filter=voted" class="btn btn-outline-primary {% if current_filter == 'voted' %}active{% endif %}">Проголосовані</a>
-                            <a href="?filter=finished" class="btn btn-outline-danger {% if current_filter == 'finished' %}active{% endif %}">Завершені</a>
+                            <a href="{% url 'vote_list' %}" class="btn btn-outline-secondary {% if not current_filter %}active{% endif %}">{%trans "All" %}</a>
+                            <a href="?filter=active" class="btn btn-outline-success {% if current_filter == 'active' %}active{% endif %}">{%trans "Active" %}</a>
+                            <a href="?filter=voted" class="btn btn-outline-primary {% if current_filter == 'voted' %}active{% endif %}">{%trans "Voted" %}</a>
+                            <a href="?filter=finished" class="btn btn-outline-danger {% if current_filter == 'finished' %}active{% endif %}">{%trans "Completed" %}</a>
                         </div>
                     </div>
 
@@ -45,7 +45,7 @@
                                             <small class="vote-meta-author d-block mt-1">
                                                 👤 {{ vote.creator.get_full_name }}
                                                 {% if request.user == vote.creator %}
-                                                    <span class="badge bg-secondary">ви</span>
+                                                    <span class="badge bg-secondary">{%trans "You" %}</span>
                                                 {% endif %}
                                             </small>
 
@@ -58,7 +58,7 @@
                                                 </span>
 
                                                 {% if vote.level %}
-                                                    <span class="badge vote-level bg-info text-dark">Рівень: {{ vote.get_level_display }}</span>
+                                                    <span class="badge vote-level bg-info text-dark">{%trans "Level" %}: {{ vote.get_level_display }}</span>
                                                 {% endif %}
 
 
@@ -67,20 +67,20 @@
                                                 {% endif %}
 
                                                 {% if vote.level == 'students' and vote.recipients.exists %}
-                                                    <span class="badge bg-warning text-dark">🎯 Вибрані учні</span>
+                                                    <span class="badge bg-warning text-dark">🎯 {%trans "Selected Students" %}</span>
                                                 {% endif %}
 
                                                 {% if vote.id in voted_ids %}
-                                                    <span class="badge bg-primary">Проголосовано</span>
+                                                    <span class="badge bg-primary">{%trans "Voted" %}</span>
                                                 {% else %}
-                                                    <span class="badge bg-warning text-dark">Не проголосовано</span>
+                                                    <span class="badge bg-warning text-dark">{%trans "Not Voted" %}</span>
                                                 {% endif %}
                                             </div>
                                         </div>
 
                                         <div class="text-end mt-3">
                                             <a href="{% url 'vote_detail' vote.pk %}" class="btn btn-outline-primary btn-sm rounded-pill w-100">
-                                                🔍 Переглянути
+                                                🔍 {%trans "View" %}
                                             </a>
                                         </div>
 
@@ -89,7 +89,7 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted text-center mt-4 text-theme">Наразі немає доступних голосувань.</p>
+                        <p class="text-muted text-center mt-4 text-theme">{%trans "There are currently no available votes." %}.</p>
                     {% endif %}
                 </div>
             </div>

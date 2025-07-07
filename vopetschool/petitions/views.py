@@ -22,13 +22,13 @@ class PetitionListView(ListView):
     def get_queryset(self):
         queryset = Petition.objects.all()
 
-        # --- Фільтрація ---
         if self.request.user.role == "director":
             queryset = queryset.exclude(status=Petition.Status.NEW)
 
         status = self.request.GET.get("status")
         level = self.request.GET.get("level")
         creator = self.request.GET.get("creator")
+        needs_support = self.request.GET.get("needs_support")
 
         if status:
             queryset = queryset.filter(status=status)
@@ -37,16 +37,31 @@ class PetitionListView(ListView):
         if creator:
             queryset = queryset.filter(creator__id=creator)
 
+        if needs_support == "1":
+            # Отримуємо лише активні (по дедлайну)
+            queryset = queryset.filter(deadline__gte=timezone.now())
+            # Далі — вручну залишаємо лише ті, де не вистачає голосів
+            queryset = [p for p in queryset if p.remaining_supporters_needed() > 0]
+            # І тепер сортуємо вручну
+            queryset.sort(key=lambda p: p.created_at, reverse=True)
+            return queryset
+
+        # Якщо без фільтра — повертаємо стандартний QuerySet із сортуванням
         return queryset.order_by("-created_at")
+
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["statuses"] = Petition.Status.choices
-        context["levels"] = Petition.Level.choices
-        context["students"] = User.objects.filter(role="student")
-        context["selected_status"] = self.request.GET.get("status", "")
-        context["selected_level"] = self.request.GET.get("level", "")
-        context["selected_creator"] = self.request.GET.get("creator", "")
+        context.update({
+            "statuses": Petition.Status.choices,
+            "levels": Petition.Level.choices,
+            "students": User.objects.filter(role="student"),
+            "selected_status": self.request.GET.get("status", ""),
+            "selected_level": self.request.GET.get("level", ""),
+            "selected_creator": self.request.GET.get("creator", ""),
+            "selected_needs_support": self.request.GET.get("needs_support", ""),
+        })
         return context
     
 @login_required

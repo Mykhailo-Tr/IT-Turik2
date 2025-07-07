@@ -41,21 +41,24 @@
                                         <div>
                                             <h5 class="mb-2 fw-semibold">{{ petition.title }}</h5>
 
-                                            <small class="text-muted d-block mt-1">
+                                            <!-- Дата -->
+                                            <small class="petition-meta d-block mt-1">
                                                 ⏳ {{ petition.deadline|date:"SHORT_DATETIME_FORMAT" }}
                                             </small>
 
-                                            <small class="text-muted d-block mt-1">
+                                            <!-- Автор -->
+                                            <small class="petition-meta d-block mt-1">
                                                 👤 {{ petition.creator.get_full_name }}
                                                 {% if request.user == petition.creator %}
                                                     <span class="badge bg-secondary">ви</span>
                                                 {% endif %}
                                             </small>
 
+                                            <!-- Рівень / Клас / Відсоток -->
                                             <div class="mt-2 d-flex flex-wrap gap-1">
-                                                <span class="badge bg-info text-dark">Рівень: {{ petition.get_level_display }}</span>
+                                                <span class="badge level-badge bg-info text-dark">Рівень: {{ petition.get_level_display }}</span>
                                                 {% if petition.class_group %}
-                                                    <span class="badge bg-secondary">{{ petition.class_group }}</span>
+                                                    <span class="badge class-badge bg-secondary">{{ petition.class_group }}</span>
                                                 {% endif %}
                                                 <span id="support-count-{{ petition.id }}"
                                                       class="badge bg-primary rounded-pill support-badge mt-1">
@@ -63,14 +66,15 @@
                                                 </span>
                                             </div>
 
+                                            <!-- Статус -->
                                             {% if petition.status == 'approved' %}
-                                                <span class="badge bg-success mt-2">✅ Прийнята</span>
+                                                <span class="badge status-badge bg-success mt-2">✅ Прийнята</span>
                                             {% elif petition.status == 'rejected' %}
-                                                <span class="badge bg-danger mt-2">❌ Відхилена</span>
+                                                <span class="badge status-badge bg-danger mt-2">❌ Відхилена</span>
                                             {% elif petition.status == 'new' %}
-                                                <span class="badge bg-warning text-dark mt-2">Нова</span>
+                                                <span class="badge status-badge bg-warning text-dark mt-2">Нова</span>
                                             {% elif petition.status == 'pending' %}
-                                                <span class="badge bg-info text-dark mt-2">Очікується</span>
+                                                <span class="badge status-badge bg-info text-dark mt-2">Очікується</span>
                                             {% endif %}
                                         </div>
 
@@ -121,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+<!-- 🌗 Стилі -->
 <style>
 .petition-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -135,6 +140,24 @@ document.addEventListener("DOMContentLoaded", function () {
 }
 .support-flash {
     background-color: #0d6efd !important;
+}
+
+/* 🌙 Темна тема */
+body.dark-mode .petition-card {
+    background: rgba(33, 33, 33, 0.95);
+    color: #f8f9fa;
+}
+body.dark-mode .petition-meta {
+    color: #ccc !important;
+}
+body.dark-mode .level-badge,
+body.dark-mode .class-badge,
+body.dark-mode .status-badge {
+    filter: brightness(1.2);
+    color: #f8f9fa !important;
+}
+body.dark-mode .badge.bg-warning.text-dark {
+    color: #000 !important;
 }
 </style>
 {% endblock %}

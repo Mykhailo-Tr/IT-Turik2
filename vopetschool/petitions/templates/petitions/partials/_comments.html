@@ -5,14 +5,168 @@
 </button>
 
 {% include "petitions/partials/_comment_modal.html" %}
+
 <p class="text-muted mb-3">Загалом коментарів: <strong>{{ comments|length }}</strong></p>
 
 {% if comments %}
     <div class="list-group">
         {% for comment in comments %}
-            {% include "petitions/partials/_comment_item.html" %}
+            <div class="list-group-item mb-3 border rounded-4 p-3 bg-comment position-relative fade-in comment-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <strong>
+                        {{ comment.author.get_full_name }}
+                        <span class="text-muted">({{ comment.author.role }})</span>
+                    </strong>
+                    <small class="text-muted">
+                        📅 {{ comment.created_at|date:"d E Y, H:i" }}
+                    </small>
+                </div>
+
+                <p class="mb-2">{{ comment.text }}</p>
+
+                <div class="d-flex justify-content-between align-items-end">
+                    {% if comment.was_edited %}
+                        <small class="text-muted fst-italic">
+                            📝 Редаговано: {{ comment.updated_at|date:"d E Y, H:i" }}
+                        </small>
+                    {% else %}
+                        <span></span>
+                    {% endif %}
+
+                    {% if comment.author == request.user %}
+                        <div class="d-flex gap-2 mt-1">
+                            <!-- Кнопка редагування -->
+                            <button class="btn btn-sm btn-outline-primary rounded-circle"
+                                    title="Редагувати"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editCommentModal-{{ comment.pk }}">
+                                ✏️
+                            </button>
+
+                            <!-- Кнопка відкриття модального вікна видалення -->
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger rounded-circle"
+                                    title="Видалити"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteCommentModal-{{ comment.pk }}">
+                                🗑️
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Modal: Редагування коментаря -->
+            <div class="modal fade" id="editCommentModal-{{ comment.pk }}" tabindex="-1"
+                 aria-labelledby="editCommentModalLabel-{{ comment.pk }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content rounded-4 shadow">
+                        <form method="post" action="{% url 'edit_comment' petition.pk comment.pk %}">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editCommentModalLabel-{{ comment.pk }}">✏️ Редагувати коментар</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                            </div>
+                            <div class="modal-body">
+                                <textarea name="text" class="form-control" rows="4" required>{{ comment.text }}</textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Скасувати</button>
+                                <button type="submit" class="btn btn-primary rounded-pill">💾 Зберегти</button>
+                            </div>  
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal: Видалення коментаря -->
+            <div class="modal fade" id="deleteCommentModal-{{ comment.pk }}" tabindex="-1"
+                 aria-labelledby="deleteCommentModalLabel-{{ comment.pk }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content rounded-4 shadow">
+                        <form method="post" action="{% url 'delete_comment' petition.pk comment.pk %}">
+                            {% csrf_token %}
+                            <div class="modal-header bg-danger text-white rounded-top-4">
+                                <h5 class="modal-title" id="deleteCommentModalLabel-{{ comment.pk }}">❗ Видалити коментар</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="mb-0">Ви справді хочете <strong>видалити</strong> цей коментар?</p>
+                                <p class="text-muted small mt-2">Цю дію неможливо скасувати.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Скасувати</button>
+                                <button type="submit" class="btn btn-danger rounded-pill">🗑️ Видалити</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         {% endfor %}
     </div>
 {% else %}
     <p class="text-muted">Немає коментарів. Станьте першим!</p>
 {% endif %}
+
+<style>
+/* 🌙 Темна тема для коментарів */
+.comment-card {
+    transition: background-color 0.3s ease, color 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.95);
+}
+body.dark-mode .comment-card {
+    background-color: #2c2c2c;
+    color: #f1f1f1;
+}
+body.dark-mode .comment-card .text-muted {
+    color: #bbb !important;
+}
+body.dark-mode .comment-card .btn-outline-primary,
+body.dark-mode .comment-card .btn-outline-danger {
+    border-color: #555;
+    color: #f8f9fa;
+}
+body.dark-mode .comment-card .btn-outline-primary:hover,
+body.dark-mode .comment-card .btn-outline-danger:hover {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+/* 🌙 Темна тема для модальних вікон */
+body.dark-mode .modal-content {
+    background-color: #2c2c2c;
+    color: #f1f1f1;
+}
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: #444;
+}
+body.dark-mode .modal-header .btn-close {
+    filter: invert(1);
+}
+body.dark-mode .modal-body textarea,
+body.dark-mode .modal-body .form-control {
+    background-color: #3a3a3a;
+    color: #f1f1f1;
+    border: 1px solid #555;
+}
+body.dark-mode .modal-body textarea::placeholder {
+    color: #aaa;
+}
+body.dark-mode .btn-secondary {
+    background-color: #444;
+    border-color: #666;
+}
+body.dark-mode .btn-secondary:hover {
+    background-color: #555;
+}
+body.dark-mode .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+body.dark-mode .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+</style>

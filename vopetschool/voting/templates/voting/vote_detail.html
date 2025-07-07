@@ -72,7 +72,7 @@
                         {% for option in options %}
                             <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#optionModal{{ option.id }}">
                                 <li class="list-group-item rounded-4 shadow-sm mb-3 p-0 overflow-hidden">
-                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light">
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg">
                                         <span class="fw-semibold">
                                             {{ option.text }}
                                             {% if user_can_see_votes and vote.has_correct_answer and option.is_correct %}

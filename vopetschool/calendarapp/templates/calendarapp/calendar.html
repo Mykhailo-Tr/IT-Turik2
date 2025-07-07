@@ -7,6 +7,11 @@
 {% block content %}
 <div class="container py-5">
     <div class="card shadow-lg border-0 rounded-4">
+        <div class="d-flex justify-content-end mb-2">
+            <a href="{% url 'google_auth' %}" class="btn btn-outline-primary rounded-pill">
+                🔗 Синхронізувати з Google Calendar
+            </a>
+        </div>
         <div class="card-header bg-primary text-white text-center rounded-top-4">
             <h4 class="mb-0">📅 {% trans "My Event Calendar" %}</h4>
         </div>

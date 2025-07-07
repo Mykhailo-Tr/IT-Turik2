@@ -1,5 +1,6 @@
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
+from django.contrib.contenttypes.models import ContentType
 from petitions.models import Petition
 from voting.models import Vote, VoteAnswer
 from activity.models import UserActivity
@@ -11,7 +12,8 @@ def log_created_petition(sender, instance, created, **kwargs):
             user=instance.creator,
             type=UserActivity.ActivityType.CREATED_PETITION,
             related_object_title=instance.title,
-            related_object_id=instance.id
+            content_type=ContentType.objects.get_for_model(instance),
+            object_id=instance.id
         )
 
 @receiver(m2m_changed, sender=Petition.supporters.through)
@@ -22,7 +24,8 @@ def log_supported_petition(sender, instance, action, pk_set, **kwargs):
                 user_id=user_id,
                 type=UserActivity.ActivityType.SUPPORTED_PETITION,
                 related_object_title=instance.title,
-                related_object_id=instance.id
+                content_type=ContentType.objects.get_for_model(instance),
+                object_id=instance.id
             )
 
 @receiver(post_save, sender=Vote)
@@ -32,16 +35,23 @@ def log_created_vote(sender, instance, created, **kwargs):
             user=instance.creator,
             type=UserActivity.ActivityType.CREATED_VOTE,
             related_object_title=instance.title,
-            related_object_id=instance.id
+            content_type=ContentType.objects.get_for_model(instance),
+            object_id=instance.id
         )
 
 @receiver(post_save, sender=VoteAnswer)
 def log_answered_vote(sender, instance, created, **kwargs):
     if created:
-        UserActivity.objects.get_or_create(
+        vote = instance.option.vote
+        obj, created = UserActivity.objects.get_or_create(
             user=instance.voter,
             type=UserActivity.ActivityType.ANSWERED_VOTE,
-            related_object_title=instance.option.vote.title,
-            related_object_id=instance.option.vote.id,
-            extra_info={"selected_option": instance.option.text}
+            related_object_title=vote.title,
+            content_type=ContentType.objects.get_for_model(vote),
+            object_id=vote.id,
         )
+        existing_options = obj.extra_info.get("selected_options", []) if obj.extra_info else []
+        if instance.option.text not in existing_options:
+            existing_options.append(instance.option.text)
+            obj.extra_info = {"selected_options": existing_options}
+            obj.save()

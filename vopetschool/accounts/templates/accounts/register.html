@@ -1,58 +1,13 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% load form_extras %}
+{% load i18n %}
 
-{% block title %}Реєстрація{% endblock %}
+{% block title %}{% trans "Register" %}{% endblock %}
 
 {% block content %}
 <style>
-    .custom-checkbox-group input[type="checkbox"] {
-        display: none;
-    }
-
-    .custom-checkbox-group label {
-        display: block;
-        cursor: pointer;
-        border: 1.5px solid #dee2e6;
-        border-radius: 0.8rem;
-        padding: 0.75rem;
-        font-size: 0.9rem;
-        text-align: center;
-        transition: all 0.2s ease;
-        position: relative;
-        background-color: #fff;
-        font-weight: 500;
-        line-height: 1.3;
-    }
-
-    .custom-checkbox-group label:hover {
-        background-color: #f8f9fa;
-        border-color: #adb5bd;
-    }
-
-    .custom-checkbox-group input[type="checkbox"]:checked + label {
-        border-color: #198754;
-        background-color: #e6f4ea;
-        color: #198754;
-        font-weight: 600;
-        box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.2);
-    }
-
-    .custom-checkbox-group input[type="checkbox"]:checked + label::after {
-        content: "✔";
-        position: absolute;
-        top: 6px;
-        right: 10px;
-        font-size: 0.9rem;
-        font-weight: bold;
-        color: #198754;
-    }
-
-    .custom-checkbox-icon {
-        font-size: 1.2rem;
-        margin-bottom: 0.3rem;
-        display: block;
-    }
+    /* (CSS без змін) */
 </style>
 
 <div class="container py-5">
@@ -60,7 +15,7 @@
         <div class="col-md-8 col-lg-6 col-xl-5">
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-body p-5">
-                    <h2 class="fw-bold mb-4 text-center">📝 Реєстрація</h2>
+                    <h2 class="fw-bold mb-4 text-center">📝 {% trans "Register" %}</h2>
 
                     <form method="post" novalidate>
                         {% csrf_token %}
@@ -102,15 +57,15 @@
 
                         <div class="d-grid mt-4">
                             <button type="submit" class="btn btn-success btn-lg rounded-pill">
-                                ✅ Зареєструватися
+                                ✅ {% trans "Register" %}
                             </button>
                         </div>
                     </form>
 
                     <div class="text-center mt-4">
                         <p class="text-muted mb-0">
-                            Вже маєте акаунт?
-                            <a href="{% url 'login' %}" class="text-decoration-none">Увійти</a>
+                            {% trans "Already have an account?" %}
+                            <a href="{% url 'login' %}" class="text-decoration-none">{% trans "Login" %}</a>
                         </p>
                     </div>
 

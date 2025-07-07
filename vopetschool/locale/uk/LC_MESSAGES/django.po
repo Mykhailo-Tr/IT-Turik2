@@ -1,0 +1,241 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-07 11:25+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != "
+"11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
+"100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
+"(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+msgid "Personal info"
+msgstr ""
+
+msgid "Permissions"
+msgstr ""
+
+msgid "Important dates"
+msgstr ""
+
+msgid "Vo & Pet School"
+msgstr "Vo & Pet School"
+
+msgid "Profile"
+msgstr "Профіль"
+
+msgid "Calendar"
+msgstr "Календар"
+
+msgid "Petitions"
+msgstr "Петиції"
+
+
+
+msgid "Login"
+msgstr "Увійти"
+
+msgid "Register"
+msgstr "Реєстрація"
+
+msgid "Loading..."
+msgstr "Завантаження..."
+
+msgid "Home"
+msgstr "Головна"
+
+msgid "Hello, %(name)s!"
+msgstr "Привіт, %(name)s!"
+
+msgid "Your role:"
+msgstr "Ваша роль:"
+
+msgid "Current Votes"
+msgstr "Актуальні голосування"
+
+msgid "No deadline"
+msgstr "Без дедлайну"
+
+msgid "Voted"
+msgstr "Проголосовано"
+
+msgid "Not voted"
+msgstr "Не проголосовано"
+
+msgid "View all"
+msgstr "Переглянути всі"
+
+msgid "There are no active votes available for you."
+msgstr "Немає активних голосувань для вас."
+
+msgid "Petitions needing support"
+msgstr "Петиції, які потребують голосів"
+
+msgid "support"
+msgstr "підтримки"
+
+msgid "No active petitions need your vote right now."
+msgstr "Немає активних петицій, які потребують голосів."
+
+msgid "Available Votes"
+msgstr "Голосувань доступно"
+
+msgid "Active Petitions"
+msgstr "Активних петицій"
+ 
+
+#: templates/profile.html:13
+msgid "User personal profile"
+msgstr "Персональний профіль користувача"
+
+#: templates/profile.html:19
+msgid "Basic information"
+msgstr "Основна інформація"
+
+#: templates/profile.html:21
+msgid "Email"
+msgstr "Електронна пошта"
+
+#: templates/profile.html:24
+msgid "Class"
+msgstr "Клас"
+
+#: templates/profile.html:26
+msgid "Subject"
+msgstr "Предмет"
+
+#: templates/profile.html:28
+msgid "Children count"
+msgstr "Кількість дітей"
+
+#: templates/profile.html:40
+msgid "Teaching Groups"
+msgstr "Групи викладання"
+
+#: templates/profile.html:52
+msgid "Children"
+msgstr "Діти"
+
+#: templates/profile.html:69
+msgid "Parents"
+msgstr "Батьки"
+
+#: templates/profile.html:85
+msgid "Edit"
+msgstr "Редагувати"
+
+#: templates/profile.html:86
+msgid "Delete"
+msgstr "Видалити"
+
+#: templates/profile.html:87
+msgid "Logout"
+msgstr "Вийти"
+
+#: templates/profile.html:93
+msgid "Manage Classes"
+msgstr "Керування класами"
+
+#: templates/profile.html:96
+msgid "Manage Teacher Groups"
+msgstr "Керування групами вчителів"
+
+#: templates/profile.html:105
+msgid "Activity History"
+msgstr "Історія активності"
+
+#: templates/profile.html:108
+msgid "Created by you"
+msgstr "Створене вами"
+
+#: templates/profile.html:115
+msgid "Status"
+msgstr "Статус"
+
+#: templates/profile.html:116
+msgid "Until"
+msgstr "До"
+
+
+#: templates/profile.html:126
+msgid "From %(start_date)s to %(end_date)s"
+msgstr "З %(start_date)s до %(end_date)s"
+
+#: templates/profile.html:128
+msgid "From %(start_date)s"
+msgstr "З %(start_date)s"
+
+#: templates/profile.html:130
+msgid "Until %(end_date)s"
+msgstr "До %(end_date)s"
+
+#: templates/profile.html:134
+msgid "No time limits"
+msgstr "Без часових рамок"
+
+#: templates/profile.html:141
+msgid "Your participation"
+msgstr "Ваша участь"
+
+#: templates/profile.html:144
+msgid "Supported petitions"
+msgstr "Підтримані петиції"
+
+#: templates/profile.html:149
+msgid "Created at"
+msgstr "Дата створення"
+
+#: templates/profile.html:154
+msgid "Votes you participated in"
+msgstr "Взято участь у голосуваннях"
+
+#: templates/profile.html:159
+msgid "Your choice"
+msgstr "Ваш вибір"
+
+#: templates/profile.html:161
+msgid "Voted on"
+msgstr "Дата голосування"
+
+msgid "Login to the system"
+msgstr "Вхід до системи"
+
+msgid "Don't have an account?"
+msgstr "Ще не маєте акаунта?"
+
+msgid "Already have an account?"
+msgstr "Вже маєте акаунт?"
+
+#: templates/account_delete.html
+msgid "Account Deletion"
+msgstr "Видалення акаунту"
+
+msgid "Are you sure you want to delete your account?"
+msgstr "Ви дійсно хочете видалити свій акаунт?"
+
+msgid "This action cannot be undone."
+msgstr "Цю дію неможливо скасувати."
+
+msgid "Back"
+msgstr "Назад"
+
+
+msgid "Edit Profile"
+msgstr "Редагування профілю"
+
+
+msgid "Save Changes"
+msgstr "Зберегти зміни"
+
+

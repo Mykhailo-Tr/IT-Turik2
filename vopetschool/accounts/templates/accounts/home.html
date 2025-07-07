@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}🏠 Головна{% endblock %}
+{% block title %}{% trans "Home" %}{% endblock %}
 
 {% block content %}
 <div class="container py-5">
+
   <!-- Вітання -->
   <div class="text-center mb-5">
-    <h1 class="display-5 fw-bold">👋 Привіт, {{ user.first_name }}!</h1>
-    <p class="text-muted fs-5">Ваша роль: 
+    <h1 class="display-5 fw-bold">👋 {% blocktrans with name=user.first_name %}Hello, {{ name }}!{% endblocktrans %}</h1>
+    <p class="text-muted fs-5">
+      {% trans "Your role:" %}
       <span class="badge 
         {% if user.role == 'student' %}bg-primary
         {% elif user.role == 'teacher' %}bg-info
@@ -21,10 +24,10 @@
     </p>
   </div>
 
-    <!-- Актуальні голосування -->
-    <div class="card border-0 shadow-lg rounded-4 mb-5">
+  <!-- Актуальні голосування -->
+  <div class="card border-0 shadow-lg rounded-4 mb-5">
     <div class="card-header bg-gradient bg-primary text-white py-3 rounded-top-4">
-        <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Актуальні голосування</h5>
+        <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>{% trans "Current Votes" %}</h5>
     </div>
     <div class="card-body">
         {% if votes %}
@@ -34,32 +37,32 @@
                 <div>
                 <strong>{{ vote.title }}</strong><br>
                 {% if vote.end_date %}
-                    <small class="text-muted">До {{ vote.end_date|date:"d.m.Y H:i" }}</small>
+                    <small class="text-muted">{% blocktrans %}Until {{ vote.end_date|date:"d.m.Y H:i" }}{% endblocktrans %}</small>
                 {% else %}
-                    <small class="text-muted">🕒 Без дедлайну</small>
+                    <small class="text-muted">🕒 {% trans "No deadline" %}</small>
                 {% endif %}
                 </div>
                 {% if vote.id in voted_vote_ids %}
-                <span class="badge bg-success">Проголосовано</span>
+                <span class="badge bg-success">{% trans "Voted" %}</span>
                 {% else %}
-                <span class="badge bg-warning text-dark">Не проголосовано</span>
+                <span class="badge bg-warning text-dark">{% trans "Not voted" %}</span>
                 {% endif %}
             </a>
             {% endfor %}
         </div>
         <div class="text-end mt-3">
-            <a href="{% url 'vote_list' %}" class="btn btn-outline-primary rounded-pill px-4">Переглянути всі</a>
+            <a href="{% url 'vote_list' %}" class="btn btn-outline-primary rounded-pill px-4">{% trans "View all" %}</a>
         </div>
         {% else %}
-        <p class="text-muted mb-0">Немає активних голосувань для вас.</p>
+        <p class="text-muted mb-0">{% trans "There are no active votes available for you." %}</p>
         {% endif %}
     </div>
-    </div>
+  </div>
 
   <!-- Актуальні петиції -->
   <div class="card border-0 shadow-lg rounded-4 mb-5">
     <div class="card-header bg-gradient bg-success text-white py-3 rounded-top-4">
-      <h5 class="mb-0"><i class="bi bi-megaphone-fill me-2"></i>Петиції, які потребують голосів</h5>
+      <h5 class="mb-0"><i class="bi bi-megaphone-fill me-2"></i>{% trans "Petitions needing support" %}</h5>
     </div>
     <div class="card-body">
       {% if petitions %}
@@ -68,17 +71,17 @@
             <a href="{% url 'petition_detail' petition.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
               <div>
                 <strong>{{ petition.title }}</strong><br>
-                <small class="text-muted">До {{ petition.deadline|date:"d.m.Y H:i" }}</small>
+                <small class="text-muted">{% blocktrans %}Until {{ petition.deadline|date:"d.m.Y H:i" }}{% endblocktrans %}</small>
               </div>
-              <span class="badge bg-info text-dark">{{ percent|floatformat:0 }}% підтримки</span>
+              <span class="badge bg-info text-dark">{{ percent|floatformat:0 }}% {% trans "support" %}</span>
             </a>
           {% endfor %}
         </div>
         <div class="text-end mt-3">
-          <a href="{% url 'petition_list' %}" class="btn btn-outline-success rounded-pill px-4">Переглянути всі</a>
+          <a href="{% url 'petition_list' %}" class="btn btn-outline-success rounded-pill px-4">{% trans "View all" %}</a>
         </div>
       {% else %}
-        <p class="text-muted mb-0">Немає активних петицій, які потребують голосів.</p>
+        <p class="text-muted mb-0">{% trans "No active petitions need your vote right now." %}</p>
       {% endif %}
     </div>
   </div>
@@ -88,7 +91,7 @@
     <div class="col-md-6 col-lg-4">
       <div class="card bg-primary text-white shadow rounded-4 h-100">
         <div class="card-body text-center py-4">
-          <h5 class="card-title"><i class="bi bi-bar-chart-fill me-2"></i>Голосувань доступно</h5>
+          <h5 class="card-title"><i class="bi bi-bar-chart-fill me-2"></i>{% trans "Available Votes" %}</h5>
           <p class="display-6 fw-bold mb-0">{{ votes|length }}</p>
         </div>
       </div>
@@ -96,7 +99,7 @@
     <div class="col-md-6 col-lg-4">
       <div class="card bg-secondary text-white shadow rounded-4 h-100">
         <div class="card-body text-center py-4">
-          <h5 class="card-title"><i class="bi bi-check-circle-fill me-2"></i>Проголосовано</h5>
+          <h5 class="card-title"><i class="bi bi-check-circle-fill me-2"></i>{% trans "Voted" %}</h5>
           <p class="display-6 fw-bold mb-0">{{ voted_vote_ids|length }}</p>
         </div>
       </div>
@@ -104,7 +107,7 @@
     <div class="col-md-6 col-lg-4">
       <div class="card bg-success text-white shadow rounded-4 h-100">
         <div class="card-body text-center py-4">
-          <h5 class="card-title"><i class="bi bi-broadcast-pin me-2"></i>Активних петицій</h5>
+          <h5 class="card-title"><i class="bi bi-broadcast-pin me-2"></i>{% trans "Active Petitions" %}</h5>
           <p class="display-6 fw-bold mb-0">{{ petitions|length }}</p>
         </div>
       </div>

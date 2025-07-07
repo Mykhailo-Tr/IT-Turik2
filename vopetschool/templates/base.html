@@ -338,13 +338,13 @@ themeToggle?.addEventListener("click", (e) => {
         wave.style.height = `2000px`;
         wave.style.marginLeft = `-1000px`;
         wave.style.marginTop = `-1000px`;
-        wave.style.transform = "scale(1)";
+        wave.style.transform = "scale(2)";
     });
 
     // Wait for animation then apply theme
     setTimeout(() => {
         applyTheme(newTheme);
-    }, 300);
+    }, 200);
 
     // Fade out and remove
     setTimeout(() => {

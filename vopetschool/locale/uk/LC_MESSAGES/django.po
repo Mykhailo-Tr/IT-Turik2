@@ -35,8 +35,6 @@ msgstr "Vo & Pet School"
 msgid "Profile"
 msgstr "Профіль"
 
-msgid "Calendar"
-msgstr "Календар"
 
 msgid "Petitions"
 msgstr "Петиції"
@@ -234,8 +232,13 @@ msgstr "Назад"
 msgid "Edit Profile"
 msgstr "Редагування профілю"
 
+msgid "Calendar"
+msgstr "Календар"
 
-msgid "Save Changes"
-msgstr "Зберегти зміни"
+msgid "My Event Calendar"
+msgstr "Мій календар подій"
+
+msgid "No events to display"
+msgstr "Немає подій для відображення"
 
 

@@ -1,12 +1,16 @@
 {% extends "base.html" %}
-{% block title %}📅 Календар{% endblock %}
 {% load static %}
+{% load i18n %}
+
+{% block title %}📅 {% trans "Calendar" %}{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-primary text-white text-center rounded-top-4">
+            <h4 class="mb-0">📅 {% trans "My Event Calendar" %}</h4>
+        </div>
         <div class="card-body p-4">
-            <h2 class="fw-bold mb-4">📅 Мій календар подій</h2>
             <div id="calendar"></div>
         </div>
     </div>
@@ -34,16 +38,23 @@ document.addEventListener('DOMContentLoaded', function () {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,listWeek'
         },
-        events: '/calendar/events/',  // API для завантаження подій
+        events: "{% url 'calendar_events_json' %}",  // URL до подій
+
+        noEventsContent: "{% trans 'No events to display' %}",
 
         eventClick: function(info) {
             info.jsEvent.preventDefault();
             const event = info.event;
 
             const start = new Date(event.start).toLocaleString("uk-UA");
-            const end = new Date(event.end).toLocaleString("uk-UA");
+            const end = event.end ? new Date(event.end).toLocaleString("uk-UA") : null;
 
-            alert(`📌 ${event.title}\n\n🕒 ${start}${event.start != event.end ? ' – ' + end : ''}`);
+            let timeRange = start;
+            if (end && start !== end) {
+                timeRange += ' – ' + end;
+            }
+
+            alert(`📌 ${event.title}\n\n🕒 ${timeRange}`);
         }
     });
 

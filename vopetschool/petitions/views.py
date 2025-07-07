@@ -7,6 +7,8 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.http import require_POST, require_http_methods
 from django.utils.decorators import method_decorator
 from django.contrib import messages
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 from .models import Petition
 from .forms import PetitionForm, CommentForm
@@ -199,6 +201,14 @@ def support_petition_view(request, pk):
         petition.save()
 
     data = calculate_petition_support(petition)
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"petition_{petition.pk}",
+        {
+            "type": "petition_support_update",
+            "data": data
+        }
+)
     data["success"] = True
     data["supported"] = supported
     return JsonResponse(data)

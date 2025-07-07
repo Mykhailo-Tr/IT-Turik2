@@ -9,6 +9,14 @@
         <div class="col-md-10 col-lg-8 col-xl-6">
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-body p-5">
+
+                    <!-- 🔙 Кнопка Назад -->
+                    <div class="mb-3">
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill">
+                            ↩️ Назад
+                        </a>
+                    </div>
+
                     <h2 class="fw-bold mb-4 text-center">🗳️ Створити нове голосування</h2>
 
                     <form method="post" id="vote-form" novalidate>
@@ -19,7 +27,7 @@
                                 <div class="mb-4">
                                     <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
                                     {{ field|add_class:"form-control rounded-4 shadow-sm" }}
-                            
+
                             {% elif field.name == "participants" %}
                                 <div class="mb-4 field-participants" style="display: none;">
                                     <label class="form-label fw-semibold">{{ field.label }}</label>
@@ -29,7 +37,7 @@
                                             <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
                                         </div>
                                     {% endfor %}
-                            
+
                             {% elif field.name == "teacher_groups" %}
                                 <div class="mb-4 field-teacher_groups" style="display: none;">
                                     <label class="form-label fw-semibold">{{ field.label }}</label>
@@ -49,18 +57,18 @@
                                             <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
                                         </div>
                                     {% endfor %}
-                            
+
                             {% elif field.field.widget.input_type == "checkbox" %}
                                 <div class="form-check form-switch mb-4">
                                     {{ field|add_class:"form-check-input" }}
                                     <label class="form-check-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            
+
                             {% else %}
                                 <div class="mb-4">
                                     <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
                                     {{ field|add_class:"form-control form-control-lg rounded-pill shadow-sm" }}
                             {% endif %}
-                            
+
                             {% if field.help_text %}
                                 <div class="form-text">{{ field.help_text|safe }}</div>
                             {% endif %}
@@ -69,7 +77,6 @@
                             {% endif %}
                             </div>
                         {% endfor %}
-
 
                         <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
                             <h5 class="fw-bold mb-0">Варіанти відповіді</h5>
@@ -111,16 +118,15 @@
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
-<!-- JS -->
+{% block scripts %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const container = document.getElementById("formset-container");
@@ -131,10 +137,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const forms = container.querySelectorAll(".formset-form");
         forms.forEach((form, index) => {
             form.querySelectorAll("input, label").forEach(el => {
-                if (el.name) el.name = el.name.replace(/form-\\d+-/, `form-${index}-`);
-                if (el.id) el.id = el.id.replace(/form-\\d+-/, `form-${index}-`);
-                if (el.tagName.toLowerCase() === "label" && el.htmlFor)
-                    el.htmlFor = el.htmlFor.replace(/form-\\d+-/, `form-${index}-`);
+                if (el.name) el.name = el.name.replace(/form-\d+-/, `form-${index}-`);
+                if (el.id) el.id = el.id.replace(/form-\d+-/, `form-${index}-`);
+                if (el.htmlFor) el.htmlFor = el.htmlFor.replace(/form-\d+-/, `form-${index}-`);
             });
         });
         totalForms.value = forms.length;
@@ -159,13 +164,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const total = parseInt(totalForms.value);
         const newForm = container.querySelector(".formset-form").cloneNode(true);
 
-        // Очистити поля в клоні
         newForm.querySelectorAll("input").forEach(input => {
             if (input.type === "checkbox") input.checked = false;
             else input.value = "";
         });
 
-        // Замінити індекси name/id
         newForm.querySelectorAll("input, label").forEach(el => {
             if (el.name) el.name = el.name.replace(/form-(\d+)-/, `form-${total}-`);
             if (el.id) el.id = el.id.replace(/form-(\d+)-/, `form-${total}-`);
@@ -177,10 +180,8 @@ document.addEventListener("DOMContentLoaded", function () {
         attachRemoveHandlers();
     });
 
-
     attachRemoveHandlers();
 
-    // Перемикання полів залежно від рівня доступу
     const levelField = document.getElementById("id_level");
     const participantsField = document.querySelector(".field-participants");
     const teacherGroupsField = document.querySelector(".field-teacher_groups");

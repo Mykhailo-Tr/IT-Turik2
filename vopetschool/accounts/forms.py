@@ -3,8 +3,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from .models import User, Student, Teacher, Parent
 from schoolgroups.models import ClassGroup, TeacherGroup
 
+
 class RoleChoiceForm(forms.Form):
     role = forms.ChoiceField(choices=User.Role.choices, label="Оберіть роль")
+
 
 class BaseRegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
@@ -28,6 +30,7 @@ class BaseRegisterForm(forms.ModelForm):
             user.save()
         return user
 
+
 class StudentRegisterForm(BaseRegisterForm):
     class_group = forms.ModelChoiceField(queryset=ClassGroup.objects.all(), required=False, label="Клас (необов'язково)")
 
@@ -41,6 +44,7 @@ class StudentRegisterForm(BaseRegisterForm):
             if self.cleaned_data.get("class_group"):
                 self.cleaned_data["class_group"].students.add(student)
         return user
+
 
 class TeacherRegisterForm(BaseRegisterForm):
     subject = forms.CharField(label="Предмет")
@@ -56,6 +60,7 @@ class TeacherRegisterForm(BaseRegisterForm):
             teacher.groups.set(self.cleaned_data["groups"])
         return user
 
+
 class ParentRegisterForm(BaseRegisterForm):
     children = forms.ModelMultipleChoiceField(queryset=Student.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
 
@@ -69,12 +74,15 @@ class ParentRegisterForm(BaseRegisterForm):
             parent.children.set(self.cleaned_data["children"])
         return user
 
+
 class DirectorRegisterForm(BaseRegisterForm):
     def save(self, commit=True):
         return self.save_user(User.Role.DIRECTOR, commit=commit)
 
+
 class CustomLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email")
+
 
 class EditProfileForm(forms.ModelForm):
     subject = forms.CharField(label="Предмет", required=False)

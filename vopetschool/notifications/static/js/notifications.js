@@ -1,4 +1,13 @@
 // static/js/notifications.js
+document.addEventListener("DOMContentLoaded", () => {
+    const alerts = document.querySelectorAll('#messages-container .alert');
+    alerts.forEach((alert) => {
+        setTimeout(() => {
+            bootstrap.Alert.getOrCreateInstance(alert).close();
+        }, 2500);
+    });
+});
+
 document.addEventListener("DOMContentLoaded", function () {
     const bell = document.getElementById("notificationBell");
     const dropdownMenu = document.getElementById("notificationDropdownMenu");

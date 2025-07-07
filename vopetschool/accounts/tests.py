@@ -6,7 +6,6 @@ from schoolgroups.models import ClassGroup, TeacherGroup
 
 User = get_user_model()
 
-# === Fixtures ===
 
 @pytest.fixture
 def class_group(db):

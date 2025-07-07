@@ -1,0 +1,40 @@
+{% load widget_tweaks %}
+
+<div class="modal fade" id="createGroupModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <form method="post">
+        {% csrf_token %}
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">➕ Нова група вчителів</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          {{ group_form.management_form }}
+          <div class="mb-3">
+            {{ group_form.name.label_tag }}
+            {{ group_form.name|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Виберіть вчителів:</label>
+            <div class="row g-2">
+              {% for checkbox in group_form.teachers %}
+              <div class="col-6 col-md-4">
+                <div class="form-check">
+                  {{ checkbox.tag }}
+                  <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                    {{ checkbox.choice_label }}
+                  </label>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" name="submit_group" class="btn btn-success rounded-pill px-4">Зберегти</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

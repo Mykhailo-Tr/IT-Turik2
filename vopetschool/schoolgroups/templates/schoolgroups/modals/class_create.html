@@ -1,0 +1,25 @@
+{% load widget_tweaks %}
+
+<div class="modal fade" id="createClassModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <form method="post" action="{% url 'create_class' %}">
+        {% csrf_token %}
+        <div class="modal-header bg-success text-white rounded-top-4">
+          <h5 class="modal-title">➕ Новий клас</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body px-4 py-3">
+          {{ form.non_field_errors }}
+          <div class="mb-3">
+            {{ form.name.label_tag }}
+            {{ form.name|add_class:"form-control rounded-3" }}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success rounded-pill px-4">Додати</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+{% load widget_tweaks %}
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <form method="post" id="deleteForm">
+        {% csrf_token %}
+        <div class="modal-header bg-danger text-white rounded-top-4">
+          <h5 class="modal-title">🗑️ Підтвердження видалення</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Ви дійсно хочете видалити клас <strong id="deleteClassName">...</strong>?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Скасувати</button>
+          <button type="submit" class="btn btn-danger rounded-pill px-4">Видалити</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

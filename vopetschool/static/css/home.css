@@ -56,3 +56,44 @@ body.dark-mode .card-box .card-header {
 body.dark-mode .text-muted {
   color: #aaa !important;
 }
+
+/* 🌙 Темна тема для блоку голосувань */
+body.dark-mode .card.bg-theme {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+body.dark-mode .card-header.bg-primary {
+  background: linear-gradient(90deg, #0d6efd, #0b5ed7);
+  color: #fff;
+}
+
+body.dark-mode .list-group-item.bg-theme {
+  background-color: #252525;
+  border-color: #3a3a3a;
+  color: #e0e0e0;
+}
+
+body.dark-mode .list-group-item.bg-theme:hover {
+  background-color: #2d2d2d;
+}
+
+body.dark-mode .badge.bg-warning.text-dark {
+  background-color: #f1c40f;
+  color: #000;
+}
+
+body.dark-mode .badge.bg-success {
+  background-color: #28a745;
+  color: #fff;
+}
+
+body.dark-mode .btn-outline-primary {
+  color: #cce5ff;
+  border-color: #88bfff;
+}
+
+body.dark-mode .btn-outline-primary:hover {
+  background-color: #1f3b5b;
+  color: #fff;
+}

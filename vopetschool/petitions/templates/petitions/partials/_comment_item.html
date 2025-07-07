@@ -20,7 +20,6 @@
 
         {% if comment.author == request.user %}
             <div class="d-flex gap-2 mt-1">
-                <!-- Кнопка редагування -->
                 <button class="btn btn-sm btn-light rounded-circle border"
                         title="Редагувати"
                         data-bs-toggle="modal"
@@ -28,7 +27,6 @@
                     ✏️
                 </button>
 
-                <!-- Кнопка відкриття модального вікна видалення -->
                 <button type="button"
                         class="btn btn-sm btn-light rounded-circle border"
                         title="{% trans 'Delete' %}"

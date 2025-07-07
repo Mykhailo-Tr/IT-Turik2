@@ -98,7 +98,7 @@ def add_comment_view(request, pk):
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["POST"])
 def edit_comment_view(request, petition_pk, comment_pk):
     petition = get_object_or_404(Petition, pk=petition_pk)
     comment = get_object_or_404(petition.comments, pk=comment_pk)
@@ -107,23 +107,15 @@ def edit_comment_view(request, petition_pk, comment_pk):
         messages.error(request, "❌ Ви не можете редагувати цей коментар.")
         return redirect("petition_detail", pk=petition_pk)
 
-    if request.method == "POST":
-        form = CommentForm(request.POST, instance=comment)
-        if form.is_valid():
-            form.instance.updated_at = timezone.now()
-            form.save()
-            messages.success(request, "✅ Коментар оновлено успішно.")
-            return redirect("petition_detail", pk=petition_pk)
-        else:
-            messages.error(request, "❌ Помилка при оновленні коментаря.")
+    form = CommentForm(request.POST, instance=comment)
+    if form.is_valid():
+        form.instance.updated_at = timezone.now()
+        form.save()
+        messages.success(request, "✅ Коментар оновлено успішно.")
+        return redirect("petition_detail", pk=petition_pk)
     else:
-        form = CommentForm(instance=comment)
-
-    return render(request, "petitions/edit_comment.html", {
-        "form": form,
-        "petition": petition,
-        "comment": comment,
-    })
+        messages.error(request, "❌ Помилка при оновленні коментаря.")
+    
 
 
 @login_required

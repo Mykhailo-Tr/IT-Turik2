@@ -1,0 +1,32 @@
+{% load i18n %}
+<div class="text-center mb-4" data-aos="fade-up" data-aos-delay="100">
+    <h2 class="fw-bold">{{ viewed_user.get_full_name }}</h2>
+    <p class="text-muted">{% trans "User personal profile" %}</p>
+    <span class="badge px-3 py-2 rounded-pill
+        {% if viewed_user.role == 'student' %}bg-primary
+        {% elif viewed_user.role == 'teacher' %}bg-info
+        {% elif viewed_user.role == 'parent' %}bg-warning text-dark
+        {% elif viewed_user.role == 'director' %}bg-success
+        {% else %}bg-secondary{% endif %}">
+        {% if viewed_user.role == 'student' %}👨‍🎓
+        {% elif viewed_user.role == 'teacher' %}👩‍🏫
+        {% elif viewed_user.role == 'parent' %}👨‍👩‍👧‍👦
+        {% elif viewed_user.role == 'director' %}🎓
+        {% else %}👤{% endif %} {{ viewed_user.get_role_display }}
+    </span>
+</div>
+<div class="mb-5" data-aos="fade-up" data-aos-delay="200">
+    <h5 class="text-uppercase text-secondary fw-semibold mb-3">
+        <i class="bi bi-person-lines-fill me-2"></i>{% trans "Basic information" %}
+    </h5>
+    <ul class="list-group list-group-flush shadow-sm rounded-3">
+        <li class="list-group-item py-3"><strong>📧 {% trans "Email" %}:</strong> {{ viewed_user.email }}</li>
+        {% if viewed_user.role == 'student' %}
+        <li class="list-group-item py-3"><strong>🏫 {% trans "Class" %}:</strong> {{ class_group }}</li>
+        {% elif viewed_user.role == 'teacher' %}
+        <li class="list-group-item py-3"><strong>📘 {% trans "Subject" %}:</strong> {{ viewed_user.teacher.subject }}</li>
+        {% elif viewed_user.role == 'parent' %}
+        <li class="list-group-item py-3"><strong>👨‍👩‍👧‍👦 {% trans "Children count" %}:</strong> {{ viewed_user.parent.children.count }}</li>
+        {% endif %}
+    </ul>
+</div>

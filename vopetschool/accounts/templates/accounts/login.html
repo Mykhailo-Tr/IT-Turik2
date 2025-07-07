@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% load i18n %}
+{% load static %}
 
 {% block title %}{% trans "Login" %}{% endblock %}
 
@@ -47,21 +48,5 @@
     </div>
 </div>
 
-<!-- Темна тема — локальні стилі -->
-<style>
-  body.dark-mode .form-control {
-    background-color: #2c2c2c !important;
-    color: #f1f1f1 !important;
-    border-color: #555 !important;
-  }
-
-  body.dark-mode .form-label,
-  body.dark-mode .text-theme {
-    color: #f1f1f1 !important;
-  }
-
-  body.dark-mode .text-muted {
-    color: #aaa !important;
-  }
-</style>
+<link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
 {% endblock %}

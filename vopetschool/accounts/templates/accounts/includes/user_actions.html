@@ -1,0 +1,22 @@
+{% load i18n %}
+{% load static %}
+
+{% if request.user == viewed_user %}
+    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4" data-aos="fade-up" data-aos-delay="500">
+        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary rounded-pill px-4">✏️ {% trans "Edit" %}</a>
+        <a href="{% url 'delete_account' %}" class="btn btn-outline-danger rounded-pill px-4">❌ {% trans "Delete" %}</a>
+        <a href="{% url 'logout' %}" class="btn btn-outline-secondary rounded-pill px-4">🚪 {% trans "Logout" %}</a>
+    </div>
+{% endif %}
+
+{% if viewed_user.role == 'director' and request.user == viewed_user %}
+    <hr class="my-5" data-aos="fade-up" data-aos-delay="600">
+    <div class="text-center d-flex flex-column flex-sm-row justify-content-center gap-3" data-aos="fade-up" data-aos-delay="700">
+        <a href="{% url 'manage_classes' %}" class="btn btn-primary rounded-pill px-5 py-3 hover-shadow-sm cursor-pointer">
+            🏫 {% trans "Manage Classes" %}
+        </a>
+        <a href="{% url 'manage_teacher_groups' %}" class="btn btn-success rounded-pill px-5 py-3 hover-shadow-sm cursor-pointer">
+            👥 {% trans "Manage Teacher Groups" %}
+        </a>
+    </div>
+{% endif %}

@@ -29,7 +29,7 @@
             <form method="post" action="{% url 'edit_class' cls.id %}" class="d-flex flex-grow-1 gap-2 align-items-center">
               {% csrf_token %}
               <input type="text" name="name" value="{{ cls.name }}"
-                     class="form-control form-control-sm border-0 bg-light rounded-pill px-3"
+                     class="form-control form-control-sm border-0 bg rounded-pill px-3"
                      placeholder="Назва класу" required>
 
               <!-- Зберегти -->

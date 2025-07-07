@@ -16,7 +16,6 @@
                     {% include "petitions/partials/_support_button.html" %}
 
                     {% if request.user == petition.creator or request.user.role in "director admin" %}
-                        <!-- Кнопка запуску модального вікна -->
                         {% if request.user == petition.creator %}
                             <button type="button"
                                     class="btn btn-danger rounded-pill mt-4"
@@ -40,7 +39,7 @@
 <div class="modal fade" id="deletePetitionModal" tabindex="-1"
      aria-labelledby="deletePetitionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 shadow">
+        <div class="modal-content rounded-4 shadow modal-delete-confirm">
             <form method="post" action="{% url 'petition_delete' petition.pk %}">
                 {% csrf_token %}
                 <div class="modal-header bg-danger text-white rounded-top-4">
@@ -70,6 +69,59 @@
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* 🌙 Темна тема */
+body.dark-mode .modal-delete-confirm {
+    background-color: #1f1f1f;
+    color: #f8f9fa;
+}
+body.dark-mode .modal-delete-confirm .modal-body p,
+body.dark-mode .modal-delete-confirm .modal-body .text-muted {
+    color: #ccc !important;
+}
+body.dark-mode .modal-delete-confirm .btn-close {
+    filter: invert(1);
+}
+body.dark-mode .modal-footer .btn-secondary {
+    background-color: #444;
+    border: none;
+}
+body.dark-mode .badge {
+    color: #fff;
+}
+body.dark-mode .text-muted {
+    color: #ccc !important;
+}
+
+/* Прогрес-бар */
+.progress {
+    height: 1rem;
+    border-radius: 0.5rem;
+    background-color: #e9ecef;
+    overflow: hidden;
+}
+.progress-bar {
+    transition: width 0.6s ease;
+}
+body.dark-mode .progress {
+    background-color: #2b2b2b;
+}
+body.dark-mode .progress-bar {
+    background-color: #0d6efd;
+}
+
+/* Для полів у підтримці, коментарях */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    background-color: #2b2b2b;
+    color: #f8f9fa;
+    border: 1px solid #555;
+}
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #999;
 }
 </style>
 {% endblock %}

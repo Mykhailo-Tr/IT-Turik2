@@ -1,0 +1,74 @@
+/* 🗂️ Списки класів */
+.dark-mode .list-group-item {
+    background-color: rgba(30, 30, 30, 0.8) !important;
+    color: #f8f9fa !important;
+    border-color: #3a3a3a !important;
+}
+
+/* 📝 Інпути */
+.dark-mode input.form-control,
+.dark-mode textarea.form-control {
+    background-color: #2a2a2a !important;
+    color: #f8f9fa !important;
+    border: 1px solid #444 !important;
+}
+
+.dark-mode input.form-control::placeholder,
+.dark-mode textarea.form-control::placeholder {
+    color: #aaa !important;
+}
+
+/* 📦 Модальне вікно */
+.dark-mode .modal-content {
+    background-color: #1e1e1e !important;
+    color: #f8f9fa !important;
+    border: none;
+}
+
+/* 🟢 Кнопки */
+.dark-mode .btn-outline-success {
+    border-color: #198754;
+    color: #198754;
+}
+.dark-mode .btn-outline-success:hover {
+    background-color: #198754;
+    color: #fff;
+}
+
+.dark-mode .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+.dark-mode .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.dark-mode .btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+.dark-mode .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+/* 🟨 Кнопка створити клас */
+.dark-mode .btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+.dark-mode .btn-success:hover {
+    background-color: #157347;
+}
+
+/* ➖ Горизонтальна лінія */
+.dark-mode hr {
+    border-color: #3a3a3a;
+}
+
+/* 📃 Текст типу "Класи ще не створено" */
+.dark-mode .text-muted,
+.dark-mode .text-secondary {
+    color: #aaa !important;
+}

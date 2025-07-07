@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% load static %}
 
 {% block title %}Групи вчителів{% endblock %}
 
-{% block content %}
+<link rel="stylesheet" href="{% static 'schoolgroups/css/classes.css' %}">
+
+{% block content %} 
 <div class="container py-5">
 
   <!-- Заголовок -->

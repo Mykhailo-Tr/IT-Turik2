@@ -8,7 +8,7 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow-lg border-0 rounded-4">
+            <div class="card shadow-lg border-0 rounded-4 bg-theme text-theme">
                 <div class="card-header bg-primary text-white text-center rounded-top-4">
                     <h4 class="mb-0">✏️ {% trans "Edit Profile" %}</h4>
                 </div>
@@ -17,10 +17,10 @@
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="mb-4">
-                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-theme">
                                     {{ field.label }}
                                 </label>
-                                {{ field|add_class:"form-control form-control-lg" }}
+                                {{ field|add_class:"form-control form-control-lg bg-theme text-theme border-secondary" }}
                                 {% if field.help_text %}
                                     <div class="form-text text-muted">
                                         {{ field.help_text }}
@@ -48,4 +48,22 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Темна тема для форми */
+body.dark-mode .form-control {
+    background-color: #2b2b2b !important;
+    color: #f1f1f1 !important;
+    border: 1px solid #555 !important;
+}
+body.dark-mode .form-control::placeholder {
+    color: #bbb !important;
+}
+body.dark-mode .form-text {
+    color: #aaa !important;
+}
+body.dark-mode .invalid-feedback {
+    color: #f88 !important;
+}
+</style>
 {% endblock %}

@@ -1,5 +1,6 @@
 from accounts.models import User
 from notifications.models import Notification
+from voting.models import Vote
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
@@ -10,18 +11,21 @@ def trigger_user_notification(user_id: int):
         {"type": "notify"}
     )
 
-def notify_users_about_vote(sender, vote):
+def notify_vote_creation(vote: Vote):
     users = set()
 
-    if vote.level == vote.Level.SCHOOL:
+    if vote.level == Vote.Level.SCHOOL:
         users = User.objects.filter(is_active=True, role="student")
-    elif vote.level == vote.Level.CLASS:
+
+    elif vote.level == Vote.Level.CLASS:
         for group in vote.class_groups.all():
             users.update([s.user for s in group.students.all()])
-    elif vote.level == vote.Level.TEACHERS:
+
+    elif vote.level == Vote.Level.TEACHERS:
         for group in vote.teacher_groups.all():
             users.update([t.user for t in group.teachers.all()])
-    elif vote.level == vote.Level.SELECTED:
+
+    elif vote.level == Vote.Level.SELECTED:
         users = vote.participants.all()
 
     for user in users:
@@ -30,3 +34,4 @@ def notify_users_about_vote(sender, vote):
             message=f"Нове голосування: {vote.title}",
             link=f"/votes/{vote.pk}/"
         )
+        trigger_user_notification(user.id)

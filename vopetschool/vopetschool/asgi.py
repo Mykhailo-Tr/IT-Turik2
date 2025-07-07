@@ -5,7 +5,7 @@ from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vopetschool.settings")
-django.setup()  # 🔧 Обов’язково до будь-яких імпортів моделей/routing
+django.setup()  
 
 from notifications.routing import websocket_urlpatterns  # ✅ Тепер безпечно
 

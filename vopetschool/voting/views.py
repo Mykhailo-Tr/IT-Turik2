@@ -14,7 +14,7 @@ from .forms import VoteForm, VoteCreateForm, VoteOptionFormSet
 from .models import Vote, VoteOption, VoteAnswer
 from accounts.models import User, Student
 from notifications.models import Notification
-from notifications.utils import notify_users_about_vote, trigger_user_notification
+from notifications.utils import trigger_user_notification, notify_vote_creation
 
 
 class VoteListView(ListView):
@@ -157,29 +157,7 @@ class VoteCreateView(View):
                 if text:
                     VoteOption.objects.create(vote=vote, text=text, is_correct=is_correct)
 
-           # ⬇️ Отримуємо всіх користувачів з доступом
-            from notifications.utils import trigger_user_notification
-            from accounts.models import User
-
-            users = set()
-            if vote.level == Vote.Level.SCHOOL:
-                users = User.objects.filter(is_active=True, role="student")
-            elif vote.level == Vote.Level.CLASS:
-                for group in vote.class_groups.all():
-                    users.update([s.user for s in group.students.all()])
-            elif vote.level == Vote.Level.TEACHERS:
-                for group in vote.teacher_groups.all():
-                    users.update([t.user for t in group.teachers.all()])
-            elif vote.level == Vote.Level.SELECTED:
-                users = vote.participants.all()
-
-            for user in users:
-                Notification.objects.create(
-                    user=user,
-                    message=f"Нове голосування: {vote.title}",
-                    link=f"/votes/{vote.pk}/"
-                )
-                trigger_user_notification(user.id)   
+            notify_vote_creation(vote)
                          
             messages.success(request, "Голосування успішно створено!")
             return redirect("vote_detail", pk=vote.pk)

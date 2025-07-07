@@ -123,6 +123,11 @@ class CustomLoginForm(AuthenticationForm):
 
 class EditProfileForm(forms.ModelForm):
     subject = forms.CharField(label="Предмет", required=False)
+    class_group = forms.ModelChoiceField(
+        queryset=ClassGroup.objects.all(),
+        required=False,
+        label="Клас"
+    )
 
     class Meta:
         model = User
@@ -132,15 +137,30 @@ class EditProfileForm(forms.ModelForm):
         self.user = kwargs.get('instance')
         super().__init__(*args, **kwargs)
 
-        if self.user.role != User.Role.TEACHER:
-            self.fields.pop('subject')
-        else:
+        if self.user.role == 'teacher':
             self.fields['subject'].initial = self.user.teacher.subject
+        else:
+            self.fields.pop('subject')
+
+        if self.user.role == 'student':
+            student = self.user.student
+            self.fields['class_group'].initial = student.get_class_group()
+        else:
+            self.fields.pop('class_group')
 
     def save(self, commit=True):
         user = super().save(commit)
-        if self.user.role == User.Role.TEACHER:
+        
+        if self.user.role == 'teacher':
             self.user.teacher.subject = self.cleaned_data.get("subject")
             if commit:
                 self.user.teacher.save()
+
+        if self.user.role == 'student':
+            student = self.user.student
+            new_class_group = self.cleaned_data.get("class_group")
+            student.class_groups.clear()
+            if new_class_group:
+                new_class_group.students.add(student)
+
         return user

@@ -7,12 +7,7 @@
 {% block content %}
 <div class="container py-5">
     <div class="card shadow-lg border-0 rounded-4">
-        <div class="d-flex justify-content-end mb-2">
-            <a href="{% url 'google_auth' %}" class="btn btn-outline-primary rounded-pill">
-                🔗 Синхронізувати з Google Calendar
-            </a>
-        </div>
-        <div class="card-header bg-primary text-white text-center rounded-top-4">
+        <div class="card-header bg-primary text-white rounded-top-4 d-flex justify-content-between align-items-center flex-wrap px-4 py-3">
             <h4 class="mb-0">📅 {% trans "My Event Calendar" %}</h4>
         </div>
         <div class="card-body p-4">
@@ -21,13 +16,28 @@
     </div>
 </div>
 
-<!-- FullCalendar CSS -->
+<!-- Modal for Event -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-theme text-theme">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventModalLabel">Подія</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрити"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>🕒 Час:</strong> <span id="eventTime"></span></p>
+        <p><strong>📄 Опис:</strong> <span id="eventDesc"></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Закрити</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FullCalendar -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
-
-<!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
-<!-- Localization -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales-all.global.min.js"></script>
 
 <script>
@@ -43,14 +53,19 @@ document.addEventListener('DOMContentLoaded', function () {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,listWeek'
         },
-        events: "{% url 'calendar_events_json' %}",  // URL до подій
-
+        events: "{% url 'calendar_events_json' %}",
         noEventsContent: "{% trans 'No events to display' %}",
+
+        eventDidMount: function(info) {
+            info.el.classList.add("text-truncate");
+        },
 
         eventClick: function(info) {
             info.jsEvent.preventDefault();
             const event = info.event;
 
+            const title = event.title || 'Без назви';
+            const desc = event.extendedProps.description || 'Немає опису';
             const start = new Date(event.start).toLocaleString("uk-UA");
             const end = event.end ? new Date(event.end).toLocaleString("uk-UA") : null;
 
@@ -59,11 +74,110 @@ document.addEventListener('DOMContentLoaded', function () {
                 timeRange += ' – ' + end;
             }
 
-            alert(`📌 ${event.title}\n\n🕒 ${timeRange}`);
+            document.getElementById("eventModalLabel").textContent = title;
+            document.getElementById("eventTime").textContent = timeRange;
+            document.getElementById("eventDesc").textContent = desc;
+
+            new bootstrap.Modal(document.getElementById("eventModal")).show();
         }
     });
 
     calendar.render();
 });
 </script>
+
+<!-- 🌙 Темна тема + події -->
+<style>
+body.dark-mode .card {
+    background-color: rgba(33, 33, 33, 0.95);
+    color: #f8f9fa;
+}
+
+body.dark-mode .fc {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+}
+
+body.dark-mode .fc .fc-toolbar-title,
+body.dark-mode .fc .fc-button {
+    color: #f1f1f1;
+}
+
+body.dark-mode .fc .fc-button {
+    background-color: #333;
+    border: 1px solid #555;
+}
+body.dark-mode .fc .fc-button:hover {
+    background-color: #444;
+    border-color: #777;
+}
+body.dark-mode .fc .fc-button-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+body.dark-mode .fc .fc-button-primary:not(:disabled):hover {
+    background-color: #0056b3;
+    border-color: #004b9a;
+}
+
+body.dark-mode .fc .fc-daygrid-day,
+body.dark-mode .fc .fc-timegrid-slot {
+    background-color: #2b2b2b;
+    border: 1px solid #444 !important;
+}
+
+body.dark-mode .fc .fc-col-header-cell {
+    background-color: #1e1e1e;
+    border: 1px solid #444 !important;
+    color: #ccc;
+}
+
+body.dark-mode .fc .fc-day-today {
+    background-color: rgba(0, 123, 255, 0.1) !important;
+}
+
+body.dark-mode .fc .fc-event {
+    background-color: #007bff;
+    border: 1px solid #66bfff;
+    color: white;
+    padding: 2px 6px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+body .fc .fc-event {
+    background-color: #007bff;
+    border: 1px solid #0059e8;
+    color: white;
+    padding: 2px 6px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+body .fc .fc-event:hover {
+    opacity: 0.9;
+}
+
+body.dark-mode .modal-content {
+    background-color: #2b2b2b;
+    color: #f8f9fa;
+    border: 1px solid #444;
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: #444;
+}
+
+body.dark-mode .btn-close-white {
+    filter: invert(1);
+}
+</style>
 {% endblock %}

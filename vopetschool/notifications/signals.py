@@ -3,8 +3,8 @@ from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 
 from petitions.models import Petition
-from accounts.models import Student
 from .models import Notification
+from .utils import trigger_user_notification
 
 User = get_user_model()
 
@@ -23,31 +23,7 @@ def create_notifications(users, message: str, link: str):
         for user in users
     ]
     Notification.objects.bulk_create(notifications)
-
-
-@receiver(post_save, sender=Petition)
-def notify_petition_created_or_updated(sender, instance: Petition, created: bool, **kwargs):
-    users = get_users_with_access(instance).exclude(role=User.Role.DIRECTOR)
-
-    if created:
-        if instance.status != Petition.Status.PENDING:
-            create_notifications(
-                users=users,
-                message=f"Створена нова петиція: {instance.title}",
-                link=f"/petitions/{instance.pk}/"
-            )
-    elif instance.status in {
-        Petition.Status.PENDING,
-        Petition.Status.APPROVED,
-        Petition.Status.REJECTED
-    }:
-        status_display = instance.get_status_display()
-        create_notifications(
-            users=users,
-            message=f"Петиція '{instance.title}' тепер має статус: {status_display}",
-            link=f"/petitions/{instance.pk}/"
-        )
-
+    
 
 @receiver(pre_save, sender=Petition)
 def notify_on_petition_status_change(sender, instance: Petition, **kwargs):
@@ -62,12 +38,13 @@ def notify_on_petition_status_change(sender, instance: Petition, **kwargs):
     if previous.status != instance.status and instance.status in {
         Petition.Status.PENDING,
         Petition.Status.APPROVED,
-        Petition.Status.REJECTED
+        Petition.Status.REJECTED,
     }:
         users = get_users_with_access(instance).exclude(role=User.Role.DIRECTOR)
         status_display = instance.get_status_display()
-        create_notifications(
-            users=users,
-            message=f"Петиція '{instance.title}' тепер має статус: {status_display}",
-            link=f"/petitions/{instance.pk}/"
-        )
+        message = f"Петиція «{instance.title}» тепер має статус: {status_display}"
+        link = f"/petitions/{instance.pk}/"
+
+        for user in users:
+            create_notifications([user], message=message, link=link)
+            trigger_user_notification(user.id)

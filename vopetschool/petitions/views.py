@@ -7,11 +7,11 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.http import require_POST, require_http_methods
 from django.utils.decorators import method_decorator
 from django.contrib import messages
-from django.db.models import Count
 
-from .models import Petition, Comment
+from .models import Petition
 from .forms import PetitionForm, CommentForm
 from accounts.models import User, ClassGroup
+from notifications.utils import notify_petition_creation
 
 
 class PetitionListView(ListView):
@@ -38,11 +38,8 @@ class PetitionListView(ListView):
             queryset = queryset.filter(creator__id=creator)
 
         if needs_support == "1":
-            # Отримуємо лише активні (по дедлайну)
             queryset = queryset.filter(deadline__gte=timezone.now())
-            # Далі — вручну залишаємо лише ті, де не вистачає голосів
             queryset = [p for p in queryset if p.remaining_supporters_needed() > 0]
-            # І тепер сортуємо вручну
             queryset.sort(key=lambda p: p.created_at, reverse=True)
             return queryset
 
@@ -233,6 +230,9 @@ class PetitionCreateView(View):
 
             petition.save()
             form.save_m2m()
+            
+            notify_petition_creation(petition)
+
             messages.success(request, "Петиція створена успішно!")
             return redirect("petition_detail", pk=petition.pk)
 

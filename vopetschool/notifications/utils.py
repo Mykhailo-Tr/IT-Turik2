@@ -35,3 +35,21 @@ def notify_vote_creation(vote: Vote):
             link=f"/votes/{vote.pk}/"
         )
         trigger_user_notification(user.id)
+
+
+def notify_petition_creation(petition):
+    users = set()
+
+    if petition.level == petition.Level.SCHOOL:
+        users = User.objects.filter(is_active=True, role="student")
+
+    elif petition.level == petition.Level.CLASS and petition.class_group:
+        users.update([s.user for s in petition.class_group.students.all()])
+
+    for user in users:
+        Notification.objects.create(
+            user=user,
+            message=f"Нова петиція: {petition.title}",
+            link=f"/petitions/{petition.pk}/"
+        )
+        trigger_user_notification(user.id)

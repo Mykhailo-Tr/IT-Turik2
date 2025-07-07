@@ -1,16 +1,27 @@
-# notifications/views.py
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
+from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse, HttpRequest
+from django.core.exceptions import ValidationError
+from django.views.decorators.csrf import csrf_protect
+
 from .models import Notification
 
+import json
+from typing import Any
+
+
 @login_required
-def notifications_api(request):
-    user = request.user
-    # Отримуємо всі нотифікації для користувача, найсвіжіші зверху
-    notifications_qs = Notification.objects.filter(user=user).order_by('-created_at')[:20]
+@require_http_methods(["GET"])
+def notifications_api(request: HttpRequest) -> JsonResponse:
+    """
+    Повертає останні 20 нотифікацій користувача.
+    """
+    notifications_qs = (
+        Notification.objects
+        .filter(user=request.user)
+        .order_by("-created_at")[:20]
+    )
+
     notifications = [
         {
             "id": n.id,
@@ -19,27 +30,44 @@ def notifications_api(request):
         }
         for n in notifications_qs
     ]
+
     return JsonResponse({"notifications": notifications})
 
+
 @login_required
-def delete_notifications(request):
-    # Видаляємо всі нотифікації для користувача (можна розширити, наприклад, за id)
+@require_http_methods(["POST"])
+@csrf_protect
+def delete_all_notifications(request: HttpRequest) -> JsonResponse:
+    """
+    Видаляє всі нотифікації користувача.
+    """
     Notification.objects.filter(user=request.user).delete()
     return JsonResponse({"status": "ok"})
 
 
-@csrf_exempt
-@require_POST
 @login_required
-def delete_notification(request):
+@require_http_methods(["POST"])
+@csrf_protect
+def delete_notification(request: HttpRequest) -> JsonResponse:
+    """
+    Видаляє конкретну нотифікацію за ID.
+    """
     try:
-        data = json.loads(request.body)
-        notif_id = data.get("id")
-        if notif_id:
-            Notification.objects.filter(id=notif_id, user=request.user).delete()
-            return JsonResponse({"status": "deleted"})
-    except Exception as e:
+        payload: dict[str, Any] = json.loads(request.body)
+        notif_id = payload.get("id")
+
+        if not notif_id:
+            raise ValidationError("ID нотифікації не передано.")
+
+        deleted_count, _ = Notification.objects.filter(
+            id=notif_id,
+            user=request.user
+        ).delete()
+
+        if deleted_count == 0:
+            return JsonResponse({"status": "not_found"}, status=404)
+
+        return JsonResponse({"status": "deleted"})
+
+    except (json.JSONDecodeError, ValidationError) as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=400)
-
-    return JsonResponse({"status": "no_id_provided"}, status=400)
-

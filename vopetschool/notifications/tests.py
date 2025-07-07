@@ -1,6 +1,3 @@
-from django.test import TestCase
-
-# Create your tests here.
 import pytest
 from django.urls import reverse
 from notifications.models import Notification

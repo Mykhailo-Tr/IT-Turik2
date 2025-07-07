@@ -157,8 +157,6 @@ def test_home_view_shows_votes_and_petitions(director_client):
     assert "petitions" in response.context
 
 
-# === Additional tests ===
-
 @pytest.mark.django_db
 def test_register_student_with_class(client, class_group):
     url = reverse("register_role", args=["student"])
@@ -241,3 +239,49 @@ def test_register_get_invalid_role(client):
     response = client.get(url)
     assert response.status_code == 302
     assert response.url == reverse("register")
+
+
+@pytest.mark.django_db
+def test_student_class_edit(client, student_user, class_group):
+    client.login(email=student_user.email, password="pass1234")
+    url = reverse("edit_profile")
+    response = client.post(url, {
+        "first_name": "Updated",
+        "last_name": "Student",
+        "email": student_user.email,
+        "class_group": class_group.id
+    })
+    assert response.status_code == 302
+    student_user.refresh_from_db()
+    assert student_user.first_name == "Updated"
+    assert class_group.students.filter(pk=student_user.student.pk).exists()
+
+
+@pytest.mark.django_db
+def test_edit_profile_get_shows_correct_fields(client, teacher_user):
+    client.login(email=teacher_user.email, password="pass1234")
+    response = client.get(reverse("edit_profile"))
+    assert response.status_code == 200
+    assert "subject" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_profile_view_contains_role_badge(authenticated_client):
+    response = authenticated_client.get(reverse("profile"))
+    assert response.status_code == 200
+    assert "badge" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_register_missing_required_field(client):
+    url = reverse("register_role", args=["student"])
+    response = client.post(url, {
+        "email": "",
+        "password": "123456",
+        "password2": "123456",
+        "first_name": "",
+        "last_name": ""
+    })
+    assert response.status_code == 200
+    assert "form" in response.context
+    assert response.context["form"].errors

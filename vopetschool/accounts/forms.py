@@ -1,5 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
 from .models import User, Student, Teacher, Parent
 from schoolgroups.models import ClassGroup, TeacherGroup
 
@@ -9,17 +12,37 @@ class RoleChoiceForm(forms.Form):
 
 
 class BaseRegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
+    password = forms.CharField(
+        widget=forms.PasswordInput,
+        label="Пароль",
+        help_text="Мінімум 8 символів. Використовуйте букви, цифри і спеціальні символи."
+    )
     password2 = forms.CharField(widget=forms.PasswordInput, label="Підтвердження пароля")
 
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name', 'password', 'password2']
 
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("Користувач з таким email вже існує.")
+        return email
+
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get("password") != cleaned_data.get("password2"):
+        password = cleaned_data.get("password")
+        password2 = cleaned_data.get("password2")
+
+        if password and password2 and password != password2:
             self.add_error('password2', "Паролі не співпадають")
+
+        if password:
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                self.add_error('password', e)
+
         return cleaned_data
 
     def save_user(self, role, commit=True):
@@ -32,7 +55,11 @@ class BaseRegisterForm(forms.ModelForm):
 
 
 class StudentRegisterForm(BaseRegisterForm):
-    class_group = forms.ModelChoiceField(queryset=ClassGroup.objects.all(), required=False, label="Клас (необов'язково)")
+    class_group = forms.ModelChoiceField(
+        queryset=ClassGroup.objects.all(),
+        required=False,
+        label="Клас (необов'язково)"
+    )
 
     class Meta(BaseRegisterForm.Meta):
         fields = BaseRegisterForm.Meta.fields + ['class_group']
@@ -48,7 +75,12 @@ class StudentRegisterForm(BaseRegisterForm):
 
 class TeacherRegisterForm(BaseRegisterForm):
     subject = forms.CharField(label="Предмет")
-    groups = forms.ModelMultipleChoiceField(queryset=TeacherGroup.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
+    groups = forms.ModelMultipleChoiceField(
+        queryset=TeacherGroup.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Групи викладання"
+    )
 
     class Meta(BaseRegisterForm.Meta):
         fields = BaseRegisterForm.Meta.fields + ['subject', 'groups']
@@ -62,7 +94,12 @@ class TeacherRegisterForm(BaseRegisterForm):
 
 
 class ParentRegisterForm(BaseRegisterForm):
-    children = forms.ModelMultipleChoiceField(queryset=Student.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
+    children = forms.ModelMultipleChoiceField(
+        queryset=Student.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Діти (опціонально)"
+    )
 
     class Meta(BaseRegisterForm.Meta):
         fields = BaseRegisterForm.Meta.fields + ['children']
@@ -95,14 +132,14 @@ class EditProfileForm(forms.ModelForm):
         self.user = kwargs.get('instance')
         super().__init__(*args, **kwargs)
 
-        if self.user.role != 'teacher':
+        if self.user.role != User.Role.TEACHER:
             self.fields.pop('subject')
         else:
             self.fields['subject'].initial = self.user.teacher.subject
 
     def save(self, commit=True):
         user = super().save(commit)
-        if self.user.role == 'teacher':
+        if self.user.role == User.Role.TEACHER:
             self.user.teacher.subject = self.cleaned_data.get("subject")
             if commit:
                 self.user.teacher.save()

@@ -8,8 +8,22 @@
 <ul class="list-group shadow-sm border rounded-3">
   {% for act in activity_history %}
     <li class="list-group-item bg-theme text-theme">
-      <strong>{{ act.get_type_display }}</strong>: {{ act.related_object_title }}<br>
+      {% if act.content_object %}
+        <a href="{% url 'petition_detail' act.object_id %}" class="text-decoration-none text-reset"
+           {% if act.content_type.model == "vote" %} href="{% url 'vote_detail' act.object_id %}" {% endif %}>
+          <strong>{{ act.get_type_display }}</strong>: {{ act.related_object_title }}
+        </a>
+      {% else %}
+        <strong>{{ act.get_type_display }}</strong>: {{ act.related_object_title }}
+        <div class="text-danger small">{% trans "Related object no longer exists" %}</div>
+      {% endif %}
+      <br>
       <small class="text-muted">{{ act.timestamp|date:"d.m.Y H:i" }}</small>
+      {% if act.type == "answered_vote" and act.extra_info.selected_options %}
+        <br>
+        <small class="text-success">{% trans "Your choice" %}:
+          {{ act.extra_info.selected_options|join:", " }}</small>
+      {% endif %}
     </li>
   {% empty %}
     <li class="list-group-item text-muted">{% trans "No activity yet" %}</li>

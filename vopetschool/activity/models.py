@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 class UserActivity(models.Model):
     class ActivityType(models.TextChoices):
@@ -11,10 +13,12 @@ class UserActivity(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='activity_log')
     type = models.CharField(max_length=50, choices=ActivityType.choices)
     timestamp = models.DateTimeField(auto_now_add=True)
-    
-    # Additional context data
+
     related_object_title = models.CharField(max_length=255)
-    related_object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
     extra_info = models.JSONField(blank=True, null=True)
 
     class Meta:

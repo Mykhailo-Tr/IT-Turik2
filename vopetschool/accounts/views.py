@@ -11,6 +11,9 @@ from django.utils import timezone
 from activity.models import UserActivity
 from petitions.models import Petition
 from voting.models import Vote, VoteAnswer
+from calendarapp.models import CalendarEvent
+from django.contrib.auth import get_user_model
+
 from .models import User
 from .forms import (
     RoleChoiceForm, StudentRegisterForm, TeacherRegisterForm,
@@ -51,12 +54,24 @@ def home_view(request):
         if petition.is_active() and petition.remaining_supporters_needed() > 0
     ]
 
+    # === 📊 Додаткова статистика ===
+    total_users = get_user_model().objects.count()
+
+    petition_percentages = [p.get_voted_percentage() for p, _ in active_petitions]
+    petition_avg_percent = round(sum(petition_percentages) / len(petition_percentages), 1) if petition_percentages else 0
+
+    total_votes_cast = VoteAnswer.objects.filter(voter=user).count()
+    calendar_events_count = CalendarEvent.objects.filter(user=user).count()
+    total_users = User.objects.count()
+
     return render(request, "home.html", {
-        "user": user,
-        "votes": votes[:5],
-        "voted_vote_ids": voted_vote_ids,
-        "petitions": active_petitions[:5],
-    })
+    "user": user,
+    "votes": votes,
+    "voted_vote_ids": voted_vote_ids,
+    "petitions": active_petitions,
+    "total_users": total_users,
+    "total_votes_cast": total_votes_cast,
+})
 
 
 class RoleSelectView(View):

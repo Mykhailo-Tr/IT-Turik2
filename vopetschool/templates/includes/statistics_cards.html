@@ -1,28 +1,57 @@
-{% load i18n static %}
-<div class="row g-4">
+{% load i18n %}
+
+<div class="container py-5" data-aos="fade-up" data-aos-delay="100">
+  <div class="row justify-content-center g-4">
+
+    <!-- Доступні голосування -->
     <div class="col-md-6 col-lg-4">
-      <div class="card bg-primary text-white shadow rounded-4 h-100">
-        <div class="card-body text-center py-4">
+      <div class="card bg-primary text-white shadow rounded-4 h-100 text-center">
+        <div class="card-body py-4">
           <h5 class="card-title"><i class="bi bi-bar-chart-fill me-2"></i>{% trans "Available Votes" %}</h5>
           <p class="display-6 fw-bold mb-0">{{ votes|length }}</p>
         </div>
       </div>
     </div>
+
+    <!-- Проголосовано -->
     <div class="col-md-6 col-lg-4">
-      <div class="card bg-secondary text-white shadow rounded-4 h-100">
-        <div class="card-body text-center py-4">
+      <div class="card bg-secondary text-white shadow rounded-4 h-100 text-center">
+        <div class="card-body py-4">
           <h5 class="card-title"><i class="bi bi-check-circle-fill me-2"></i>{% trans "Voted" %}</h5>
           <p class="display-6 fw-bold mb-0">{{ voted_vote_ids|length }}</p>
         </div>
       </div>
     </div>
+
+    <!-- Активні петиції -->
     <div class="col-md-6 col-lg-4">
-      <div class="card bg-success text-white shadow rounded-4 h-100">
-        <div class="card-body text-center py-4">
+      <div class="card bg-success text-white shadow rounded-4 h-100 text-center">
+        <div class="card-body py-4">
           <h5 class="card-title"><i class="bi bi-broadcast-pin me-2"></i>{% trans "Active Petitions" %}</h5>
           <p class="display-6 fw-bold mb-0">{{ petitions|length }}</p>
         </div>
       </div>
     </div>
+
+    <!-- Загальна кількість користувачів -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card bg-dark text-white shadow rounded-4 h-100 text-center">
+        <div class="card-body py-4">
+          <h5 class="card-title"><i class="bi bi-people-fill me-2"></i>{% trans "Total Users" %}</h5>
+          <p class="display-6 fw-bold mb-0">{{ total_users }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Загальна кількість голосів -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card bg-info text-white shadow rounded-4 h-100 text-center">
+        <div class="card-body py-4">
+          <h5 class="card-title"><i class="bi bi-box-check me-2"></i>{% trans "Total Votes Cast" %}</h5>
+          <p class="display-6 fw-bold mb-0">{{ total_votes_cast }}</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

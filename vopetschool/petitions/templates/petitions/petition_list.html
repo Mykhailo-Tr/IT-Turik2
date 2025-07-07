@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Петиції{% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans "Petitions" %}{% endblock %}
 
 {% block content %}
 <div class="container py-5" data-aos="fade-up">
@@ -13,15 +15,15 @@
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                         <h2 class="fw-bold mb-0" data-aos="fade-right" data-aos-delay="200">
                             {% if request.user.role == 'director' %}
-                                📢 Петиції на розгляд
+                                📢 {% trans "Petitions for review" %}
                             {% else %}
-                                📢 Активні петиції
+                                📢 {% trans "Active Petitions" %}
                             {% endif %}
                         </h2>
                         {% if request.user.role == 'student' %}
                             <a href="{% url 'petition_create' %}" class="btn btn-outline-success rounded-pill"
                                data-aos="zoom-in" data-aos-delay="300">
-                                ➕ Створити петицію
+                                ➕ {% trans "Create Petition" %}
                             </a>
                         {% endif %}
                     </div>
@@ -50,13 +52,15 @@
                                             <small class="petition-meta d-block mt-1">
                                                 👤 {{ petition.creator.get_full_name }}
                                                 {% if request.user == petition.creator %}
-                                                    <span class="badge bg-secondary">ви</span>
+                                                    <span class="badge bg-secondary">{% trans "you" %}</span>
                                                 {% endif %}
                                             </small>
 
                                             <!-- Рівень / Клас / Відсоток -->
                                             <div class="mt-2 d-flex flex-wrap gap-1">
-                                                <span class="badge level-badge bg-info text-dark">Рівень: {{ petition.get_level_display }}</span>
+                                                <span class="badge level-badge bg-info text-dark">
+                                                    {% trans "Level" %}: {{ petition.get_level_display }}
+                                                </span>
                                                 {% if petition.class_group %}
                                                     <span class="badge class-badge bg-secondary">{{ petition.class_group }}</span>
                                                 {% endif %}
@@ -68,19 +72,19 @@
 
                                             <!-- Статус -->
                                             {% if petition.status == 'approved' %}
-                                                <span class="badge status-badge bg-success mt-2">✅ Прийнята</span>
+                                                <span class="badge status-badge bg-success mt-2">✅ {% trans "Approved" %}</span>
                                             {% elif petition.status == 'rejected' %}
-                                                <span class="badge status-badge bg-danger mt-2">❌ Відхилена</span>
+                                                <span class="badge status-badge bg-danger mt-2">❌ {% trans "Rejected" %}</span>
                                             {% elif petition.status == 'new' %}
-                                                <span class="badge status-badge bg-warning text-dark mt-2">Нова</span>
+                                                <span class="badge status-badge bg-warning text-dark mt-2">{% trans "New" %}</span>
                                             {% elif petition.status == 'pending' %}
-                                                <span class="badge status-badge bg-info text-dark mt-2">Очікується</span>
+                                                <span class="badge status-badge bg-info text-dark mt-2">{% trans "Pending" %}</span>
                                             {% endif %}
                                         </div>
 
                                         <div class="text-end mt-3">
                                             <a href="{% url 'petition_detail' petition.pk %}" class="btn btn-outline-primary btn-sm rounded-pill w-100">
-                                                🔍 Переглянути
+                                                🔍 {% trans "View" %}
                                             </a>
                                         </div>
 
@@ -89,7 +93,7 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted text-center mt-4">Наразі немає петицій, що відповідають фільтру.</p>
+                        <p class="text-muted text-center mt-4">{% trans "No petitions matching your filter." %}</p>
                     {% endif %}
 
                 </div>

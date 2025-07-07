@@ -89,9 +89,9 @@ msgstr "Немає активних петицій, які потребують 
 msgid "Available Votes"
 msgstr "Голосувань доступно"
 
-msgid "Active Petitions"
-msgstr "Активних петицій"
- 
+
+msgid "Votes"
+msgstr "Голосування"
 
 #: templates/profile.html:13
 msgid "User personal profile"
@@ -133,9 +133,7 @@ msgstr "Батьки"
 msgid "Edit"
 msgstr "Редагувати"
 
-#: templates/profile.html:86
-msgid "Delete"
-msgstr "Видалити"
+
 
 #: templates/profile.html:87
 msgid "Logout"
@@ -240,5 +238,54 @@ msgstr "Мій календар подій"
 
 msgid "No events to display"
 msgstr "Немає подій для відображення"
+
+msgid "Petitions for review"
+msgstr "Петиції на розгляд"
+
+msgid "Active Petitions"
+msgstr "Активні петиції"
+
+msgid "Create Petition"
+msgstr "Створити петицію"
+
+msgid "you"
+msgstr "ви"
+
+msgid "Level"
+msgstr "Рівень"
+
+msgid "Approved"
+msgstr "Прийнята"
+
+msgid "Rejected"
+msgstr "Відхилена"
+
+msgid "New"
+msgstr "Нова"
+
+msgid "Pending"
+msgstr "Очікується"
+
+msgid "View"
+msgstr "Переглянути"
+
+msgid "No petitions matching your filter."
+msgstr "Наразі немає петицій, що відповідають фільтру."
+
+msgid "Delete Petition"
+msgstr "Видалити петицію"
+
+msgid "Are you sure you want to delete this petition?"
+msgstr "Ви справді хочете видалити цю петицію?"
+
+
+msgid "Cancel"
+msgstr "Скасувати"
+
+msgid "Delete"
+msgstr "Видалити"
+
+msgid "Close"
+msgstr "Закрити"
 
 

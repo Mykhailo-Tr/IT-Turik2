@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.utils import timezone
 
+from activity.models import UserActivity
 from petitions.models import Petition
 from voting.models import Vote, VoteAnswer
 from .models import User
@@ -117,10 +118,7 @@ class ProfileView(View):
 
         context = {
             "viewed_user": user_to_view,
-            "created_petitions": Petition.objects.filter(creator=user_to_view),
-            "created_votes": Vote.objects.filter(creator=user_to_view),
-            "supported_petitions": Petition.objects.filter(supporters=user_to_view).exclude(creator=user_to_view),
-            "answered_votes": VoteAnswer.objects.filter(voter=user_to_view).select_related("option__vote"),
+            "activity_history": UserActivity.objects.filter(user=user_to_view)[:50]
         }
 
         if user_to_view.role == User.Role.STUDENT:

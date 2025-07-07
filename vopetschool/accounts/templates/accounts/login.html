@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% load i18n %}
 
-{% block title %}Вхід{% endblock %}
+{% block title %}{% trans "Login" %}{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -9,7 +10,7 @@
         <div class="col-md-8 col-lg-6 col-xl-5">
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-body p-5">
-                    <h2 class="fw-bold mb-4 text-center">🔐 Вхід до системи</h2>
+                    <h2 class="fw-bold mb-4 text-center">🔐 {% trans "Login to the system" %}</h2>
 
                     <form method="post" novalidate>
                         {% csrf_token %}
@@ -29,15 +30,15 @@
 
                         <div class="d-grid mt-4">
                             <button type="submit" class="btn btn-primary btn-lg rounded-pill">
-                                Увійти
+                                {% trans "Login" %}
                             </button>
                         </div>
                     </form>
 
                     <div class="text-center mt-4">
                         <p class="text-muted mb-0">
-                            Ще не маєте акаунта?
-                            <a href="{% url 'register' %}" class="text-decoration-none">Зареєструватися</a>
+                            {% trans "Don't have an account?" %}
+                            <a href="{% url 'register' %}" class="text-decoration-none">{% trans "Register" %}</a>
                         </p>
                     </div>
 

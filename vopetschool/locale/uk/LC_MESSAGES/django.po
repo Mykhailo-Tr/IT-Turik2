@@ -207,3 +207,35 @@ msgstr "Ваш вибір"
 #: templates/profile.html:161
 msgid "Voted on"
 msgstr "Дата голосування"
+
+msgid "Login to the system"
+msgstr "Вхід до системи"
+
+msgid "Don't have an account?"
+msgstr "Ще не маєте акаунта?"
+
+msgid "Already have an account?"
+msgstr "Вже маєте акаунт?"
+
+#: templates/account_delete.html
+msgid "Account Deletion"
+msgstr "Видалення акаунту"
+
+msgid "Are you sure you want to delete your account?"
+msgstr "Ви дійсно хочете видалити свій акаунт?"
+
+msgid "This action cannot be undone."
+msgstr "Цю дію неможливо скасувати."
+
+msgid "Back"
+msgstr "Назад"
+
+
+msgid "Edit Profile"
+msgstr "Редагування профілю"
+
+
+msgid "Save Changes"
+msgstr "Зберегти зміни"
+
+

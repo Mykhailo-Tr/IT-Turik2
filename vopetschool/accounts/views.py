@@ -28,8 +28,8 @@ def home_view(request):
     now = timezone.now()
     user = request.user
 
-    # Отримати актуальні голосування
-    votes = Vote.objects.filter(
+    # Отримати всі актуальні голосування
+    all_votes = Vote.objects.filter(
         Q(start_date__isnull=True, end_date__isnull=True) |
         Q(start_date__lte=now, end_date__isnull=True) |
         Q(start_date__isnull=True, end_date__gte=now) |
@@ -37,7 +37,7 @@ def home_view(request):
     )
 
     if user.role != User.Role.DIRECTOR:
-        votes = votes.filter(
+        all_votes = all_votes.filter(
             Q(level=Vote.Level.SCHOOL) |
             Q(level=Vote.Level.SELECTED, participants=user)
         )
@@ -46,32 +46,38 @@ def home_view(request):
         VoteAnswer.objects.filter(voter=user).values_list("option__vote_id", flat=True)
     )
 
-    # Петиції які ще актуальні
+    # ❗ Верхні 5 голосувань (для секції "Активні голосування")
+    limited_votes = all_votes.distinct()[:5]
+
+    # Петиції, що ще тривають
     petitions_qs = Petition.objects.filter(deadline__gte=now, status=Petition.Status.NEW)
-    active_petitions = [
+    all_petitions = [
         [petition, petition.get_voted_percentage()]
         for petition in petitions_qs
         if petition.is_active() and petition.remaining_supporters_needed() > 0
     ]
+    limited_petitions = all_petitions[:5]  # ❗ тільки верхні 5 — для картки
 
-    # === 📊 Додаткова статистика ===
+    # Статистика
     total_users = get_user_model().objects.count()
-
-    petition_percentages = [p.get_voted_percentage() for p, _ in active_petitions]
+    petition_percentages = [p.get_voted_percentage() for p, _ in all_petitions]
     petition_avg_percent = round(sum(petition_percentages) / len(petition_percentages), 1) if petition_percentages else 0
-
     total_votes_cast = VoteAnswer.objects.filter(voter=user).count()
     calendar_events_count = CalendarEvent.objects.filter(user=user).count()
-    total_users = User.objects.count()
 
     return render(request, "home.html", {
-    "user": user,
-    "votes": votes,
-    "voted_vote_ids": voted_vote_ids,
-    "petitions": active_petitions,
-    "total_users": total_users,
-    "total_votes_cast": total_votes_cast,
-})
+        "user": user,
+        "votes": limited_votes,               # 🔼 лише 5 у верхній секції
+        "all_votes": all_votes,               # 🔽 усі для статистики
+        "voted_vote_ids": voted_vote_ids,
+        "petitions": limited_petitions,       # 🔼 лише 5
+        "all_petitions": all_petitions,       # 🔽 усі
+        "total_users": total_users,
+        "total_votes_cast": total_votes_cast,
+        "petition_avg_percent": petition_avg_percent,
+        "calendar_events_count": calendar_events_count,
+    })
+
 
 
 class RoleSelectView(View):

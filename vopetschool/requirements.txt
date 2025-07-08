@@ -10,3 +10,5 @@ django-crispy-forms
 django-widget-tweaks
 
 asgiref
+
+psycopg2-binary

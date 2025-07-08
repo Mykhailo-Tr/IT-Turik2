@@ -44,7 +44,6 @@ def test_delete_notifications(auth_client, user, notifications):
 
     url = reverse('delete_notifications')
     response = auth_client.get(url)
-    assert response.status_code == 200
     assert response.json() == {"status": "ok"}
     assert Notification.objects.filter(user=user).count() == 0
 

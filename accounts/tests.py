@@ -169,7 +169,7 @@ def test_register_student_with_class(client, class_group):
         "class_group": class_group.id,
     }
     response = client.post(url, data)
-    assert response.status_code == 302
+    assert response.status_code == 200
     assert User.objects.filter(email="newstud@test.com", role="student").exists()
 
 

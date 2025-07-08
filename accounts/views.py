@@ -125,6 +125,12 @@ class CustomLoginView(LoginView):
     template_name = "accounts/login.html"
     authentication_form = CustomLoginForm
 
+    def form_invalid(self, form):
+        messages.error(
+            self.request,
+            "❌ Невірні дані для входу. Перевірте email і пароль."
+        )
+        return super().form_invalid(form)
 
 @login_required
 def logout_view(request):

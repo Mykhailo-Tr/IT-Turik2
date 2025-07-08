@@ -81,13 +81,27 @@ It supports flexible voting levels (class, group), deadlines, initiator roles, a
 
 ## ⚙️ Project Setup
 
-### 🔁 Docker Setup (Recommended)
-
 1. **Clone the repository**
    ```bash
    git clone https://github.com/Mykhailo-Tr/IT-Turik2.git
    cd IT-Turik2
    ```
+
+### 🐧 Option 1: Linux/macOS Setup
+2. **Run the setup script**
+   ```bash
+   chmod +x setup.sh
+   ./setup.sh
+   ```
+
+### 🪟 Option 2: Windows Setup
+2. **Run the setup script**
+   ```bash
+   setup.bat
+   ```
+
+### 🔁 Option 3: Manual Docker Setup
+
 
 2. **Build and run Docker containers**
    ```bash

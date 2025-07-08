@@ -1,3 +1,81 @@
+/* ===== СВІТЛА ТЕМА ===== */
+
+/* Поля вводу */
+.form-control {
+    background-color: #fff;
+    color: #212529;
+    border-color: #ced4da;
+}
+
+/* Підписи */
+.form-label,
+.form-check-label,
+.text-theme {
+    color: #212529;
+}
+
+.form-text,
+.text-muted {
+    color: #6c757d;
+}
+
+/* Стилізація блоку чекбокса */
+.custom-checkbox-block {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    background-color: #f8f9fa;
+    min-height: 60px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+/* Hover ефект */
+.custom-checkbox-block:hover {
+    background-color: #eef4ff;
+    border-color: #0d6efd;
+}
+
+/* Приховуємо стандартний чекбокс */
+.custom-checkbox-block input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.2em;
+    height: 1.2em;
+    border: 2px solid #888;
+    border-radius: 0.25em;
+    margin-right: 10px;
+    background-color: #fff;
+    position: relative;
+}
+
+/* Вибраний чекбокс */
+.custom-checkbox-block input[type="checkbox"]:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.custom-checkbox-block input[type="checkbox"]:checked::after {
+    content: '✔';
+    color: white;
+    font-size: 0.8em;
+    position: absolute;
+    top: 0.05em;
+    left: 0.25em;
+}
+
+/* Активний текст */
+.custom-checkbox-block input[type="checkbox"]:checked + span {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+
+/* ===== ТЕМНА ТЕМА ===== */
+
 body.dark-mode .form-control {
     background-color: #2c2c2c !important;
     color: #f1f1f1 !important;
@@ -14,66 +92,45 @@ body.dark-mode .form-text,
 body.dark-mode .text-muted {
     color: #aaa !important;
 }
-/* Базовий стиль для блоку чекбокса */
-.custom-checkbox-block {
-    cursor: pointer;
-    border: 1px solid #ccc;
-    transition: all 0.2s ease;
-    min-height: 60px;
-    font-weight: 500;
-}
 
-/* Наведення */
-.custom-checkbox-block:hover {
-    background-color: #eef4ff;
-    border-color: #0d6efd;
-}
-
-/* При активному чекбоксі */
-.custom-checkbox-block input[type="checkbox"]:checked + span {
-    color: #0d6efd;
-    font-weight: 600;
-}
-
-/* Сховати нативний чекбокс */
-.custom-checkbox-block input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 1.2em;
-    height: 1.2em;
-    border: 2px solid #888;
-    border-radius: 0.25em;
-    margin-top: 2px;
-    position: relative;
-}
-
-.custom-checkbox-block input[type="checkbox"]:checked {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.custom-checkbox-block input[type="checkbox"]:checked::after {
-    content: '✔';
-    color: white;
-    font-size: 0.8em;
-    position: absolute;
-    top: 0.05em;
-    left: 0.25em;
-}
-
-/* Темна тема */
+/* Блок чекбокса */
 body.dark-mode .custom-checkbox-block {
-    background-color: #2c2c2c;
-    border-color: #555;
-    color: #f1f1f1;
+    background-color: #1f1f1f !important;
+    border-color: #444 !important;
+    color: #f1f1f1 !important;
 }
 
+/* Hover ефект */
 body.dark-mode .custom-checkbox-block:hover {
-    background-color: #3a3a3a;
-    border-color: #0dcaf0;
+    background-color: #2a2a2a !important;
+    border-color: #0dcaf0 !important;
 }
 
+/* Не вибраний чекбокс */
+body.dark-mode .custom-checkbox-block input[type="checkbox"] {
+    background-color: #2c2c2c !important;
+    border-color: #777 !important;
+    color: #f1f1f1 !important;
+}
+
+/* Вибраний чекбокс */
 body.dark-mode .custom-checkbox-block input[type="checkbox"]:checked {
-    background-color: #0dcaf0;
-    border-color: #0dcaf0;
+    background-color: #0dcaf0 !important;
+    border-color: #0dcaf0 !important;
+}
+
+/* Галочка */
+body.dark-mode .custom-checkbox-block input[type="checkbox"]:checked::after {
+    color: #fff !important;
+}
+
+/* Текст біля чекбокса */
+body.dark-mode .custom-checkbox-block span {
+    color: #f1f1f1 !important;
+}
+
+/* Активний текст у темній темі */
+body.dark-mode .custom-checkbox-block input[type="checkbox"]:checked + span {
+    color: #0dcaf0 !important;
+    font-weight: 600;
 }

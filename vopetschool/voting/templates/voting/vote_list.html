@@ -25,7 +25,7 @@
                             <a href="{% url 'vote_list' %}" class="btn btn-outline-secondary {% if not current_filter %}active{% endif %}">{%trans "All" %}</a>
                             <a href="?filter=active" class="btn btn-outline-success {% if current_filter == 'active' %}active{% endif %}">{%trans "Active" %}</a>
                             <a href="?filter=voted" class="btn btn-outline-primary {% if current_filter == 'voted' %}active{% endif %}">{%trans "Voted" %}</a>
-                            <a href="?filter=finished" class="btn btn-outline-danger {% if current_filter == 'finished' %}active{% endif %}">{%trans "Completed" %}</a>
+                            <a href="?filter=finished" class="btn btn-outline-danger {% if current_filter == 'finished' %}active{% endif %}">{%trans "Ended" %}</a>
                         </div>
                     </div>
 

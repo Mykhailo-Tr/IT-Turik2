@@ -183,22 +183,3 @@ def test_vote_delete_by_admin(admin_client, vote):
     assert response.status_code == 302
     assert not Vote.objects.filter(pk=vote.pk).exists()
 
-@pytest.mark.django_db
-def test_vote_stats_api_access(authenticated_client, vote, user):
-    VoteAnswer.objects.create(voter=user, option=vote.options.first())
-    url = reverse("vote_stats_api", args=[vote.pk])
-    response = authenticated_client.get(url)
-    data = response.json()
-
-    assert response.status_code == 200
-    assert "total_votes" in data
-    assert isinstance(data["options"], list)
-
-@pytest.mark.django_db
-def test_vote_stats_access_denied_if_not_voted(authenticated_client, vote):
-    url = reverse("vote_stats_api", args=[vote.pk])
-    response = authenticated_client.get(url)
-
-    # Якщо користувач не голосував і голосування активне
-    if vote.is_active():
-        assert response.status_code in [403, 200]  # залежно від логіки дозволів

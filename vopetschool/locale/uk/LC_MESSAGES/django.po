@@ -345,3 +345,17 @@ msgstr "Кількість користувачів"
 
 msgid "Total Votes Cast"
 msgstr "Кількість створених голосувань"
+
+msgid "Create Vote"
+msgstr "Створити голосування"
+
+msgid "Active"
+msgstr "Активні"
+
+msgid "Ended"
+msgstr "Закінченні"
+
+msgid "You"
+msgstr "Ви"
+
+msgid ""

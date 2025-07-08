@@ -41,8 +41,8 @@ It supports flexible voting levels (class, group), deadlines, initiator roles, a
 
 | Technology | Description |
 |-----------|-------------|
-| ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) **Python 3.10+** | Core programming language |
-| ![Django](https://img.shields.io/badge/-Django-092E20?logo=django&logoColor=white&style=flat-square) **Django 5.2** | Web framework (models, views, URLs, ORM) |
+| ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) **Python 3.12** | Core programming language |
+| ![Django](https://img.shields.io/badge/-Django-092E20?logo=django&logoColor=white&style=flat-square) **Django** | Web framework (models, views, URLs, ORM) |
 | ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-4169E1?logo=postgresql&logoColor=white&style=flat-square) **PostgreSQL** | Relational database |
 | ![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white&style=flat-square) **Docker + Compose** | Containerization & deployment |
 | ![WebSocket](https://img.shields.io/badge/-WebSockets-35495E?logo=socket.io&logoColor=white&style=flat-square) **Django Channels** | Real-time communication (votes, petitions, notifications) |

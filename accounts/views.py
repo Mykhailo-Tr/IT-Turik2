@@ -21,14 +21,13 @@ from .forms import (
     EditProfileForm
 )
 
-# === 🏠 Home View ===
+# === Home View ===
 
 @login_required
 def home_view(request):
     now = timezone.now()
     user = request.user
 
-    # Отримати всі актуальні голосування
     all_votes = Vote.objects.filter(
         Q(start_date__isnull=True, end_date__isnull=True) |
         Q(start_date__lte=now, end_date__isnull=True) |
@@ -46,10 +45,8 @@ def home_view(request):
         VoteAnswer.objects.filter(voter=user).values_list("option__vote_id", flat=True)
     )
 
-    # ❗ Верхні 5 голосувань (для секції "Активні голосування")
     limited_votes = all_votes.distinct()[:5]
 
-    # Петиції, що ще тривають
     petitions_qs = Petition.objects.filter(deadline__gte=now, status=Petition.Status.NEW)
     all_petitions = [
         [petition, petition.get_voted_percentage()]
@@ -67,11 +64,11 @@ def home_view(request):
 
     return render(request, "home.html", {
         "user": user,
-        "votes": limited_votes,               # 🔼 лише 5 у верхній секції
-        "all_votes": all_votes,               # 🔽 усі для статистики
+        "votes": limited_votes,               
+        "all_votes": all_votes,              
         "voted_vote_ids": voted_vote_ids,
-        "petitions": limited_petitions,       # 🔼 лише 5
-        "all_petitions": all_petitions,       # 🔽 усі
+        "petitions": limited_petitions,       
+        "all_petitions": all_petitions,      
         "total_users": total_users,
         "total_votes_cast": total_votes_cast,
         "petition_avg_percent": petition_avg_percent,

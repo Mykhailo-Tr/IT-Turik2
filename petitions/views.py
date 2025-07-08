@@ -45,7 +45,6 @@ class PetitionListView(ListView):
             queryset.sort(key=lambda p: p.created_at, reverse=True)
             return queryset
 
-        # Якщо без фільтра — повертаємо стандартний QuerySet із сортуванням
         return queryset.order_by("-created_at")
 
 

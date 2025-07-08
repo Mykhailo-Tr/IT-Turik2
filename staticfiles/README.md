@@ -1,6 +1,6 @@
 # 🗳️ Vo & Pet School — School Voting Platform
 
-![Project Banner](https://github.com/Mykhailo-Tr/IT-Turik2/raw/main/banner.png)
+![Project Banner](https://raw.githubusercontent.com/Mykhailo-Tr/IT-Turik2/main/banner.png)
 
 ---
 

@@ -357,5 +357,3 @@ msgstr "Закінченні"
 
 msgid "You"
 msgstr "Ви"
-
-msgid ""

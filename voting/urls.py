@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import vote_detail_view, VoteListView, VoteCreateView, vote_delete_view,
+from .views import vote_detail_view, VoteListView, VoteCreateView, vote_delete_view
 
 urlpatterns = [
     path("", VoteListView.as_view(), name="vote_list"),

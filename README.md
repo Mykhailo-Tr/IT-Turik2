@@ -48,7 +48,7 @@ It supports flexible voting levels (class, group), deadlines, initiator roles, a
 | ![WebSocket](https://img.shields.io/badge/-WebSockets-35495E?logo=socket.io&logoColor=white&style=flat-square) **Django Channels** | Real-time communication (votes, petitions, notifications) |
 | ![FullCalendar](https://img.shields.io/badge/-FullCalendar-F69C00?logo=javascript&logoColor=white&style=flat-square) **FullCalendar.js** | Interactive event calendar |
 | ![Bootstrap](https://img.shields.io/badge/-Bootstrap-7952B3?logo=bootstrap&logoColor=white&style=flat-square) **Bootstrap 5** | Styling & responsive UI |
-| ![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?logo=javascript&logoColor=black&style=flat-square) **JavaScript (ES6)** | Dynamic UI, AJAX logic |
+| ![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?logo=javascript&logoColor=black&style=flat-square) **JavaScript** | Dynamic UI, AJAX logic |
 | ![AOS](https://img.shields.io/badge/-AOS.js-000000?logo=aos&logoColor=white&style=flat-square) **AOS.js** | UI animations |
 | ![Pytest](https://img.shields.io/badge/-Pytest-0A9EDC?logo=pytest&logoColor=white&style=flat-square) **Pytest + Coverage** | Testing and code quality |
 

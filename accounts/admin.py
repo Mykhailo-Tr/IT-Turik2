@@ -67,12 +67,3 @@ class ParentAdmin(admin.ModelAdmin):
     def get_children(self, obj):
         return ", ".join(child.user.get_full_name() for child in obj.children.all())
  
- 
-@admin.register(Director)
-class DirectorAdmin(admin.ModelAdmin):
-    list_display = ("get_full_name",)
-    search_fields = ("user__first_name", "user__last_name")
-
-    @admin.display(description="Ім'я")
-    def get_full_name(self, obj):
-        return obj.user.get_full_name()

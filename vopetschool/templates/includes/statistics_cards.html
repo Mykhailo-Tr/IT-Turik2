@@ -8,7 +8,7 @@
       <div class="card bg-primary text-white shadow rounded-4 h-100 text-center">
         <div class="card-body py-4">
           <h5 class="card-title"><i class="bi bi-bar-chart-fill me-2"></i>{% trans "Available Votes" %}</h5>
-          <p class="display-6 fw-bold mb-0">{{ votes|length }}</p>
+          <p class="display-6 fw-bold mb-0">{{ all_votes|length }}</p>
         </div>
       </div>
     </div>
@@ -28,7 +28,7 @@
       <div class="card bg-success text-white shadow rounded-4 h-100 text-center">
         <div class="card-body py-4">
           <h5 class="card-title"><i class="bi bi-broadcast-pin me-2"></i>{% trans "Active Petitions" %}</h5>
-          <p class="display-6 fw-bold mb-0">{{ petitions|length }}</p>
+          <p class="display-6 fw-bold mb-0">{{ all_petitions|length }}</p>
         </div>
       </div>
     </div>

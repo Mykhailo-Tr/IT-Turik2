@@ -10,11 +10,11 @@
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-body p-5">
 
-                    {% include "petitions/partials/_petition_header.html" %}
+                    {% include "petitions/includes/petition_header.html" %}
                     <hr class="my-4">
-                    {% include "petitions/partials/_petition_support.html" %}
-                    {% include "petitions/partials/_petition_actions.html" %}
-                    {% include "petitions/partials/_support_button.html" %}
+                    {% include "petitions/includes/petition_support.html" %}
+                    {% include "petitions/includes/petition_actions.html" %}
+                    {% include "petitions/includes/support_button.html" %}
 
                     {% if request.user == petition.creator or request.user.role in "director admin" %}
                         {% if request.user == petition.creator %}
@@ -28,7 +28,7 @@
                     {% endif %}
 
                     <hr class="my-4">
-                    {% include "petitions/partials/_comments.html" %}
+                    {% include "petitions/includes/comments.html" %}
 
                 </div>
             </div>
@@ -147,4 +147,5 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 <link rel="stylesheet" href="{% static 'petitions/css/petition_detail.css' %}">
+<link rel="stylesheet" href="{% static 'petitions/css/comments.css' %}">
 {% endblock %}

@@ -1,0 +1,22 @@
+.petition-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+.petition-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+.support-flash {
+    background-color: #0d6efd !important;
+}
+body.dark-mode .petition-card {
+    background: rgba(33, 33, 33, 0.95);
+    color: #f8f9fa;
+}
+body.dark-mode .petition-meta {
+    color: #ccc !important;
+}
+body.dark-mode .badge {
+    filter: brightness(1.2);
+    color: #f8f9fa !important;
+}

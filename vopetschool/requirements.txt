@@ -12,3 +12,4 @@ django-widget-tweaks
 asgiref
 
 psycopg2-binary
+

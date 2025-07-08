@@ -95,7 +95,7 @@ It supports flexible voting levels (class, group), deadlines, initiator roles, a
    ```
 
 ### 🪟 Option 2: Windows Setup
-2. **Run the setup script**
+2. **Double-click or run in terminal:**
    ```bash
    setup.bat
    ```
